@@ -96,7 +96,7 @@ jobs:
           node-version: 22
       - name: Coleta real curta (sem carga histórica)
         working-directory: collector
-        run: python -m radar update --data-dir ../e2e-data --budget-min 20 --no-backfill
+        run: python -m radar update --data-dir ../e2e-data --budget-min 25 --no-backfill
       - name: Resumo
         run: |
           python - <<'EOF'

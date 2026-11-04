@@ -55,5 +55,13 @@ storage:
   publish_min_score: 35      # itens enviados ao site (reduz o tamanho dos dados públicos)
   publish_max_age_days: 400  # contratações antigas saem do site (continuam na base)
 
+# Fatia máxima do orçamento por fonte (0..1). Impede que uma fonte volumosa deixe as
+# demais sem tempo; o que não couber continua na próxima execução (cursor por dia).
+time_shares:
+  contratacoes_atualizacao: 0.35
+  propostas_abertas: 0.30
+  atas_atualizacao: 0.15
+  contratos_atualizacao: 0.15
+
 # Orçamento de tempo padrão por execução (minutos). O workflow pode sobrescrever.
 budget_minutes: 150

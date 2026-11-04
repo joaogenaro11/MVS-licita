@@ -351,6 +351,21 @@ penalties:
     - conteiner
     - conteineres
     - cortina
+    - acesso dedicado
+    - link dedicado
+    - links dedicados
+    - conexao a internet
+    - servico de internet
+    - scanner
+    - digitalizador
+    - ar condicionado
+    - split
+    - infraestrutura como servico
+    - iaas
+    - computacao em nuvem
+    - nuvem publica
+    - ambiente de nuvem
+    - em nuvem
 
 # ---------------------------------------------------------------------------
 # OFERTAS TLS (ponto de partida — não confirma cobertura comercial).

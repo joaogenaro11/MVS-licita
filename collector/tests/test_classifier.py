@@ -157,3 +157,23 @@ priority_orgs: [ORGAO X]
 def test_limiares_configuraveis(pf):
     assert pf.faixa(80) == "alta" and pf.faixa(79) == "analisar"
     assert pf.faixa(59) == "indireto" and pf.faixa(39) == "baixa"
+
+
+# ----------------------------------------------- variações SINTÉTICAS (não reais)
+# Inspiradas em falsos positivos observados no PNCP: reproduzem o contexto (itens,
+# informação complementar) que levou a pontuação indevida. Não são textos publicados.
+SINTETICOS_NEGATIVOS = [
+    "Aquisição de 4 microcomputadores novos, com Wi-Fi, sistema operacional Windows e armazenamento SSD",
+    "Manutenção de resfriadores tipo CHILLER, com cobertura de peças, devido à obsolescência dos equipamentos",
+    "Manutenção do sistema de detecção e combate a incêndio do Datacenter",
+    "Sistema de cortinas cênicas motorizadas com controle via Wi-Fi, sustentação e atendimento",
+    "Serviço de acesso dedicado à internet, com link de dados, roteador e suporte técnico 24x7",
+    "Ar-condicionado split inverter com conectividade Wi-Fi e garantia",
+    "Infraestrutura como Serviço (IaaS) em nuvem pública, com suporte técnico",
+]
+
+
+@pytest.mark.parametrize("texto", SINTETICOS_NEGATIVOS)
+def test_variacoes_sinteticas_de_falsos_positivos(pf, texto):
+    r = c(pf, texto, stage="propostas_abertas", value=5_000_000)
+    assert r["score"] <= 45, (texto, r["score"], r["justificativa"])

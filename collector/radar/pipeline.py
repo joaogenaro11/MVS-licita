@@ -237,21 +237,33 @@ class Runner:
             a["alerta_esfera_federal"] = esfera in ("E", "M", "D")
 
     # ---------------------------------------------------------------- feeds
-    def _daily_cursor_feed(self, name: str, fetch, ingest, lookback_default: int = 2, max_lookback: int = 30) -> None:
+    def _feed_deadline(self, name: str) -> float:
+        """Fatia máxima do orçamento por fonte, para que uma fonte volumosa não deixe as
+        demais sem tempo (o que não couber continua na próxima execução)."""
+        share = float((self.cfg.get("time_shares") or {}).get(name, 1.0))
+        return time.monotonic() + max(300.0, share * self.budget_s)
+
+    def _daily_cursor_feed(self, name: str, fetch, ingest, lookback_default: int = 1, max_lookback: int = 30) -> None:
         """Janelas diárias de atualização a partir do cursor (com 1 dia de sobreposição)."""
+        deadline = self._feed_deadline(name)
         with self.feed(name) as rec:
             st = self.store.state.setdefault(name, {})
             cur = date.fromisoformat(st["ate"]) if st.get("ate") else None
             start = max(cur - timedelta(days=1), self.today - timedelta(days=max_lookback)) if cur \
                 else self.today - timedelta(days=lookback_default)
             for d in days_between(start, self.today):
-                if self.time_left() < 60:
+                if self.time_left_for_bulk() < 60 or time.monotonic() > deadline:
                     rec["status"] = "parcial"
-                    rec["erro"] = "orçamento de tempo esgotado; continua na próxima execução"
+                    rec["erro"] = "fatia de tempo da fonte esgotada; continua na próxima execução"
                     return
                 for rows in fetch(d):
                     for r in rows:
                         ingest(r)
+                    if time.monotonic() > deadline + 600:
+                        # dia muito volumoso: interrompe sem avançar o cursor (dia refeito depois)
+                        rec["status"] = "parcial"
+                        rec["erro"] = "fatia de tempo da fonte esgotada no meio do dia; será refeito"
+                        return
                 st["ate"] = d.isoformat()
                 self.store.save_state()
 
@@ -273,6 +285,7 @@ class Runner:
         every = int(self.cfg["pncp"].get("propostas_snapshot_intervalo_dias", 7))
         if st.get("ultimo_snapshot") and (self.today - date.fromisoformat(st["ultimo_snapshot"][:10])).days < every:
             return  # entre snapshots, as atualizações diárias mantêm a base em dia
+        deadline = self._feed_deadline("propostas_abertas")
         with self.feed("propostas_abertas") as rec:
             horizon = self.today + timedelta(days=self.cfg["pncp"].get("propostas_horizonte_dias", 365))
             n = 0
@@ -280,7 +293,7 @@ class Runner:
                 for r in rows:
                     self.ingest_contratacao(r, "propostas")
                 n += 1
-                if self.time_left() < 60:
+                if self.time_left_for_bulk() < 60 or time.monotonic() > deadline:
                     rec["status"] = "parcial"
                     rec["erro"] = "orçamento de tempo esgotado durante o snapshot de propostas"
                     break
@@ -337,7 +350,8 @@ class Runner:
                     for d in days_between(cur - timedelta(days=1), self.today):
                         if self.time_left() < 120:
                             break
-                        for rows in self.client.pca_atualizacao(d2s(d), d2s(d)):
+                        # dataInicio == dataFim retorna 204 na API do PNCP: janela [d, d+1]
+                        for rows in self.client.pca_atualizacao(d2s(d), d2s(d + timedelta(days=1))):
                             for r in rows:
                                 self.ingest_pca(r, anos)
                         stu["ate"] = d.isoformat()

@@ -1,7 +1,7 @@
 """Casos REAIS do PNCP (amostra coletada pelo CI em 04/11/2026, job `source-probe`).
 
-Os textos são trechos do objeto exatamente como publicados (truncados no log em ~260
-caracteres). Servem de regressão do classificador: verdadeiros positivos devem continuar
+Os textos são trechos do objeto EXATAMENTE como publicados (truncados no log em ~110–260
+caracteres) — nada foi acrescentado. Variações sintéticas ficam em test_classifier.py. Servem de regressão do classificador: verdadeiros positivos devem continuar
 altos e falsos positivos já observados devem continuar baixos.
 
 ATENÇÃO: são exemplos históricos. Não representam licitações abertas nem atas vigentes
@@ -22,6 +22,10 @@ def pf():
 
 
 POSITIVOS = [
+    ("46377222000129-1-000354/2026",
+     "Contratação de serviços de suporte para infraestrutura de rede sem fio no ambiente SEFAZ", "Networking", 60, "direta"),
+    ("23274194000119-1-000105/2026",
+     "Serviços de suporte gerenciado à infraestrutura de TIC", "Data Center", 55, "direta"),
     ("00531640000128-1-000134/2026",
      "Contratação de subscrição de licenças da suíte de software de nuvem privada VMware Cloud Foundation, com direito "
      "ao suporte técnico oficial do fabricante, atualização de versões, correçõe", "Data Center", 75, "direta"),
@@ -67,11 +71,11 @@ NEGATIVOS = [
     ("06622443000109-1-000022/2026",
      "Aquisição de 4 (quatro) microcomputadores novos, de primeiro uso, destinados à modernização e ao atendimento das "
      "necessidades operacionais e administrativas do Conselho Regional de Medicina Veterinária do Estado do Ceará "
-     "(CRMV-CE), com Wi-Fi, sistema operacional Windows e armazenamento", 45),
+     "(CRMV-CE), visando as", 45),
     ("33781055000135-1-001882/2026",
      "Serviços continuados de manutenção preditiva, preventiva e corretiva, na modalidade FPP - Full Protection Plan, com "
      "cobertura de peças, em resfriadores de líquido tipo CHILLER da marca CARRIER, sendo 3 unidades modelo 30XWV4206 e "
-     "obsolescência", 39),
+     "1 unidade do m", 39),
     ("00402552000126-1-000583/2026",
      "Contratação de serviço de manutenção corretiva de autoclaves, abrangendo diagnóstico técnico completo, inspeção "
      "funcional, avaliação dos sistemas eletrônicos, elétricos, mecânicos, pneumáticos, hidráulicos (quando aplicável)", 39),
@@ -82,7 +86,7 @@ NEGATIVOS = [
     ("05789902000172-1-000028/2026",
      "Contratação de empresa especializada para a prestação de serviços continuados de engenharia, para a manutenção "
      "preventiva e corretiva, sem o fornecimento de peças e sem dedicação exclusiva de mão de obra, do Sistema de "
-     "Detecção, Alarme e Combate a Incêndio (gás) do Datacenter", 45),
+     "Detecção, Alarme e Combate a Incêndio (gá", 45),
     ("00394429000100-1-002889/2026",
      "MODERNIZAÇÃO DA CASA DE FORÇA DA GUARDA DA BAPV, INCLUINDO SUBSTITUIÇÃO DE EQUIPAMENTOS E FORNECIMENTO E "
      "INSTALAÇÃO DE GERADOR", 39),
@@ -100,8 +104,8 @@ NEGATIVOS = [
      "integrada, fontes de alimentação externa e garantia de 24 (vinte e quatro) meses", 45),
     ("82577636000165-1-000224/2026",
      "contratação de empresa especializada para o fornecimento e instalação de sistema de cortinas cênicas para o "
-     "anfiteatro Leda Regina, compreendendo cortina frontal motorizada com abertura central, controle via Wi-Fi, "
-     "sustentação e atendimento", 45),
+     "anfiteatro Leda Regina, compreendendo cortina frontal motorizada com abertura central, cortinas de fundo "
+     "laterais motorizadas, cortina de fundo central ", 45),
     ("88830609000139-1-000561/2026-000001",
      "Fornecimento e garantia de material de expediente (baterias, pilhas, calculadora e dispositivos de "
      "armazenamentos de dados).", 39),
@@ -111,6 +115,17 @@ NEGATIVOS = [
      "FORNECIMENTO E SUBSTITUIÇÃO DE PEÇAS E MÃO DE OBRA.", 39),
     ("04972843000100-1-000043/2026",
      "COMPRA DE HD EXTERNO PARA MANUTENÇÃO DA INFRAESTRUTURA DE REDE DA CÂMARA MUNICIPAL DE VEREADORES.", 45),
+    ("89768535000110-1-000035/2026",
+     "Contratação de empresa especializada para prestação contínua de serviço de acesso dedicado à internet, com lin",
+     45),
+    ("00489828000155-1-000538/2026",
+     "Aquisição de scanner para atender a PRFN5 e seus Escritório de Representação em Caruaru e Petrolina.", 39),
+    ("02218683000183-1-000407/2026",
+     "SOLICITO AQUISIÇÃO DE UM AR-CONDICIONADO DO TIPO SPLIT HI-WALL, COM TECNOLOGIA INVERTER, CAPACIDADE NOMINAL DE",
+     39),
+    ("31723265000141-1-000062/2026",
+     "disponibilização de infraestrutura computacional em ambiente de nuvem, no modelo de Infraestrutura como Serviç",
+     45),
     ("87613071000148-1-000435/2026",
      "AQUISIÇÃO DE EQUIPAMENTOS ESPORTIVOS PARA USO EM ESPAÇOS PÚBLICOS COM RECURSO DE TRANSFERÊNCIA ESPECIAL DE "
      "EMENDA PARLAMENTAR Nº 20269048000", 10),
