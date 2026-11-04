@@ -258,6 +258,17 @@ neutralize:
   - garantia contratual
   - garantia de execucao
   - garantia da proposta
+  - armazenamento de lixo
+  - armazenamento de residuos
+  - armazenamento de agua
+  - armazenamento de alimentos
+  - armazenamento de medicamentos
+  - armazenamento de vacinas
+  - armazenamento de combustivel
+  - armazenamento de graos
+  - dispositivo de armazenamento
+  - dispositivos de armazenamento
+  - dispositivos de armazenamentos
 
 # ---------------------------------------------------------------------------
 # Contexto que REDUZ a aderência (não elimina): serviços de TI genéricos ou
@@ -330,6 +341,16 @@ penalties:
     - sonorizacao
     - plenario
     - colocation
+    - pen drive
+    - pendrive
+    - hd externo
+    - disco rigido externo
+    - ssd
+    - cartao de memoria
+    - material de expediente
+    - conteiner
+    - conteineres
+    - cortina
 
 # ---------------------------------------------------------------------------
 # OFERTAS TLS (ponto de partida — não confirma cobertura comercial).
@@ -363,8 +384,6 @@ offers:
       - controladora wireless
       - controladora de rede sem fio
       - rede sem fio
-      - wi-fi
-      - wifi
       - wlan
       - sd-wan
       - sdwan
@@ -389,6 +408,8 @@ offers:
       - switching
       - roteamento
     medium:
+      - wi-fi
+      - wifi
       - lan
       - wan
       - transceiver

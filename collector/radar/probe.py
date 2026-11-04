@@ -158,16 +158,17 @@ def probe_app_routes(c: PNCPClient) -> None:
         print(f"  ERRO: {type(exc).__name__}: {exc}")
 
 
-def probe_pca(c: PNCPClient, today: date, pages: int = 25) -> None:
+def probe_pca(c: PNCPClient, today: date, pages: int = 60) -> None:
     """Descobre os códigos de classificação (CATMAT/CATSER) dos itens de PCA aderentes ao
     TLS, para consultar /v1/pca/ apenas nessas classes (muito menos requisições)."""
     from collections import Counter
     from pathlib import Path
     from .classifier import Portfolio, classify
     pf = Portfolio.load(Path(__file__).resolve().parents[2] / "config", private="")
-    ini = _fmt(today - timedelta(days=20))
-    fim = _fmt(today)
-    for size in (50, 100):
+    # janela de 1 dia e páginas pequenas: janelas maiores excedem o tempo de resposta do PNCP
+    ini = fim = _fmt(today - timedelta(days=1))
+    c.timeout = 120
+    for size in (10, 50):
         _show(f"pca/atualizacao tamanhoPagina={size}", lambda: c.get_json(
             f"{CONSULTA_BASE}/v1/pca/atualizacao", dict(pagina=1, tamanhoPagina=size, dataInicio=ini, dataFim=fim)))
     rel: Counter = Counter()
@@ -177,9 +178,9 @@ def probe_pca(c: PNCPClient, today: date, pages: int = 25) -> None:
     for page in range(1, pages + 1):
         try:
             payload = c.get_json(f"{CONSULTA_BASE}/v1/pca/atualizacao",
-                                 dict(pagina=page * 37, tamanhoPagina=50, dataInicio=ini, dataFim=fim))
+                                 dict(pagina=page * 97, tamanhoPagina=10, dataInicio=ini, dataFim=fim))
         except SourceError as exc:
-            print(f"  página {page * 37}: ERRO {exc}")
+            print(f"  página {page * 97}: ERRO {exc}")
             continue
         for pca in (payload or {}).get("data") or []:
             for it in pca.get("itens") or []:
@@ -189,7 +190,7 @@ def probe_pca(c: PNCPClient, today: date, pages: int = 25) -> None:
                 if classify(pf, [it.get("descricaoItem") or ""])["score"] >= 40:
                     rel[key] += 1
                     exemplos.setdefault(key, (it.get("descricaoItem") or "")[:140])
-        print(f"  amostra página {page * 37}: itens acumulados={n_items}", flush=True)
+        print(f"  amostra página {page * 97}: itens acumulados={n_items}", flush=True)
     print(f"\n  itens analisados: {n_items}; classes com itens aderentes (score>=40):")
     for k, v in rel.most_common(40):
         print(f"     {v:4d}/{allc[k]:5d}  codigo={k[0]!r} nome={k[1]!r} categoria={k[2]!r}  ex: {exemplos[k]!r}")

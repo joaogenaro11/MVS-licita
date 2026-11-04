@@ -22,6 +22,9 @@ def pf():
 
 
 POSITIVOS = [
+    ("00531640000128-1-000134/2026",
+     "Contratação de subscrição de licenças da suíte de software de nuvem privada VMware Cloud Foundation, com direito "
+     "ao suporte técnico oficial do fabricante, atualização de versões, correçõe", "Data Center", 75, "direta"),
     # (id PNCP, objeto, oferta esperada, score mínimo, relação esperada)
     ("83539643000135-1-000060/2026",
      "Contratação de empresa especializada para o fornecimento de renovação de subscrição e licenças da solução de "
@@ -95,6 +98,19 @@ NEGATIVOS = [
     ("04567897000190-1-000237/2026",
      "Aquisição de 1.200 (mil e duzentos) aparelhos telefônicos IP SIP, com conectividade de rede sem fio (Wi-Fi) "
      "integrada, fontes de alimentação externa e garantia de 24 (vinte e quatro) meses", 45),
+    ("82577636000165-1-000224/2026",
+     "contratação de empresa especializada para o fornecimento e instalação de sistema de cortinas cênicas para o "
+     "anfiteatro Leda Regina, compreendendo cortina frontal motorizada com abertura central, controle via Wi-Fi, "
+     "sustentação e atendimento", 45),
+    ("88830609000139-1-000561/2026-000001",
+     "Fornecimento e garantia de material de expediente (baterias, pilhas, calculadora e dispositivos de "
+     "armazenamentos de dados).", 39),
+    ("46634341000110-1-000225/2026-000001",
+     "ATA DE REGISTRO DE PREÇO PARA AQUISIÇÃO DE CONTÊINERES E PRESTAÇÃO DE SERVIÇOS DE MANUTENÇÃO CORRETIVA DE "
+     "CONTÊINERES PLÁSTICOS COM CAPACIDADE DE 1.000 LITROS DESTINADO AO ARMAZENAMENTO DE LIXO, INCLUINDO O "
+     "FORNECIMENTO E SUBSTITUIÇÃO DE PEÇAS E MÃO DE OBRA.", 39),
+    ("04972843000100-1-000043/2026",
+     "COMPRA DE HD EXTERNO PARA MANUTENÇÃO DA INFRAESTRUTURA DE REDE DA CÂMARA MUNICIPAL DE VEREADORES.", 45),
     ("87613071000148-1-000435/2026",
      "AQUISIÇÃO DE EQUIPAMENTOS ESPORTIVOS PARA USO EM ESPAÇOS PÚBLICOS COM RECURSO DE TRANSFERÊNCIA ESPECIAL DE "
      "EMENDA PARLAMENTAR Nº 20269048000", 10),
