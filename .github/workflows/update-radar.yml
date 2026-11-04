@@ -147,3 +147,7 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # a 1ª publicação no GitHub Pages pode ficar >10 min em "updating_pages"
+          # (padrão da action); 1ª execução real expirou assim
+          timeout: 1800000

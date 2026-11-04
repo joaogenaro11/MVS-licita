@@ -200,8 +200,10 @@ class PNCPClient:
         return self.paginate("/v1/pca/atualizacao", _merge({"dataInicio": data_ini, "dataFim": data_fim}, kw))
 
     def pca_por_classificacao(self, ano: int, codigo_classificacao_superior: str, **kw):
+        # Páginas pequenas: com tamanhoPagina=50 o endpoint respondeu HTTP 500 na 1ª coleta
+        # real (04/11/2026); cada registro traz um PCA inteiro com seus itens.
         p = {"anoPca": ano, "codigoClassificacaoSuperior": codigo_classificacao_superior}
-        return self.paginate("/v1/pca/", _merge(p, kw))
+        return self.paginate("/v1/pca/", _merge(p, kw), page_size=10)
 
     # Detalhes (API PNCP de leitura pública)
     def compra_detalhe(self, cnpj: str, ano: int, seq: int) -> dict | None:
