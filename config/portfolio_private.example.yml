@@ -1,0 +1,33 @@
+# =============================================================================
+# EXEMPLO de configuração comercial PRIVADA (estrutura apenas — sem dados reais).
+#
+# NÃO preencha este arquivo. Crie uma cópia fora do controle de versão:
+#   - coleta (GitHub Actions): secret RADAR_PRIVATE_CONFIG com o conteúdo YAML
+#   - local: config/portfolio_private.yml (ignorado pelo .gitignore)
+#   - interface: seções priority_orgs / partners / vendor_notes são coladas em
+#     Acompanhamento > "Configuração comercial privada" (salvas no Supabase).
+#
+# Na coleta, SOMENTE parâmetros numéricos/enumerados são aplicados
+# (offers.*.fit_factor, vendors.*.tls_coverage, weights, thresholds).
+# Notas e listas nunca são gravadas nos dados públicos.
+# =============================================================================
+
+offers:
+  networking: {fit_factor: 1.0}     # 0..1 — peso relativo da oferta
+  # security: {fit_factor: 1.0}
+
+vendors:
+  # NomeDoFabricante: {tls_coverage: confirmada | validar | fora_tls}
+  ExemploFabricante: {tls_coverage: validar}
+
+# thresholds: {alta: 80, analisar: 60, indireto: 40}
+
+vendor_notes:
+  ExemploFabricante: "Nota de escopo exibida apenas para usuários autenticados."
+
+priority_orgs:
+  - TRECHO DO NOME DO ORGAO
+  - 00000000000000            # ou CNPJ (somente dígitos)
+
+partners:
+  - TRECHO DA RAZAO SOCIAL DO PARCEIRO
