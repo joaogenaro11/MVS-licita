@@ -80,7 +80,8 @@ jobs:
   # Ponta a ponta com dados reais: update (orçamento curto) -> export -> build do site.
   # Gera um artefato com o site pronto para inspeção. Não bloqueia o CI.
   pipeline-e2e:
-    runs-on: ubuntu-latest
+    # ubuntu-24.04: o Playwright ainda não instala o Chromium no ubuntu-latest (26.04)
+    runs-on: ubuntu-24.04
     continue-on-error: true
     timeout-minutes: 40
     env:
@@ -146,7 +147,7 @@ jobs:
       - name: Teste funcional da interface com dados reais (Playwright)
         working-directory: web
         run: |
-          npm install --no-save playwright@1.56.1
+          npm install --no-save playwright@1.63.0
           npx playwright install --with-deps chromium
           mkdir -p ../ui-shots
           (npx vite preview --port 4173 --strictPort > /dev/null 2>&1 &)
