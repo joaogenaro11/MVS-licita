@@ -67,8 +67,10 @@ git clone https://github.com/joaogenaro11/MVS-licita.git
 **Actions > Atualizar Radar TLS > Run workflow**, com `budget_min = 300` e `backfill = true`.
 
 - O workflow coleta, classifica, cria o branch `data`, publica o site e mostra um resumo por fonte.
-- A carga histórica de 12 meses e a varredura de cerca de 480 mil atas vigentes podem precisar de 2 ou 3 execuções longas.
-  Ela continua sozinha nas execuções agendadas (06:23 e 17:41, horário de Brasília). O progresso aparece no Dashboard.
+- **O PNCP limita a taxa de requisições** (HTTP 429 a partir de cerca de 25 req/min no teste real). O coletor desacelera sozinho.
+  Por isso, a carga histórica de 12 meses e a varredura de cerca de 480 mil atas vigentes levam **alguns dias** de execuções.
+  Elas continuam sozinhas nas execuções agendadas (06:23 e 17:41, horário de Brasília), e o progresso aparece no Dashboard.
+  As propostas abertas e as publicações recentes aparecem já na primeira execução.
 - O endereço do site aparece em **Settings > Pages** (ex.: `https://joaogenaro11.github.io/MVS-licita/`).
 
 ### 4. (Opcional) Configuração comercial privada da coleta
@@ -150,7 +152,10 @@ Os dados locais (`/data` e `web/public/data`) são ignorados pelo git.
 - **Site mostra "Não foi possível carregar os dados":** a primeira execução ainda não terminou ou falhou. Veja a aba Actions.
 - **Fonte com "Falha" no Dashboard:** o PNCP retornou erro (5xx/timeout) depois das novas tentativas. Os dados anteriores foram mantidos e a próxima execução tenta de novo, sem avançar o cursor.
 - **Push no branch `data` negado:** habilite "Read and write permissions" (passo 2).
-- **PCA sem resultados:** veja `fontes.pca.erro` no Dashboard. O endpoint `/v1/pca/atualizacao` estava instável em 04/11/2026, e `/v1/pca/` exige códigos de classificação (`config/fontes.yml > pca.classificacoes`).
+- **PCA com "Falha" ou sem resultados:** o `/v1/pca/` do PNCP exige o código da classe do catálogo, e o `/v1/pca/atualizacao`
+  traz cerca de 170 mil itens por dia de todos os assuntos, o que é inviável com o limite de requisições.
+  Rode `python -m radar probe --pca` (ou veja o job `source-probe` do CI), que lista as classes com itens aderentes ao TLS.
+  Depois copie os códigos para `config/fontes.yml > pncp.pca.classificacoes`.
 
 ---
 

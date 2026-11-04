@@ -35,7 +35,7 @@ O job `source-probe` do CI consulta o PNCP a cada push e registra no log os camp
 | `GET /api/pncp/v1/orgaos/{cnpj}/compras/{ano}/{seq}/itens` | Itens (melhora a classificação) | — |
 | `GET /api/pncp/v1/orgaos/{cnpj}/compras/{ano}/{seq}/arquivos` | Documentos oficiais (edital, TR...) | Devolve `url` oficial de download |
 | `GET /api/consulta/v1/pca/` | PCA por classificação | Exige `codigoClassificacaoSuperior` (HTTP 400 sem ele) |
-| `GET /api/consulta/v1/pca/atualizacao` | PCA por data | HTTP 500 no teste de 04/11/2026; tratado como falha de fonte e registrado |
+| `GET /api/consulta/v1/pca/atualizacao` | PCA por data (opcional) | Instável (HTTP 500 numa execução, 200 em outra). Cada registro é um PCA com `itens`; `totalRegistros` conta itens: cerca de 340 mil em 2 dias, inviável com o limite de requisições |
 
 ### Links oficiais
 
@@ -89,6 +89,7 @@ Garantias:
 
 - **ETP e pesquisa de preços:** não há dados estruturados no PNCP. O estágio "Preparação" cobre apenas manifestação de interesse e pré-qualificação.
 - **PDTI/PDTIC/PETI:** não há API. Ficam para o módulo futuro "Análise de Compras".
-- **PCA:** os endpoints da API de consulta mostraram instabilidade no teste de 04/11/2026 (ver acima). O coletor tenta os dois caminhos e registra a falha sem prejudicar o restante.
+- **PCA:** é coletado apenas pelas classes de TIC configuradas, com snapshot semanal. Até os códigos serem configurados, a fonte aparece como "Falha" com a instrução de configuração.
+- **Limite de requisições do PNCP:** HTTP 429 a partir de cerca de 25 req/min no teste real. O throttle é adaptativo, mas a carga histórica leva dias.
 - **PDFs:** não são lidos. A classificação usa objeto, informação complementar e itens.
 - **Cobertura:** limitada ao que os órgãos publicam no PNCP. Portais estaduais e municipais que não publicam no PNCP não são cobertos.
