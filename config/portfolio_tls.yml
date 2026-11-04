@@ -50,6 +50,10 @@ cap_without_strong_evidence: 35
 # (ex.: "aquisição de microcomputadores ... com Wi-Fi"), o score fica limitado a este teto.
 cap_primary_out_of_scope: 45
 
+# Se a evidência de TIC aparece apenas nos itens (o objeto não cita nada do portfólio),
+# o score fica limitado a este teto (evita itens acessórios elevarem contratações alheias).
+cap_items_only: 50
+
 # Fator técnico: aderência técnica (0..1) a partir da qual a urgência comercial
 # conta integralmente. Abaixo disso, value/timing são reduzidos proporcionalmente.
 technical_factor_full_at: 0.55
@@ -366,6 +370,9 @@ penalties:
     - nuvem publica
     - ambiente de nuvem
     - em nuvem
+    - windows 11
+    - windows 10
+    - windows pro
 
 # ---------------------------------------------------------------------------
 # OFERTAS TLS (ponto de partida — não confirma cobertura comercial).

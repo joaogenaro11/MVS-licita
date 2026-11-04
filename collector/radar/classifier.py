@@ -232,12 +232,19 @@ def _original(original: str, idx: list[int], s: int, e: int) -> str:
 
 # ----------------------------------------------------------------------- classify
 def classify(pf: Portfolio, texts: list[str], stage: str | None = None,
-             value: float | None = None, has_items: bool = False) -> dict[str, Any]:
+             value: float | None = None, has_items: bool = False,
+             item_texts: list[str | None] | None = None) -> dict[str, Any]:
+    """texts: objeto/informação complementar (texto principal).
+    item_texts: descrições dos itens (evidência complementar; sozinhas não geram alta prioridade)."""
     raw = pf.raw
     W = pf.weights
     sat = raw.get("saturation", {})
-    original = " | ".join(t.strip() for t in texts if t and t.strip())
+    main = " | ".join(t.strip() for t in texts if t and t.strip())
+    extra = " | ".join(t.strip() for t in (item_texts or []) if t and t.strip())
+    has_items = has_items or bool(extra)
+    original = main + (" | " + extra if extra else "")
     norm, idx = normalize_with_map(original)
+    main_len = len(normalize_with_map(main)[0])
 
     # Etapa 2a — neutraliza falsos positivos (mantendo comprimento/índices)
     work = list(norm)
@@ -348,6 +355,11 @@ def classify(pf: Portfolio, texts: list[str], stage: str | None = None,
     alertas: list[str] = []
     if not has_strong:
         total = min(total, float(raw.get("cap_without_strong_evidence", 35)))
+    main_offer = any(m.start < main_len and m.term.level in ("strong", "medium") for m in offer_matches) or \
+        any(m.start < main_len for m in vendor_matches)
+    if extra and not main_offer and total > float(raw.get("cap_items_only", 50)):
+        total = float(raw.get("cap_items_only", 50))
+        alertas.append("Evidência encontrada apenas nos itens (o objeto não cita TIC) — conferir o edital.")
     if primary_out_of_scope:
         # o objeto principal (primeiro item citado) está fora do escopo TLS
         total = min(total, float(raw.get("cap_primary_out_of_scope", 45)))

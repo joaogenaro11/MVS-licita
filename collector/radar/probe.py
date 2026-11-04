@@ -200,6 +200,11 @@ def probe_pca(c: PNCPClient, today: date, pages: int = 40) -> None:
         nome = (k[1] or "").upper()
         if any(w in nome for w in ("INFORM", "PROCESSAMENTO", "TECNOLOGIA", "COMUNICA", "REDE", "TIC", "COMPUTA", "SOFTWARE", "DADOS")):
             print(f"     {v:5d}  codigo={k[0]!r} nome={k[1]!r} categoria={k[2]!r}")
+    import yaml
+    cfg = yaml.safe_load(open(Path(__file__).resolve().parents[2] / "config" / "fontes.yml", encoding="utf-8"))
+    for code in (cfg["pncp"].get("pca") or {}).get("classificacoes") or []:
+        _show(f"pca/ configurado anoPca=2026 codigoClassificacaoSuperior={code}", lambda: c.get_json(
+            f"{CONSULTA_BASE}/v1/pca/", dict(pagina=1, tamanhoPagina=10, anoPca=2026, codigoClassificacaoSuperior=code)))
     if rel:
         code = rel.most_common(1)[0][0][0]
         _show(f"pca/ anoPca=2026 codigoClassificacaoSuperior={code}", lambda: c.get_json(

@@ -112,6 +112,7 @@ jobs:
               c = x["classificacao"]
               print(f"[{c['score']:3d}] {x['tipo']:11s} {x['estagio']:18s} {x['id']} | {(x['orgao'].get('nome') or '')[:40]} | {x['objeto'][:110]}")
               print(f"      origem={x['links'].get('origem')} pncp={x['links'].get('pncp')} docs={len(x.get('documentos') or [])}")
+              print(f"      {c['justificativa'][:220]} | alertas={c.get('alertas')}")
           EOF
       - name: Teste dos links oficiais coletados (amostra)
         run: |

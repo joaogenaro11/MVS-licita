@@ -89,7 +89,10 @@ Garantias:
 
 - **ETP e pesquisa de preços:** não há dados estruturados no PNCP. O estágio "Preparação" cobre apenas manifestação de interesse e pré-qualificação.
 - **PDTI/PDTIC/PETI:** não há API. Ficam para o módulo futuro "Análise de Compras".
-- **PCA:** é coletado apenas pelas classes de TIC configuradas, com snapshot semanal. Até os códigos serem configurados, a fonte aparece como "Falha" com a instrução de configuração.
+- **PCA:** é coletado apenas pelas classes de TIC configuradas (`config/fontes.yml`), com snapshot semanal.
+  A classe `158` (manutenção de equipamentos de processamento de dados) foi confirmada em itens reais. As classes 70xx/58xx
+  seguem o padrão FSC do catálogo de materiais e são validadas pelo probe do CI. `/pca/atualizacao` exige uma janela de pelo menos 2 dias
+  (com início igual ao fim, a API devolve 204) e traz um PCA com 10 itens por página.
 - **Limite de requisições do PNCP:** HTTP 429 a partir de cerca de 25 req/min no teste real. O throttle é adaptativo, mas a carga histórica leva dias.
 - **PDFs:** não são lidos. A classificação usa objeto, informação complementar e itens.
 - **Cobertura:** limitada ao que os órgãos publicam no PNCP. Portais estaduais e municipais que não publicam no PNCP não são cobertos.

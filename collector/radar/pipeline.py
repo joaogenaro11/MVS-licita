@@ -214,11 +214,11 @@ class Runner:
 
     # -------------------------------------------------------- classificação
     def classify_item(self, item: dict) -> dict:
-        texts = [item.get("objeto"), item.get("info_complementar"), item.get("itens_texto")]
+        texts = [item.get("objeto"), item.get("info_complementar")]
         if item["tipo"] == "ata":
             texts.append((item.get("compra") or {}).get("info_complementar"))
         value = item.get("valor_estimado") or item.get("valor_homologado") or (item.get("compra") or {}).get("valor")
-        c = classify(self.pf, texts, stage=item.get("estagio"), value=value, has_items=bool(item.get("itens_texto")))
+        c = classify(self.pf, texts, stage=item.get("estagio"), value=value, item_texts=[item.get("itens_texto")])
         item["classificacao"] = c
         return c
 
@@ -259,7 +259,7 @@ class Runner:
                 for rows in fetch(d):
                     for r in rows:
                         ingest(r)
-                    if time.monotonic() > deadline + 600:
+                    if time.monotonic() > deadline + 120:
                         # dia muito volumoso: interrompe sem avançar o cursor (dia refeito depois)
                         rec["status"] = "parcial"
                         rec["erro"] = "fatia de tempo da fonte esgotada no meio do dia; será refeito"
@@ -321,6 +321,7 @@ class Runner:
             return
         if not due and not pca.get("usar_atualizacao"):
             return
+        deadline = self._feed_deadline("pca")
         with self.feed("pca") as rec:
             errors: list[str] = []
             feitos = st.setdefault("feitos", [])
@@ -329,7 +330,7 @@ class Runner:
                     key = f"{code}/{ano}"
                     if key in feitos:
                         continue
-                    if self.time_left() < 120:
+                    if self.time_left_for_bulk() < 120 or time.monotonic() > deadline:
                         rec["status"] = "parcial"
                         break
                     try:
@@ -560,8 +561,9 @@ class Runner:
 
     def run(self) -> int:
         status = "ok"
-        steps = [self.feed_contratacoes_atualizacao, self.feed_propostas_abertas, self.feed_atas_atualizacao,
-                 self.feed_contratos_atualizacao, self.feed_pca]
+        # incrementais primeiro (baratos e essenciais); snapshot semanal de propostas e PCA depois
+        steps = [self.feed_contratacoes_atualizacao, self.feed_atas_atualizacao, self.feed_contratos_atualizacao,
+                 self.feed_propostas_abertas, self.feed_pca]
         if self.backfill:
             steps += [self.feed_atas_varredura, self.feed_backfill_contratacoes, self.feed_backfill_contratos]
         for step in steps:

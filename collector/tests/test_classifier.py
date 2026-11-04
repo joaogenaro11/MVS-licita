@@ -177,3 +177,14 @@ SINTETICOS_NEGATIVOS = [
 def test_variacoes_sinteticas_de_falsos_positivos(pf, texto):
     r = c(pf, texto, stage="propostas_abertas", value=5_000_000)
     assert r["score"] <= 45, (texto, r["score"], r["justificativa"])
+
+
+def test_evidencia_somente_nos_itens_e_limitada(pf):
+    r = classify(pf, ["Execução de pavimentação asfáltica"], stage="propostas_abertas", value=9_000_000,
+                 item_texts=["Switch gerenciável 24 portas com suporte técnico 24x7 e garantia | Roteador"])
+    assert r["score"] <= 50
+    assert any("apenas nos itens" in a for a in r["alertas"])
+    # quando o objeto cita TIC, os itens reforçam normalmente
+    r2 = classify(pf, ["Manutenção de switches"], stage="propostas_abertas", value=9_000_000,
+                  item_texts=["Suporte técnico 24x7 para switch Cisco Catalyst"])
+    assert r2["score"] >= 80

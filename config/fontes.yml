@@ -40,7 +40,15 @@ pncp:
   pca:
     enabled: true
     anos: [2026, 2027]
-    classificacoes: []          # ex.: ["123", "456"] — códigos classificacaoSuperiorCodigo de TIC
+    # 158 = "MANUTENÇÃO E CONSERVAÇÃO DE EQUIPAMENTOS DE PROCESSAMENTO DE DADOS" (Soluções de TIC)
+    #       -> CONFIRMADO em itens reais do PNCP (probe de 04/11/2026).
+    # 70xx / 58xx = classes do catálogo de materiais no padrão FSC (o PNCP usa esse padrão:
+    #       ex. 6550 observado = diagnóstico in vitro). A VALIDAR pelo probe (job source-probe):
+    #       7010 config. de processamento de dados | 7021/7022 unidades centrais | 7025 E/S e
+    #       armazenamento | 7035 equipamentos de suporte | 7050 componentes | 5810 segurança de
+    #       comunicações | 5895 equipamentos de comunicação diversos.
+    # Itens são classificados normalmente; só os aderentes ao TLS são armazenados.
+    classificacoes: ["158", "7010", "7021", "7022", "7025", "7035", "7050", "5810", "5895"]
     snapshot_intervalo_dias: 7
     usar_atualizacao: false     # true = acompanha /v1/pca/atualizacao (alto volume)
 
@@ -58,10 +66,11 @@ storage:
 # Fatia máxima do orçamento por fonte (0..1). Impede que uma fonte volumosa deixe as
 # demais sem tempo; o que não couber continua na próxima execução (cursor por dia).
 time_shares:
-  contratacoes_atualizacao: 0.35
-  propostas_abertas: 0.30
+  contratacoes_atualizacao: 0.30
   atas_atualizacao: 0.15
   contratos_atualizacao: 0.15
+  propostas_abertas: 0.25
+  pca: 0.15
 
 # Orçamento de tempo padrão por execução (minutos). O workflow pode sobrescrever.
 budget_minutes: 150

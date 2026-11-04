@@ -100,10 +100,16 @@ def test_pipeline_coleta_classifica_e_deduplica(tmp_path):
     assert it["links"]["origem_portal"] == "Compras.gov.br"
     meta = json.loads((tmp_path / "meta.json").read_text())
     assert meta["fontes"]["contratacoes_atualizacao"]["status"] == "ok"
-    # PCA sem códigos de classificação configurados: pendência explícita, não silêncio
-    assert meta["fontes"]["pca"]["status"] == "falha"
-    assert "classificação" in meta["fontes"]["pca"]["erro"]
-    assert meta["status"] == "parcial" and meta["fontes_com_falha"] == ["pca"]
+    assert meta["fontes"]["pca"]["status"] == "ok"
+    assert meta["status"] == "ok" and meta["fontes_com_falha"] == []
+
+
+def test_pca_sem_classes_configuradas_vira_pendencia_explicita(tmp_path):
+    r = make_runner(tmp_path, FakeClient())
+    r.cfg["pncp"]["pca"]["classificacoes"] = []
+    r.feed_pca()
+    rec = r.sources["pca"]
+    assert rec["status"] == "falha" and "classificação" in rec["erro"]   # pendência explícita, não silêncio
 
 
 def test_falha_de_fonte_nao_apaga_dados_e_e_registrada(tmp_path):
