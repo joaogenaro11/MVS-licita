@@ -143,6 +143,21 @@ jobs:
         run: |
           cd collector && python -m radar export --data-dir ../e2e-data --out ../web/public/data && cd ../web
           npm ci && npm run build
+      - name: Teste funcional da interface com dados reais (Playwright)
+        working-directory: web
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+          mkdir -p ../ui-shots
+          (npx vite preview --port 4173 --strictPort > /dev/null 2>&1 &)
+          sleep 4
+          node tests-e2e/ui-check.mjs http://localhost:4173/ ../ui-shots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-screenshots
+          path: ui-shots
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         with:
           name: site-e2e

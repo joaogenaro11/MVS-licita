@@ -73,7 +73,7 @@ class Runner:
         self.now_iso = datetime.now(TZ).isoformat(timespec="seconds")
         st = self.cfg.get("storage", {})
         self.min_store = st.get("min_score_to_store", self.pf.raw.get("min_score_to_store", 25))
-        self.sources: dict[str, dict[str, Any]] = dict(self.store.meta.get("sources") or {})
+        self.sources: dict[str, dict[str, Any]] = dict(self.store.meta.get("fontes") or {})
         self.page_size = pc.get("page_size", 50)
         self.modalidades = pc.get("modalidades", [6])
         self._prefilter = self._build_prefilter()

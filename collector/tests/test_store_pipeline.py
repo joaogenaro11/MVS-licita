@@ -168,3 +168,12 @@ def test_export_site_publica_somente_relevantes(tmp_path):
     assert "itens_texto" not in pub["items"][0]
     meta = json.loads((out / "meta.json").read_text())
     assert meta["lookups"]["estagios"]["propostas_abertas"] == "Propostas abertas"
+
+
+def test_historico_de_sucesso_da_fonte_sobrevive_a_falha(tmp_path):
+    """Regressão: meta.json grava 'fontes'; o runner deve relê-lo para manter o último sucesso."""
+    make_runner(tmp_path, FakeClient(compras=[TI_COMPRA])).run()
+    ok = json.loads((tmp_path / "meta.json").read_text())["fontes"]["contratacoes_atualizacao"]["ultimo_sucesso"]
+    make_runner(tmp_path, FakeClient(fail={"atualizacao"})).run()
+    f = json.loads((tmp_path / "meta.json").read_text())["fontes"]["contratacoes_atualizacao"]
+    assert f["status"] == "falha" and f["ultimo_sucesso"] == ok and ok
