@@ -144,6 +144,15 @@ def test_upsert_preserva_valor_oficial_conhecido(tmp_path):
     assert res == "same"
 
 
+def test_upsert_preserva_campos_enriquecidos_em_dicts(tmp_path):
+    s = Store(tmp_path)
+    s.upsert(s.atas, {"id": "a", "orgao": {"nome": "X", "esfera": None}, "unidade": {"uf": None}}, "t1")
+    s.atas["a"]["orgao"]["esfera"] = "F"          # enriquecido depois
+    s.atas["a"]["unidade"]["uf"] = "DF"
+    s.upsert(s.atas, {"id": "a", "orgao": {"nome": "X", "esfera": None}, "unidade": {"uf": None}}, "t2")
+    assert s.atas["a"]["orgao"]["esfera"] == "F" and s.atas["a"]["unidade"]["uf"] == "DF"
+
+
 def test_export_site_publica_somente_relevantes(tmp_path):
     make_runner(tmp_path, FakeClient(compras=[TI_COMPRA])).run()
     out = tmp_path / "site"

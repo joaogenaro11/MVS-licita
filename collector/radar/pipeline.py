@@ -83,6 +83,12 @@ class Runner:
     def time_left(self) -> float:
         return self.budget_s - (time.monotonic() - self.t0)
 
+    def time_left_for_bulk(self) -> float:
+        """Tempo para cargas longas (histórico, varredura), reservando parte do orçamento
+        para o enriquecimento (itens e documentos) e a gravação final."""
+        reserve = min(15 * 60, 0.15 * self.budget_s)
+        return self.time_left() - reserve
+
     def _build_prefilter(self) -> re.Pattern:
         """Regex única com todos os termos de oferta e fabricantes: descarta rapidamente
         os registros sem nenhuma relação (a grande maioria)."""
@@ -184,6 +190,8 @@ class Runner:
             self._attach_link(self.store.atas[ata_id], link)
         else:
             pend = self.store.state.setdefault("ata_links_pendentes", {})
+            if ata_id not in pend and len(pend) >= 20000:
+                pend.pop(next(iter(pend)))  # limita o tamanho do state.json (descarta o mais antigo)
             lst = pend.setdefault(ata_id, [])
             if not any(x["contrato"] == link["contrato"] for x in lst) and len(lst) < 50:
                 lst.append(link)
@@ -369,7 +377,7 @@ class Runner:
             st["limite"] = limite.isoformat()
             prox = date.fromisoformat(st["proximo"]) if st.get("proximo") else self.today - timedelta(days=1)
             while prox >= limite:
-                if self.time_left() < 120:
+                if self.time_left_for_bulk() < 120:
                     rec["status"] = "parcial"
                     rec["erro"] = None
                     break
@@ -399,7 +407,7 @@ class Runner:
             ref = d2s(date.fromisoformat(st["data_ref"]))
             page = max(1, int(st.get("pagina", 1)) - pc.get("atas_varredura_sobreposicao_paginas", 10))
             while True:
-                if self.time_left() < 120:
+                if self.time_left_for_bulk() < 120:
                     rec["status"] = "parcial"
                     break
                 payload = self.client.get_json(f"{CONSULTA_BASE}/v1/atas", {

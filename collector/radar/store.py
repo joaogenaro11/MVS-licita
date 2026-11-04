@@ -115,6 +115,9 @@ class Store:
                 continue
             if v is None and old.get(k) is not None and k.startswith(("valor", "data_", "vigencia")):
                 continue  # nunca apaga um valor oficial conhecido por ausência na resposta
+            if isinstance(v, dict) and isinstance(old.get(k), dict):
+                # ex.: orgao/unidade — mantém campos enriquecidos (esfera, UF) ausentes na nova resposta
+                v = {**old[k], **{kk: vv for kk, vv in v.items() if vv is not None or kk not in old[k]}}
             if old.get(k) != v:
                 merged[k] = v
                 changed = True
