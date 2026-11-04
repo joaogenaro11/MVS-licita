@@ -39,12 +39,16 @@ weights:
 
 # Força de evidência necessária para atingir a pontuação máxima do componente.
 saturation:
-  portfolio: 1.6
+  portfolio: 1.0
   support: 1.5
 
 # Sem nenhum termo "strong" ou "medium" de oferta, o score total fica limitado
 # a este teto (evita que ocorrências isoladas de "rede"/"suporte" pontuem alto).
 cap_without_strong_evidence: 35
+
+# Se o PRIMEIRO item relevante citado no objeto for um termo fora do escopo
+# (ex.: "aquisição de microcomputadores ... com Wi-Fi"), o score fica limitado a este teto.
+cap_primary_out_of_scope: 45
 
 # Fator técnico: aderência técnica (0..1) a partir da qual a urgência comercial
 # conta integralmente. Abaixo disso, value/timing são reduzidos proporcionalmente.
@@ -129,6 +133,10 @@ support_terms:
     - health check
     - service extension
     - extensao de servico
+    - renovacao de subscricao
+    - renovacao das subscricoes
+    - renovacao de licencas e suporte
+    - subscricao de suporte e atualizacao
   medium:
     - manutencao
     - garantia
@@ -292,6 +300,36 @@ penalties:
     - curso
     - capacitacao
     - treinamento
+    - computadores
+    - perifericos
+    - servicos de informatica
+    - telefonia
+    - pabx
+    - central telefonica
+    - comutacao telefonica
+    - aparelhos telefonicos
+    - aparelho telefonico
+    - telefone ip
+    - microsoft 365
+    - office 365
+    - power bi
+    - saas
+    - software como servico
+    - autodesk
+    - adobe
+    - licencas de uso
+    - chiller
+    - autoclave
+    - grupo gerador
+    - gerador
+    - incendio
+    - subestacao
+    - infraestrutura eletrica
+    - materiais eletricos
+    - equipamentos eletricos
+    - sonorizacao
+    - plenario
+    - colocation
 
 # ---------------------------------------------------------------------------
 # OFERTAS TLS (ponto de partida — não confirma cobertura comercial).
@@ -358,8 +396,8 @@ offers:
       - gbic
       - conectividade
       - rede logica
-      - comutacao
     weak:
+      - comutacao
       - rede
       - redes
 
@@ -510,6 +548,9 @@ offers:
   software_terceiros:
     label: Suporte de software de terceiros
     fit_factor: 1.0
+    # sem fabricante identificado, a evidência de "suporte de software" é genérica
+    requires_vendor: true
+    vendor_missing_factor: 0.4
     description: Suporte e continuidade de software de terceiros on-premises. Cobertura e alcance devem ser confirmados caso a caso.
     strong:
       - suporte oracle
@@ -523,13 +564,12 @@ offers:
       - suse linux
       - suporte suse
       - suporte ao sistema operacional
+      - suporte de sistema operacional
+    medium:
       - suporte de software
       - suporte a software
-      - suporte de sistema operacional
       - atualizacao de licencas
-      - suporte e atualizacao de licencas
       - suporte tecnico e atualizacao
-    medium:
       - sistema operacional
       - banco de dados
       - licencas de software
@@ -539,6 +579,9 @@ offers:
   hardware_refresh:
     label: Hardware Refresh
     fit_factor: 1.0
+    # termos de modernização só contam se houver infraestrutura de TIC no texto
+    requires_context: [networking, security, datacenter, mvs]
+    context_missing_factor: 0.2
     description: Substituição/expansão de servidores, storage e rede. Normalmente via parceiro licitante.
     strong:
       - renovacao do parque

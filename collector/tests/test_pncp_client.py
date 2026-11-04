@@ -82,3 +82,12 @@ def test_400_nao_repete():
 def test_json_invalido_repete():
     c, _ = client([FakeResp(200, ValueError("bad json")), FakeResp(200, page(1, 1, []))])
     assert list(c.paginate("/x", {})) == []
+
+
+def test_429_desacelera_e_recupera():
+    c, _ = client([FakeResp(429, {}), FakeResp(200, page(1, 1, [{"a": 1}]))])
+    c.base_interval = c.min_interval = 0.5
+    rows = [r for p in c.paginate("/x", {}) for r in p]
+    assert rows == [{"a": 1}]
+    assert c.stats.throttled == 1
+    assert 0.5 < c.min_interval <= 1.0        # desacelerou e começou a recuperar

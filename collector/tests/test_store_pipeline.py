@@ -99,8 +99,11 @@ def test_pipeline_coleta_classifica_e_deduplica(tmp_path):
     assert it["itens"][0]["descricao"].startswith("Serviço de suporte")
     assert it["links"]["origem_portal"] == "Compras.gov.br"
     meta = json.loads((tmp_path / "meta.json").read_text())
-    assert meta["status"] == "ok"
     assert meta["fontes"]["contratacoes_atualizacao"]["status"] == "ok"
+    # PCA sem códigos de classificação configurados: pendência explícita, não silêncio
+    assert meta["fontes"]["pca"]["status"] == "falha"
+    assert "classificação" in meta["fontes"]["pca"]["erro"]
+    assert meta["status"] == "parcial" and meta["fontes_com_falha"] == ["pca"]
 
 
 def test_falha_de_fonte_nao_apaga_dados_e_e_registrada(tmp_path):

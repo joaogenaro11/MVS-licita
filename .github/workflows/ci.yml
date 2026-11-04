@@ -51,7 +51,9 @@ jobs:
   source-probe:
     runs-on: ubuntu-latest
     continue-on-error: true
-    timeout-minutes: 45
+    timeout-minutes: 60
+    env:
+      PYTHONUNBUFFERED: "1"
     defaults:
       run:
         working-directory: collector
@@ -67,7 +69,7 @@ jobs:
         run: python -m radar probe --days 2
       - name: Diagnóstico de PCA e das rotas do portal
         continue-on-error: true
-        timeout-minutes: 12
+        timeout-minutes: 25
         run: python -m radar probe --pca
       - name: Classificação de licitações reais (amostra)
         continue-on-error: true

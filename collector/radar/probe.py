@@ -139,13 +139,15 @@ def probe_app_routes(c: PNCPClient) -> None:
     import re
     print("\n=== rotas do portal https://pncp.gov.br/app/")
     try:
-        r = c.session.get("https://pncp.gov.br/app/", timeout=40)
+        import requests
+        sess = requests.Session()
+        r = sess.get("https://pncp.gov.br/app/editais", timeout=40, headers={"Accept": "text/html"})
         print(f"  HTTP {r.status_code}, {len(r.text)} bytes")
         scripts = re.findall(r'src="([^"]+\.js)"', r.text)
         found: set[str] = set()
         for s in scripts:
             url = s if s.startswith("http") else "https://pncp.gov.br/app/" + s.lstrip("/")
-            js = c.session.get(url, timeout=60).text
+            js = sess.get(url, timeout=60).text
             for m in re.finditer(r'path:\s*["\']([^"\']*(?:editais|atas|contratos|pca|contratacoes)[^"\']*)["\']', js):
                 found.add(m.group(1))
         for p in sorted(found):
@@ -156,31 +158,52 @@ def probe_app_routes(c: PNCPClient) -> None:
         print(f"  ERRO: {type(exc).__name__}: {exc}")
 
 
-def probe_pca(c: PNCPClient, today: date) -> None:
-    """Descobre a forma viável de consultar o PCA (endpoints e códigos de classificação)."""
+def probe_pca(c: PNCPClient, today: date, pages: int = 25) -> None:
+    """Descobre os códigos de classificação (CATMAT/CATSER) dos itens de PCA aderentes ao
+    TLS, para consultar /v1/pca/ apenas nessas classes (muito menos requisições)."""
     from collections import Counter
-    y = _fmt(today - timedelta(days=1))
-    _show("pca/atualizacao 1 dia", lambda: c.get_json(
-        f"{CONSULTA_BASE}/v1/pca/atualizacao", dict(pagina=1, tamanhoPagina=10, dataInicio=y, dataFim=y)))
-    _show("pca/atualizacao (dataInicial/dataFinal)", lambda: c.get_json(
-        f"{CONSULTA_BASE}/v1/pca/atualizacao", dict(pagina=1, tamanhoPagina=10, dataInicial=y, dataFinal=y)))
-    for code in ["7010", "7025", "7050", "5820", "5895", "70", "58", "1", "2", "5"]:
-        payload = _show(f"pca/ anoPca=2026 codigoClassificacaoSuperior={code}", lambda: c.get_json(
+    from pathlib import Path
+    from .classifier import Portfolio, classify
+    pf = Portfolio.load(Path(__file__).resolve().parents[2] / "config", private="")
+    ini = _fmt(today - timedelta(days=20))
+    fim = _fmt(today)
+    for size in (50, 100):
+        _show(f"pca/atualizacao tamanhoPagina={size}", lambda: c.get_json(
+            f"{CONSULTA_BASE}/v1/pca/atualizacao", dict(pagina=1, tamanhoPagina=size, dataInicio=ini, dataFim=fim)))
+    rel: Counter = Counter()
+    allc: Counter = Counter()
+    exemplos: dict = {}
+    n_items = 0
+    for page in range(1, pages + 1):
+        try:
+            payload = c.get_json(f"{CONSULTA_BASE}/v1/pca/atualizacao",
+                                 dict(pagina=page * 37, tamanhoPagina=50, dataInicio=ini, dataFim=fim))
+        except SourceError as exc:
+            print(f"  página {page * 37}: ERRO {exc}")
+            continue
+        for pca in (payload or {}).get("data") or []:
+            for it in pca.get("itens") or []:
+                n_items += 1
+                key = (it.get("classificacaoSuperiorCodigo"), it.get("classificacaoSuperiorNome"), it.get("categoriaItemPcaNome"))
+                allc[key] += 1
+                if classify(pf, [it.get("descricaoItem") or ""])["score"] >= 40:
+                    rel[key] += 1
+                    exemplos.setdefault(key, (it.get("descricaoItem") or "")[:140])
+        print(f"  amostra página {page * 37}: itens acumulados={n_items}", flush=True)
+    print(f"\n  itens analisados: {n_items}; classes com itens aderentes (score>=40):")
+    for k, v in rel.most_common(40):
+        print(f"     {v:4d}/{allc[k]:5d}  codigo={k[0]!r} nome={k[1]!r} categoria={k[2]!r}  ex: {exemplos[k]!r}")
+    print("\n  classes de TIC por nome (todas):")
+    for k, v in allc.most_common():
+        nome = (k[1] or "").upper()
+        if any(w in nome for w in ("INFORM", "PROCESSAMENTO", "TECNOLOGIA", "COMUNICA", "REDE", "TIC", "COMPUTA", "SOFTWARE", "DADOS")):
+            print(f"     {v:5d}  codigo={k[0]!r} nome={k[1]!r} categoria={k[2]!r}")
+    if rel:
+        code = rel.most_common(1)[0][0][0]
+        _show(f"pca/ anoPca=2026 codigoClassificacaoSuperior={code}", lambda: c.get_json(
             f"{CONSULTA_BASE}/v1/pca/", dict(pagina=1, tamanhoPagina=50, anoPca=2026, codigoClassificacaoSuperior=code)))
-        rows = (payload or {}).get("data") if isinstance(payload, dict) else None
-        if rows:
-            cnt: Counter = Counter()
-            for r in rows:
-                for it in (r.get("itens") or [r]):
-                    cnt[(it.get("classificacaoSuperiorCodigo"), it.get("classificacaoSuperiorNome"),
-                         it.get("categoriaItemPcaNome"))] += 1
-            for k, v in cnt.most_common(15):
-                print(f"     {v:4d}  {k}")
-    for uid in (3, 4):
-        _show(f"pca/usuario anoPca=2026 idUsuario={uid} classificacao=7010", lambda: c.get_json(
-            f"{CONSULTA_BASE}/v1/pca/usuario", dict(pagina=1, tamanhoPagina=10, anoPca=2026, idUsuario=uid,
-                                                     codigoClassificacaoSuperior="7010")))
-
+        _show(f"pca/ anoPca=2027 codigoClassificacaoSuperior={code}", lambda: c.get_json(
+            f"{CONSULTA_BASE}/v1/pca/", dict(pagina=1, tamanhoPagina=50, anoPca=2027, codigoClassificacaoSuperior=code)))
 
 if __name__ == "__main__":
     sys.exit(run())

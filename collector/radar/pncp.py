@@ -43,6 +43,7 @@ class ClientStats:
     retries: int = 0
     failures: int = 0
     no_content: int = 0
+    throttled: int = 0
     by_status: dict[int, int] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
@@ -51,6 +52,7 @@ class ClientStats:
             "retries": self.retries,
             "failures": self.failures,
             "no_content": self.no_content,
+            "limitadas_429": self.throttled,
             "by_status": {str(k): v for k, v in sorted(self.by_status.items())},
         }
 
@@ -72,6 +74,8 @@ class PNCPClient:
         self.backoff_base = backoff_base
         self.backoff_max = backoff_max
         self.min_interval = min_interval
+        self.base_interval = min_interval
+        self.max_interval = 8.0
         self.session = session or requests.Session()
         self.session.headers.update({"User-Agent": user_agent, "Accept": "application/json"})
         self.stats = ClientStats()
@@ -100,10 +104,16 @@ class PNCPClient:
                     self.stats.no_content += 1
                     return None
                 if status == 200:
+                    # recupera a velocidade aos poucos após limitação (429)
+                    self.min_interval = max(self.base_interval, self.min_interval * 0.97)
                     if not resp.content:
                         self.stats.no_content += 1
                         return None
                     return resp.json()
+                if status == 429:
+                    # limite de requisições do PNCP: desacelera de forma adaptativa
+                    self.min_interval = min(self.max_interval, max(self.min_interval * 1.6, self.base_interval * 2, 1.0))
+                    self.stats.throttled += 1
                 if status in RETRY_STATUS:
                     last_exc = SourceError(f"HTTP {status}", status=status, url=resp.url)
                     retry_after = resp.headers.get("Retry-After")

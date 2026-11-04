@@ -261,6 +261,10 @@ class Runner:
                                 self.ingest_contrato)
 
     def feed_propostas_abertas(self) -> None:
+        st = self.store.state.setdefault("propostas_abertas", {})
+        every = int(self.cfg["pncp"].get("propostas_snapshot_intervalo_dias", 7))
+        if st.get("ultimo_snapshot") and (self.today - date.fromisoformat(st["ultimo_snapshot"][:10])).days < every:
+            return  # entre snapshots, as atualizações diárias mantêm a base em dia
         with self.feed("propostas_abertas") as rec:
             horizon = self.today + timedelta(days=self.cfg["pncp"].get("propostas_horizonte_dias", 365))
             n = 0
@@ -273,43 +277,67 @@ class Runner:
                     rec["erro"] = "orçamento de tempo esgotado durante o snapshot de propostas"
                     break
             rec["paginas"] = n
+            if rec.get("status") != "parcial":
+                st["ultimo_snapshot"] = self.today.isoformat()
 
     def feed_pca(self) -> None:
+        """PCA: consulta /v1/pca/ apenas nas classes CATMAT/CATSER de TIC configuradas
+        (snapshot semanal). /v1/pca/atualizacao é opcional: o volume é muito alto
+        (~170 mil itens/dia observados) para o limite de requisições do PNCP."""
         pca = self.cfg["pncp"].get("pca") or {}
         if not pca.get("enabled"):
             return
         anos = set(pca.get("anos") or [])
+        codes = [str(c) for c in pca.get("classificacoes") or []]
+        st = self.store.state.setdefault("pca", {})
+        every = int(pca.get("snapshot_intervalo_dias", 7))
+        due = not st.get("ultimo_snapshot") or (self.today - date.fromisoformat(st["ultimo_snapshot"][:10])).days >= every
+        if not codes and not pca.get("usar_atualizacao"):
+            with self.feed("pca") as rec:
+                rec["status"] = "falha"
+                rec["erro"] = ("nenhum código de classificação configurado (config/fontes.yml > pca.classificacoes); "
+                               "rode 'python -m radar probe --pca' para descobrir as classes de TIC")
+            return
+        if not due and not pca.get("usar_atualizacao"):
+            return
         with self.feed("pca") as rec:
-            errors = []
-            ok_any = False
-            for code in pca.get("classificacoes") or []:
-                for ano in anos:
+            errors: list[str] = []
+            feitos = st.setdefault("feitos", [])
+            for code in codes if due else []:
+                for ano in sorted(anos):
+                    key = f"{code}/{ano}"
+                    if key in feitos:
+                        continue
+                    if self.time_left() < 120:
+                        rec["status"] = "parcial"
+                        break
                     try:
-                        for rows in self.client.pca_por_classificacao(ano, str(code)):
+                        for rows in self.client.pca_por_classificacao(ano, code):
                             for r in rows:
                                 self.ingest_pca(r, anos)
-                        ok_any = True
+                        feitos.append(key)
+                        self.store.save_state()
                     except SourceError as exc:
-                        errors.append(f"classificação {code}/{ano}: {exc}")
-                    if self.time_left() < 120:
-                        break
+                        errors.append(f"classificação {key}: {exc}")
+            if due and all(f"{c}/{a}" in feitos for c in codes for a in anos):
+                st["ultimo_snapshot"] = self.today.isoformat()
+                st["feitos"] = []
             if pca.get("usar_atualizacao"):
-                st = self.store.state.setdefault("pca_atualizacao", {})
+                stu = self.store.state.setdefault("pca_atualizacao", {})
                 try:
-                    cur = date.fromisoformat(st["ate"]) if st.get("ate") else date.fromisoformat(pca.get("backfill_desde", "2025-01-01"))
+                    cur = date.fromisoformat(stu["ate"]) if stu.get("ate") else self.today - timedelta(days=1)
                     for d in days_between(cur - timedelta(days=1), self.today):
                         if self.time_left() < 120:
                             break
                         for rows in self.client.pca_atualizacao(d2s(d), d2s(d)):
                             for r in rows:
                                 self.ingest_pca(r, anos)
-                        st["ate"] = d.isoformat()
-                        ok_any = True
+                        stu["ate"] = d.isoformat()
                         self.store.save_state()
                 except SourceError as exc:
                     errors.append(f"/v1/pca/atualizacao: {exc}")
             if errors:
-                rec["status"] = "parcial" if ok_any else "falha"
+                rec["status"] = "parcial" if len(errors) < len(codes) * len(anos) else "falha"
                 rec["erro"] = "; ".join(errors)[:600]
 
     def ingest_pca(self, raw: dict, anos: set[int]) -> None:
@@ -325,8 +353,9 @@ class Runner:
 
     def feed_backfill_contratacoes(self) -> None:
         days = self.cfg["pncp"].get("backfill_days", {}).get("contratacoes", 365)
+        mods = self.cfg["pncp"].get("backfill_modalidades") or self.modalidades
         self._backfill("backfill_contratacoes", days, lambda d: (
-            rows for mod in self.modalidades for rows in self.client.contratacoes_publicacao(d2s(d), d2s(d), mod)),
+            rows for mod in mods for rows in self.client.contratacoes_publicacao(d2s(d), d2s(d), mod)),
             lambda r: self.ingest_contratacao(r, "publicacao"))
 
     def feed_backfill_contratos(self) -> None:

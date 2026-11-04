@@ -11,7 +11,7 @@ on:
       budget_min:
         description: "Orçamento de coleta em minutos (carga histórica inicial: use 300)"
         required: false
-        default: "50"
+        default: "150"
       backfill:
         description: "Avançar carga histórica (12 meses) e varredura de atas vigentes"
         type: boolean
@@ -59,7 +59,7 @@ jobs:
         env:
           RADAR_PRIVATE_CONFIG: ${{ secrets.RADAR_PRIVATE_CONFIG }}
         run: |
-          BUDGET="${{ github.event.inputs.budget_min || '50' }}"
+          BUDGET="${{ github.event.inputs.budget_min || '150' }}"
           BACKFILL_FLAG=""
           if [ "${{ github.event.inputs.backfill }}" = "false" ]; then BACKFILL_FLAG="--no-backfill"; fi
           python -m radar update --data-dir ../data --budget-min "$BUDGET" $BACKFILL_FLAG

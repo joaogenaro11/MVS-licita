@@ -284,8 +284,24 @@ def classify(pf: Portfolio, texts: list[str], stage: str | None = None,
             strength[o] = strength.get(o, 0.0) + 0.6
             best_level.setdefault(o, "medium")
 
+    # requisitos de contexto por oferta (ex.: "modernização" só conta se houver
+    # infraestrutura de TIC; suporte de software só conta forte com fabricante no escopo)
+    offers_cfg_all = raw["offers"]
+    infra_vendor_offers = {o for v in vendors.values() if v["cobertura"] != "fora_tls" for o in v["offers"]}
+    for k in list(strength):
+        cfg = offers_cfg_all.get(k, {})
+        ctx_keys = cfg.get("requires_context") or []
+        if ctx_keys and max((strength.get(o, 0.0) for o in ctx_keys), default=0.0) < 0.5:
+            strength[k] *= float(cfg.get("context_missing_factor", 0.3))
+            best_level.pop(k, None)
+        if cfg.get("requires_vendor") and k not in infra_vendor_offers:
+            strength[k] *= float(cfg.get("vendor_missing_factor", 0.5))
+
     # penalidades (contexto genérico/fora do escopo)
     pen_terms = sorted({m.term.text for m in penalty_matches})
+    first_offer = min((m.start for m in offer_matches if m.term.level in ("strong", "medium")), default=None)
+    first_pen = min((m.start for m in penalty_matches), default=None)
+    primary_out_of_scope = first_pen is not None and (first_offer is None or first_pen < first_offer)
     pen_total = min(1.0, sum(float((raw.get("penalties") or {}).get("penalty", 0.5)) for _ in pen_terms))
 
     # oferta principal
@@ -332,6 +348,10 @@ def classify(pf: Portfolio, texts: list[str], stage: str | None = None,
     alertas: list[str] = []
     if not has_strong:
         total = min(total, float(raw.get("cap_without_strong_evidence", 35)))
+    if primary_out_of_scope:
+        # o objeto principal (primeiro item citado) está fora do escopo TLS
+        total = min(total, float(raw.get("cap_primary_out_of_scope", 45)))
+        alertas.append("Objeto principal fora do escopo TLS; termos de infraestrutura aparecem como acessórios.")
 
     # tipo de serviço e relação com o TLS
     if best is None or best_strength < 0.5:

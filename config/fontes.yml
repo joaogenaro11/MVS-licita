@@ -3,7 +3,9 @@
 # =============================================================================
 pncp:
   page_size: 50              # máximo aceito pela API de consulta (validado no CI)
-  min_interval_s: 0.3        # intervalo mínimo entre requisições (respeito à fonte)
+  # O PNCP limita a taxa de requisições (HTTP 429 observado no CI a partir de ~25 req/min).
+  # O cliente desacelera automaticamente ao receber 429 e volta aos poucos.
+  min_interval_s: 1.0        # intervalo mínimo entre requisições (respeito à fonte)
   timeout_s: 60
   max_attempts: 6            # tentativas com backoff exponencial (429/5xx/timeout)
 
@@ -16,9 +18,14 @@ pncp:
   # Carga histórica (executada em fatias, retomável, dentro do orçamento de tempo).
   backfill_days:
     contratacoes: 365        # últimos 12 meses
-    contratos: 90
-  # Propostas abertas: snapshot completo a cada execução (encerramento até +N dias).
-  propostas_horizonte_dias: 365
+    contratos: 30
+  # Modalidades da carga histórica. Dispensa (8) tem volume muito alto e baixo valor
+  # histórico; continua coberta pelas atualizações diárias e pelo snapshot de propostas.
+  backfill_modalidades: [6, 4, 9, 7, 5]
+  # Propostas abertas: snapshot completo (encerramento até +N dias), refeito a cada
+  # N dias; entre snapshots, as atualizações diárias capturam novas publicações.
+  propostas_horizonte_dias: 180
+  propostas_snapshot_intervalo_dias: 7
   # Atas vigentes: varredura completa de /v1/atas (vigentes hoje) retomável,
   # refeita a cada N dias; entre varreduras, /v1/atas/atualizacao mantém em dia.
   atas_varredura_intervalo_dias: 30
@@ -26,16 +33,16 @@ pncp:
   atas_vencimento_alerta_dias: 90
 
   # PCA (Plano de Contratações Anual)
+  # Validação real (04/11/2026): /v1/pca/ exige codigoClassificacaoSuperior; /v1/pca/atualizacao
+  # funciona, mas traz ~170 mil itens/dia de todos os assuntos — inviável com o limite de
+  # requisições. Por isso o Radar consulta /v1/pca/ apenas nas classes de TIC listadas abaixo.
+  # Para descobrir/atualizar os códigos: `python -m radar probe --pca` (ou job source-probe do CI).
   pca:
     enabled: true
     anos: [2026, 2027]
-    # Códigos de classificação superior (CATMAT/CATSER) consultados em /v1/pca/.
-    # Lista ajustável: códigos de TIC descobertos/validados pelo diagnóstico do CI.
-    classificacoes: []
-    # Também tenta /v1/pca/atualizacao (por data). Se a fonte falhar, o erro
-    # é registrado e o restante da coleta continua.
-    usar_atualizacao: true
-    backfill_desde: "2025-01-01"
+    classificacoes: []          # ex.: ["123", "456"] — códigos classificacaoSuperiorCodigo de TIC
+    snapshot_intervalo_dias: 7
+    usar_atualizacao: false     # true = acompanha /v1/pca/atualizacao (alto volume)
 
 # Enriquecimento (itens e documentos oficiais) — apenas para candidatos relevantes.
 enrichment:
@@ -49,4 +56,4 @@ storage:
   publish_max_age_days: 400  # contratações antigas saem do site (continuam na base)
 
 # Orçamento de tempo padrão por execução (minutos). O workflow pode sobrescrever.
-budget_minutes: 50
+budget_minutes: 150
