@@ -1,0 +1,149 @@
+name: Atualizar Radar TLS
+
+# Coleta PNCP -> classifica -> grava base no branch `data` -> publica site no GitHub Pages.
+# Falhas de fonte NUNCA substituem dados válidos: o site é publicado com a última base válida.
+on:
+  schedule:
+    - cron: "23 9 * * *"    # 06:23 (Brasília) — fora do minuto 0 para evitar fila
+    - cron: "41 20 * * *"   # 17:41 (Brasília)
+  workflow_dispatch:
+    inputs:
+      budget_min:
+        description: "Orçamento de coleta em minutos (carga histórica inicial: use 300)"
+        required: false
+        default: "50"
+      backfill:
+        description: "Avançar carga histórica (12 meses) e varredura de atas vigentes"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: radar-update          # impede execuções simultâneas (corrupção de dados)
+  cancel-in-progress: false
+
+jobs:
+  collect-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar base de dados (branch data)
+        run: |
+          git config user.name "radar-tls-bot"
+          git config user.email "radar-tls-bot@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin data >/dev/null; then
+            git fetch --depth=1 origin data:data
+            git worktree add data data
+          else
+            git worktree add --orphan -b data data
+          fi
+          ls -la data
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: collector/requirements.txt
+      - run: pip install -r collector/requirements.txt
+
+      - name: Coletar e classificar
+        id: collect
+        continue-on-error: true
+        working-directory: collector
+        env:
+          RADAR_PRIVATE_CONFIG: ${{ secrets.RADAR_PRIVATE_CONFIG }}
+        run: |
+          BUDGET="${{ github.event.inputs.budget_min || '50' }}"
+          BACKFILL_FLAG=""
+          if [ "${{ github.event.inputs.backfill }}" = "false" ]; then BACKFILL_FLAG="--no-backfill"; fi
+          python -m radar update --data-dir ../data --budget-min "$BUDGET" $BACKFILL_FLAG
+
+      - name: Validar base antes de gravar
+        id: validate
+        run: |
+          python - <<'EOF'
+          import json, pathlib, sys
+          d = pathlib.Path("data")
+          if not (d / "meta.json").exists():
+              print("Sem base ainda (primeira execução falhou?)"); sys.exit(1)
+          items = json.loads((d / "items.json").read_text())["items"]
+          atas = json.loads((d / "atas.json").read_text())["items"]
+          meta = json.loads((d / "meta.json").read_text())
+          print(f"itens={len(items)} atas={len(atas)} status={meta.get('status')} falhas={meta.get('fontes_com_falha')}")
+          EOF
+
+      - name: Gravar base versionada (branch data)
+        if: steps.validate.outcome == 'success'
+        working-directory: data
+        run: |
+          git add -A
+          if git diff --cached --quiet; then echo "Sem alterações"; exit 0; fi
+          git commit -q -m "Dados $(date -u +%Y-%m-%dT%H:%MZ) [${{ steps.collect.outcome }}]"
+          for i in 1 2 3; do git push origin data && break || sleep $((i*5)); done
+
+      - name: Exportar dados públicos para o site
+        if: steps.validate.outcome == 'success'
+        working-directory: collector
+        run: python -m radar export --data-dir ../data --out ../web/public/data
+
+      - uses: actions/setup-node@v4
+        if: steps.validate.outcome == 'success'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Build do site
+        if: steps.validate.outcome == 'success'
+        working-directory: web
+        env:
+          # Opcional (acompanhamento compartilhado). URL e chave "anon" do Supabase são
+          # públicas por definição; a proteção é feita pelas políticas RLS.
+          VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+        run: |
+          npm ci
+          npm test
+          npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.validate.outcome == 'success'
+        with:
+          path: web/dist
+
+      - name: Resumo da execução
+        if: always()
+        run: |
+          python - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json, pathlib
+          p = pathlib.Path("data/meta.json")
+          if not p.exists():
+              print("## Radar TLS\nSem base de dados."); raise SystemExit
+          m = json.loads(p.read_text())
+          print(f"## Radar TLS — {m.get('gerado_em')}\n\nStatus: **{m.get('status')}** · duração {m.get('duracao_s')}s\n")
+          print("| Fonte | Status | Vistos | Novos | Atualizados | Erro |\n|---|---|---|---|---|---|")
+          for k, v in (m.get("fontes") or {}).items():
+              print(f"| {k} | {v.get('status')} | {v.get('registros_vistos','')} | {v.get('novos','')} | {v.get('atualizados','')} | {(v.get('erro') or '')[:120]} |")
+          print(f"\nBase: {m.get('totais_base')}\n\nHTTP: {m.get('cliente_http')}")
+          EOF
+
+      - name: Falhar se a coleta falhou (após publicar a última base válida)
+        if: steps.collect.outcome == 'failure'
+        run: exit 1
+
+  deploy:
+    needs: collect-and-build
+    if: always() && needs.collect-and-build.result != 'cancelled'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -2,8 +2,8 @@ name: CI
 
 on:
   push:
-    branches: ["**"]
-    paths-ignore: ["**.md"]
+    branches-ignore: [data]
+    paths-ignore: ["**.md", "docs/**"]
   pull_request:
   workflow_dispatch:
 
@@ -30,12 +30,28 @@ jobs:
       - run: pip install -r requirements.txt
       - run: python -m pytest -q
 
-  # Validação real das fontes: consulta o PNCP com janelas pequenas.
-  # Não bloqueia o CI (a fonte pode estar instável), mas o log mostra o contrato real.
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  # Validação com dados REAIS do PNCP. Não bloqueia o CI (a fonte pode estar instável),
+  # mas o log documenta o contrato real da API e o desempenho do classificador.
   source-probe:
     runs-on: ubuntu-latest
     continue-on-error: true
-    timeout-minutes: 20
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: collector
@@ -46,4 +62,14 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
       - name: Diagnóstico das APIs do PNCP
+        continue-on-error: true
+        timeout-minutes: 12
         run: python -m radar probe --days 2
+      - name: Diagnóstico de PCA e das rotas do portal
+        continue-on-error: true
+        timeout-minutes: 12
+        run: python -m radar probe --pca
+      - name: Classificação de licitações reais (amostra)
+        continue-on-error: true
+        timeout-minutes: 20
+        run: python -m radar sample --days 4 --max-pages 30 --top 60

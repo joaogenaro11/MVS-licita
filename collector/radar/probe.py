@@ -48,12 +48,17 @@ def _show(title: str, fn) -> Any:
     return payload
 
 
-def run(days: int = 2) -> int:
-    c = PNCPClient(max_attempts=3)
+def run(days: int = 2, only_pca: bool = False) -> int:
+    c = PNCPClient(max_attempts=2, timeout=40)
     today = date.today()
     ini = _fmt(today - timedelta(days=days))
     fim = _fmt(today)
     p10 = {"pagina": 1, "tamanhoPagina": 10}
+    if only_pca:
+        probe_pca(c, today)
+        probe_app_routes(c)
+        print("\nestatísticas do cliente:", c.stats.as_dict())
+        return 0
 
     pub = _show("contratacoes/publicacao (pregão eletrônico=6)", lambda: c.get_json(
         f"{CONSULTA_BASE}/v1/contratacoes/publicacao",
@@ -123,9 +128,32 @@ def run(days: int = 2) -> int:
         except ValueError:
             print(f"  numeroControlePNCPAta em formato inesperado: {a_ctrl!r}")
 
-    probe_pca(c, today)
+    probe_app_routes(c)
     print("\nestatísticas do cliente:", c.stats.as_dict())
     return 0
+
+
+def probe_app_routes(c: PNCPClient) -> None:
+    """Confirma a estrutura real dos links do portal PNCP (/app/editais, /app/atas,
+    /app/contratos, /app/pca) lendo as rotas declaradas no bundle da aplicação."""
+    import re
+    print("\n=== rotas do portal https://pncp.gov.br/app/")
+    try:
+        r = c.session.get("https://pncp.gov.br/app/", timeout=40)
+        print(f"  HTTP {r.status_code}, {len(r.text)} bytes")
+        scripts = re.findall(r'src="([^"]+\.js)"', r.text)
+        found: set[str] = set()
+        for s in scripts:
+            url = s if s.startswith("http") else "https://pncp.gov.br/app/" + s.lstrip("/")
+            js = c.session.get(url, timeout=60).text
+            for m in re.finditer(r'path:\s*["\']([^"\']*(?:editais|atas|contratos|pca|contratacoes)[^"\']*)["\']', js):
+                found.add(m.group(1))
+        for p in sorted(found):
+            print(f"  rota: {p}")
+        if not found:
+            print(f"  nenhuma rota encontrada nos scripts: {scripts[:8]}")
+    except Exception as exc:  # noqa: BLE001
+        print(f"  ERRO: {type(exc).__name__}: {exc}")
 
 
 def probe_pca(c: PNCPClient, today: date) -> None:

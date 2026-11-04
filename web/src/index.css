@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --color-ink: #161616;
+  --color-ink-2: #393939;
+  --color-muted: #6f6f6f;
+  --color-line: #e0e0e0;
+  --color-field: #f4f4f4;
+  --color-brand: #0f62fe;
+  --color-brand-dark: #0043ce;
+  --color-brand-soft: #edf5ff;
+  --color-ok: #198038;
+  --color-warn: #b28600;
+  --color-bad: #da1e28;
+  --color-purple: #8a3ffc;
+}
+
+html, body { background: #f4f4f4; color: var(--color-ink); }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+.num { font-variant-numeric: tabular-nums; }
+.clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+input, select, button, textarea { font: inherit; }
+:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 1px; }
