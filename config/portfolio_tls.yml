@@ -1,0 +1,818 @@
+# =============================================================================
+# RADAR TLS — Configuração do portfólio e do motor de classificação
+# =============================================================================
+# Este arquivo é a "fonte de verdade" da classificação. Pode ser editado sem
+# alterar código. Após editar, rode:
+#     cd collector && python -m pytest -q          # garante que os casos de teste continuam ok
+#     python -m radar reclassify --data-dir ../data  # (opcional) reclassifica a base local
+# A próxima execução do GitHub Actions reclassifica toda a base automaticamente.
+#
+# Como os termos funcionam
+#   - O texto é normalizado: minúsculas, sem acentos, espaços simples.
+#   - Termos são procurados como palavras/expressões inteiras. Plural simples
+#     (s / es / ões / ais) é aceito automaticamente na ÚLTIMA palavra do termo.
+#   - Escreva os termos SEM acento (ex.: "manutencao"). Acentos também são aceitos
+#     (são removidos ao carregar), mas manter sem acento evita dúvidas.
+#   - Pesos: strong = 1.0 | medium = 0.5 | weak = 0.2 (força de evidência).
+#
+# IMPORTANTE: aderência tecnológica ≠ elegibilidade comercial. As categorias
+# abaixo indicam onde o TLS PODE atuar; toda oportunidade exige validação
+# comercial. A coluna `tls_coverage` dos fabricantes reflete apenas o que foi
+# confirmado em material PÚBLICO da IBM (ver docs/PORTFOLIO.md).
+# =============================================================================
+
+version: 3
+
+# ---------------------------------------------------------------------------
+# Pesos do score (soma = 100). Aderência técnica = portfolio + support + vendor
+# (+ evidence). Urgência comercial = value + timing. A urgência comercial é
+# multiplicada pelo "fator técnico", portanto valor alto NÃO compensa falta de
+# aderência.
+# ---------------------------------------------------------------------------
+weights:
+  portfolio: 35   # aderência ao portfólio (ofertas abaixo)
+  support: 25     # evidência de suporte/manutenção/garantia
+  vendor: 15      # fabricante/tecnologia compatível
+  value: 10       # potencial comercial (valor estimado)
+  timing: 10      # oportunidade temporal (estágio)
+  evidence: 5     # completude das evidências
+
+# Força de evidência necessária para atingir a pontuação máxima do componente.
+saturation:
+  portfolio: 1.0
+  support: 1.5
+
+# Sem nenhum termo "strong" ou "medium" de oferta, o score total fica limitado
+# a este teto (evita que ocorrências isoladas de "rede"/"suporte" pontuem alto).
+cap_without_strong_evidence: 35
+
+# Se o PRIMEIRO item relevante citado no objeto for um termo fora do escopo
+# (ex.: "aquisição de microcomputadores ... com Wi-Fi"), o score fica limitado a este teto.
+cap_primary_out_of_scope: 45
+
+# Se a evidência de TIC aparece apenas nos itens (o objeto não cita nada do portfólio),
+# o score fica limitado a este teto (evita itens acessórios elevarem contratações alheias).
+cap_items_only: 50
+
+# Fator técnico: aderência técnica (0..1) a partir da qual a urgência comercial
+# conta integralmente. Abaixo disso, value/timing são reduzidos proporcionalmente.
+technical_factor_full_at: 0.55
+
+thresholds:          # classificação final (calibrável)
+  alta: 80           # 80–100 alta prioridade
+  analisar: 60       # 60–79 analisar
+  indireto: 40       # 40–59 potencial indireto
+                     # 0–39 baixa aderência
+
+# Registros com score abaixo deste valor não são armazenados (reduz a base).
+min_score_to_store: 25
+
+# Valor estimado -> pontos (0..1 do peso "value"). Valor sigiloso/ausente = unknown.
+value_bands:
+  - {min: 5000000, factor: 1.0}
+  - {min: 1000000, factor: 0.8}
+  - {min: 300000, factor: 0.6}
+  - {min: 100000, factor: 0.4}
+  - {min: 0.01, factor: 0.2}
+value_unknown_factor: 0.3
+
+# Estágio -> pontos (0..1 do peso "timing"). Quanto mais cedo/acionável, maior.
+timing_by_stage:
+  planejamento: 1.0
+  preparacao: 0.9
+  propostas_abertas: 1.0
+  publicada: 0.8
+  julgamento: 0.3
+  ata_vigente: 0.7
+  concluida: 0.2
+  encerrada: 0.0
+
+# ---------------------------------------------------------------------------
+# Termos de SERVIÇO (suporte/manutenção). Indicam escopo típico TLS quando
+# aparecem junto de termos de infraestrutura.
+# ---------------------------------------------------------------------------
+support_terms:
+  strong:
+    - manutencao preventiva e corretiva
+    - manutencao corretiva
+    - manutencao preventiva
+    - suporte tecnico especializado
+    - suporte tecnico
+    - assistencia tecnica
+    - garantia estendida
+    - extensao de garantia
+    - renovacao de garantia
+    - renovacao de suporte
+    - renovacao do suporte
+    - extensao de suporte
+    - extensao do suporte
+    - servico de suporte
+    - servicos de suporte
+    - contrato de suporte
+    - suporte e manutencao
+    - manutencao e suporte
+    - sustentacao de infraestrutura
+    - sustentacao do ambiente
+    - suporte 24x7
+    - 24x7
+    - 24 x 7
+    - 24 horas por dia, 7 dias por semana
+    - atendimento on-site
+    - on-site
+    - reposicao de pecas
+    - substituicao de pecas
+    - fora de garantia
+    - pos-garantia
+    - smartnet
+    - smart net
+    - atualizacao de firmware
+    - suporte do fabricante
+    - garantia do fabricante
+    - subscricao de suporte
+    - direito de atualizacao
+    - tempo de resposta de 4 horas
+    - proximo dia util
+    - aplicacao de firmware
+    - aplicacao de microcodigo
+    - health check
+    - service extension
+    - extensao de servico
+    - renovacao de subscricao
+    - renovacao das subscricoes
+    - renovacao de licencas e suporte
+    - subscricao de suporte e atualizacao
+  medium:
+    - manutencao
+    - garantia
+    - suporte
+    - sustentacao
+    - sla
+    - acordo de nivel de servico
+    - niveis minimos de servico
+    - operacao assistida
+    - atualizacao de versao
+    - atualizacoes de versao
+    - subscricao
+    - licenciamento com suporte
+  weak:
+    - servicos continuados
+    - atendimento
+
+# Termos que caracterizam AQUISIÇÃO (oportunidade indireta: hardware novo pode
+# gerar suporte/garantia futura, ou atuação via parceiro licitante).
+acquisition_terms:
+  - aquisicao
+  - fornecimento de equipamento
+  - fornecimento de equipamentos
+  - compra de equipamento
+  - registro de precos para aquisicao
+  - eventual aquisicao
+  - futura aquisicao
+  - locacao de equipamento
+
+# ---------------------------------------------------------------------------
+# Expressões removidas do texto ANTES da busca (falsos positivos clássicos).
+# Ex.: "servidores publicos" não é servidor de data center; "rede municipal de
+# ensino" não é rede de dados; "seguranca patrimonial" não é segurança de TI.
+# ---------------------------------------------------------------------------
+neutralize:
+  - servidor publico
+  - servidores publicos
+  - servidor efetivo
+  - servidores efetivos
+  - servidores municipais
+  - servidores estaduais
+  - servidores federais
+  - servidores ativos
+  - servidores inativos
+  - servidores,
+  - servidores lotados
+  - servidor lotado
+  - servidores em exercicio
+  - servidores e empregados
+  - capacitacao de servidores
+  - treinamento de servidores
+  - rede municipal
+  - rede estadual
+  - rede publica
+  - rede de ensino
+  - rede de saude
+  - rede de atencao
+  - rede credenciada
+  - rede de frio
+  - rede eletrica
+  - rede de energia
+  - rede de distribuicao de energia
+  - rede de agua
+  - rede de esgoto
+  - rede hidraulica
+  - rede de drenagem
+  - rede de gas
+  - rede de hidrantes
+  - rede de iluminacao
+  - rede de protecao
+  - rede de pesca
+  - redes de protecao
+  - rede assistencial
+  - rede socioassistencial
+  - seguranca patrimonial
+  - seguranca privada
+  - seguranca armada
+  - seguranca desarmada
+  - seguranca do trabalho
+  - seguranca alimentar
+  - seguranca publica
+  - seguranca viaria
+  - seguranca escolar
+  - seguranca do paciente
+  - seguranca contra incendio
+  - seguranca eletronica
+  - equipamentos de seguranca
+  - equipamento de protecao
+  - suporte de soro
+  - suporte para soro
+  - suporte para tv
+  - suporte de tv
+  - suporte para televisor
+  - suporte de parede
+  - suporte para monitor
+  - suporte para notebook
+  - suporte para cilindro
+  - suporte basico de vida
+  - suporte avancado de vida
+  - suporte nutricional
+  - suporte ventilatorio
+  - suporte pedagogico
+  - suporte administrativo
+  - suporte operacional as atividades
+  - apoio administrativo
+  - firewall humano
+  - roteador de cnc
+  - switch de pedal
+  - manutencao predial
+  - manutencao de veiculos
+  - manutencao veicular
+  - manutencao de ar condicionado
+  - manutencao de elevadores
+  - manutencao de equipamentos odontologicos
+  - manutencao de equipamentos hospitalares
+  - manutencao de equipamentos medicos
+  - manutencao de equipamentos medico-hospitalares
+  - garantia de qualidade
+  - garantia contratual
+  - garantia de execucao
+  - garantia da proposta
+  - armazenamento de lixo
+  - armazenamento de residuos
+  - armazenamento de agua
+  - armazenamento de alimentos
+  - armazenamento de medicamentos
+  - armazenamento de vacinas
+  - armazenamento de combustivel
+  - armazenamento de graos
+  - dispositivo de armazenamento
+  - dispositivos de armazenamento
+  - dispositivos de armazenamentos
+
+# ---------------------------------------------------------------------------
+# Contexto que REDUZ a aderência (não elimina): serviços de TI genéricos ou
+# itens fora do escopo TLS. Cada ocorrência subtrai `penalty` da força de oferta.
+# ---------------------------------------------------------------------------
+penalties:
+  penalty: 0.5
+  terms:
+    - microcomputador
+    - microcomputadores
+    - computador desktop
+    - desktop
+    - notebook
+    - estacao de trabalho
+    - tablet
+    - smartphone
+    - impressora
+    - outsourcing de impressao
+    - servicos de impressao
+    - telefonia movel
+    - telefonia fixa
+    - link de internet
+    - link de dados
+    - links de dados
+    - acesso a internet
+    - servico de conectividade
+    - fabrica de software
+    - desenvolvimento de software
+    - desenvolvimento de sistemas
+    - service desk
+    - central de servicos
+    - fibra optica
+    - cftv
+    - camera de video
+    - videomonitoramento
+    - nobreak
+    - toner
+    - projetor
+    - mobiliario
+    - curso
+    - capacitacao
+    - treinamento
+    - computadores
+    - perifericos
+    - servicos de informatica
+    - telefonia
+    - pabx
+    - central telefonica
+    - comutacao telefonica
+    - aparelhos telefonicos
+    - aparelho telefonico
+    - telefone ip
+    - microsoft 365
+    - office 365
+    - power bi
+    - saas
+    - software como servico
+    - autodesk
+    - adobe
+    - licencas de uso
+    - chiller
+    - autoclave
+    - grupo gerador
+    - gerador
+    - incendio
+    - subestacao
+    - infraestrutura eletrica
+    - materiais eletricos
+    - equipamentos eletricos
+    - sonorizacao
+    - plenario
+    - colocation
+    - pen drive
+    - pendrive
+    - hd externo
+    - disco rigido externo
+    - ssd
+    - cartao de memoria
+    - material de expediente
+    - conteiner
+    - conteineres
+    - cortina
+    - acesso dedicado
+    - link dedicado
+    - links dedicados
+    - conexao a internet
+    - servico de internet
+    - scanner
+    - digitalizador
+    - ar condicionado
+    - split
+    - infraestrutura como servico
+    - iaas
+    - computacao em nuvem
+    - nuvem publica
+    - ambiente de nuvem
+    - em nuvem
+    - windows 11
+    - windows 10
+    - windows pro
+
+# ---------------------------------------------------------------------------
+# OFERTAS TLS (ponto de partida — não confirma cobertura comercial).
+# ---------------------------------------------------------------------------
+offers:
+  # fit_factor: peso relativo da oferta (multiplica o componente de portfólio).
+  # Pode ser ajustado pela configuração privada (secret RADAR_PRIVATE_CONFIG).
+  networking:
+    label: Networking
+    fit_factor: 1.0
+    description: Infraestrutura de redes corporativas (LAN/WAN/Wi-Fi, data center, campus e industrial) e suporte.
+    strong:
+      - dwdm
+      - sdn
+      - rede definida por software
+      - switch industrial
+      - switches industriais
+      - rede industrial
+      - redes industriais
+      - rede de tecnologia operacional
+      - site survey
+      - switch
+      - switch core
+      - switch de acesso
+      - switches gerenciaveis
+      - switch gerenciavel
+      - roteador
+      - access point
+      - ponto de acesso sem fio
+      - pontos de acesso sem fio
+      - controladora wireless
+      - controladora de rede sem fio
+      - rede sem fio
+      - wlan
+      - sd-wan
+      - sdwan
+      - ativos de rede
+      - ativo de rede
+      - equipamentos de rede
+      - equipamento de rede
+      - equipamentos de conectividade
+      - infraestrutura de rede
+      - infraestrutura de redes
+      - solucao de rede
+      - rede corporativa
+      - rede de dados
+      - redes de dados
+      - rede local
+      - redes locais
+      - rede lan
+      - rede wan
+      - backbone
+      - balanceador de carga
+      - balanceamento de carga
+      - switching
+      - roteamento
+    medium:
+      - wi-fi
+      - wifi
+      - lan
+      - wan
+      - transceiver
+      - modulo sfp
+      - gbic
+      - conectividade
+      - rede logica
+    weak:
+      - comutacao
+      - rede
+      - redes
+
+  security:
+    label: Security
+    fit_factor: 1.0
+    description: Firewalls, appliances e infraestrutura de segurança de rede e seus serviços de suporte.
+    strong:
+      - firewall
+      - ngfw
+      - next generation firewall
+      - firewall de proxima geracao
+      - utm
+      - appliance de seguranca
+      - appliances de seguranca
+      - seguranca de perimetro
+      - protecao de perimetro
+      - web application firewall
+      - waf
+      - sistema de prevencao de intrusao
+      - prevencao de intrusos
+      - vpn
+      - anti-ddos
+      - protecao contra ddos
+      - controle de acesso a rede
+      - seguranca de rede
+      - seguranca de redes
+      - gateway de seguranca
+      - filtro de conteudo web
+    medium:
+      - seguranca da informacao
+      - seguranca cibernetica
+      - ciberseguranca
+      - seguranca de infraestrutura
+      - sandbox
+      - proxy
+      - siem
+      - antivirus
+      - ips
+      - ids
+      - nac
+    weak:
+      - seguranca
+
+  datacenter:
+    label: Data Center
+    fit_factor: 1.0
+    description: Servidores, storage, hiperconvergência, virtualização, mainframe e infraestrutura crítica.
+    strong:
+      - computador de grande porte
+      - plataforma alta
+      - linux on z
+      - plataforma power
+      - servidores power
+      - storage
+      - subsistema de armazenamento
+      - sistema de armazenamento
+      - solucao de armazenamento
+      - armazenamento de dados
+      - storage area network
+      - rede san
+      - switch san
+      - switches san
+      - fibre channel
+      - network attached storage
+      - hiperconvergencia
+      - hiperconvergente
+      - hiperconvergentes
+      - infraestrutura hiperconvergente
+      - servidor de rede
+      - servidores de rede
+      - servidor rack
+      - servidores rack
+      - servidor de rack
+      - servidores de rack
+      - servidor blade
+      - servidores blade
+      - chassi blade
+      - servidor x86
+      - servidores x86
+      - servidores fisicos
+      - servidor fisico
+      - servidores de processamento
+      - servidor de processamento
+      - data center
+      - datacenter
+      - centro de dados
+      - centro de processamento de dados
+      - mainframe
+      - biblioteca de fitas
+      - tape library
+      - unidade de fita
+      - unidades de fita
+      - appliance de backup
+      - solucao de backup
+      - virtualizacao de servidores
+      - plataforma de virtualizacao
+      - infraestrutura computacional
+      - infraestrutura de processamento
+      - infraestrutura de tic
+      - infraestrutura de ti
+    medium:
+      - backup
+      - virtualizacao
+      - armazenamento
+      - processamento de dados
+      - nuvem privada
+      - sala cofre
+      - sala segura
+    weak:
+      - servidor
+      - servidores
+
+  mvs:
+    label: MVS — Multivendor
+    fit_factor: 1.0
+    description: Suporte/manutenção de infraestrutura de múltiplos fabricantes, extensão de vida útil e pós-garantia.
+    strong:
+      - multifabricante
+      - multi-fabricante
+      - multivendor
+      - multiplos fabricantes
+      - diversos fabricantes
+      - ambiente heterogeneo
+      - equipamentos fora de garantia
+      - equipamento fora de garantia
+      - fim de garantia
+      - pos-garantia
+      - extensao de vida util
+      - fim de suporte
+      - end of support
+      - end of life
+      - manutencao de hardware
+      - suporte de hardware
+      - suporte ao hardware
+      - manutencao de equipamentos de tic
+      - manutencao de equipamentos de ti
+      - manutencao de ativos de tic
+      - parque tecnologico
+    medium:
+      - equipamentos de tic
+      - equipamentos de ti
+      - ativos de tic
+      - ativos de ti
+      - parque computacional
+      - infraestrutura tecnologica
+
+  software_terceiros:
+    label: Suporte de software de terceiros
+    fit_factor: 1.0
+    # sem fabricante identificado, a evidência de "suporte de software" é genérica
+    requires_vendor: true
+    vendor_missing_factor: 0.4
+    description: Suporte e continuidade de software de terceiros on-premises. Cobertura e alcance devem ser confirmados caso a caso.
+    strong:
+      - suporte oracle
+      - banco de dados oracle
+      - oracle database
+      - suporte ao banco de dados
+      - suporte microsoft
+      - suporte premier
+      - microsoft unified
+      - suporte vmware
+      - suse linux
+      - suporte suse
+      - suporte ao sistema operacional
+      - suporte de sistema operacional
+    medium:
+      - suporte de software
+      - suporte a software
+      - atualizacao de licencas
+      - suporte tecnico e atualizacao
+      - sistema operacional
+      - banco de dados
+      - licencas de software
+      - atualizacao de software
+      - middleware
+
+  hardware_refresh:
+    label: Hardware Refresh
+    fit_factor: 1.0
+    # termos de modernização só contam se houver infraestrutura de TIC no texto
+    requires_context: [networking, security, datacenter, mvs]
+    context_missing_factor: 0.2
+    description: Substituição/expansão de servidores, storage e rede. Normalmente via parceiro licitante.
+    strong:
+      - renovacao do parque
+      - renovacao tecnologica
+      - atualizacao tecnologica
+      - modernizacao da infraestrutura
+      - modernizacao do parque
+      - substituicao de equipamentos
+      - substituicao dos equipamentos
+      - expansao da infraestrutura
+      - expansao de capacidade
+      - refresh tecnologico
+      - obsolescencia
+    medium:
+      - modernizacao
+      - expansao
+      - ampliacao da capacidade
+
+  complementares:
+    label: Serviços complementares
+    fit_factor: 0.6
+    description: Retenção de mídia, aplicação assistida de firmware, projetos de infraestrutura física de data center.
+    strong:
+      - retencao de midia
+      - retencao de midias
+      - descarte seguro de midias
+      - sanitizacao de discos
+      - destruicao de discos
+      - aplicacao assistida de firmware
+      - confinamento de corredor
+      - corredor frio
+    medium:
+      - projeto de infraestrutura
+      - adequacao de data center
+      - climatizacao de data center
+    weak:
+      - cabeamento estruturado
+
+# Regras de combinação (oferta sugerida). Quando o serviço é de suporte e a
+# oferta principal é de infraestrutura, a sugestão inclui MVS.
+combination:
+  support_implies_mvs_for: [networking, security, datacenter]
+  # Aquisição de hardware dessas ofertas sugere Hardware Refresh (via parceiro).
+  acquisition_implies_refresh_for: [networking, security, datacenter]
+
+# ---------------------------------------------------------------------------
+# FABRICANTES / TECNOLOGIAS
+#   tls_coverage:
+#     confirmada -> fabricante citado em material PÚBLICO da IBM sobre suporte
+#                   multivendor/TLS (ver docs/PORTFOLIO.md)
+#     validar    -> tecnologia compatível; cobertura não confirmada publicamente
+#     fora_tls   -> não pontua como TLS
+#   offers:    ofertas para as quais o fabricante é evidência.
+# Cobertura e notas comerciais internas ficam na configuração PRIVADA
+# (secret RADAR_PRIVATE_CONFIG / Supabase), nunca neste arquivo público.
+# ---------------------------------------------------------------------------
+vendors:
+  Cisco:
+    tls_coverage: confirmada
+    offers: [networking, security, datacenter]
+    aliases: [cisco, catalyst, nexus, meraki, smartnet, smart net, firepower, cisco asa, cisco dna, cisco ise, cisco aci, nexus dashboard, cisco mds, mds 9, cisco ucs, hyperfabric, secure workload, splunk]
+  Juniper:
+    tls_coverage: confirmada
+    offers: [networking, security]
+    aliases: [juniper, junos, juniper mist, srx]
+  Fortinet:
+    tls_coverage: validar
+    offers: [security, networking]
+    aliases: [fortinet, fortigate, fortianalyzer, fortimanager, fortiswitch, fortiap, fortiweb, fortiauthenticator, fortisiem, fortiedr]
+  Palo Alto Networks:
+    tls_coverage: confirmada
+    offers: [security]
+    aliases: [palo alto, palo alto networks, panos, pan-os, prisma access]
+  Check Point:
+    tls_coverage: confirmada
+    offers: [security]
+    aliases: [check point, checkpoint]
+  F5:
+    tls_coverage: confirmada
+    offers: [networking, security]
+    aliases: [f5 networks, f5 big-ip, big-ip, bigip]
+  Riverbed:
+    tls_coverage: confirmada
+    offers: [networking]
+    aliases: [riverbed, steelhead]
+  Brocade:
+    tls_coverage: validar
+    offers: [datacenter, networking]
+    aliases: [brocade]
+  HPE Aruba:
+    tls_coverage: validar
+    offers: [networking]
+    aliases: [aruba, aruba networks, hpe aruba, clearpass, aruba central]
+  Extreme Networks:
+    tls_coverage: validar
+    offers: [networking]
+    aliases: [extreme networks, extremexos, extreme switching]
+  Huawei:
+    tls_coverage: validar
+    offers: [networking, datacenter]
+    aliases: [huawei, oceanstor, cloudengine]
+  Datacom:
+    tls_coverage: validar
+    offers: [networking]
+    aliases: [datacom dm, dmos, datacom]
+  Adtran:
+    tls_coverage: validar
+    offers: [networking]
+    aliases: [adtran]
+  Sophos:
+    tls_coverage: validar
+    offers: [security]
+    aliases: [sophos]
+  SonicWall:
+    tls_coverage: validar
+    offers: [security]
+    aliases: [sonicwall]
+  Ruckus:
+    tls_coverage: validar
+    offers: [networking]
+    aliases: [ruckus]
+  IBM:
+    tls_coverage: confirmada
+    offers: [datacenter, software_terceiros]
+    aliases: [ibm, ibm power, power systems, ibm power10, ibm power11, flashsystem, storwize, ds8000, ds8k, aix, ibm i, z/os, ibm z, ibm z16, ibm z17, linuxone, ts4500, ts4300, spectrum protect, spectrum scale, storage defender]
+  Lenovo:
+    tls_coverage: confirmada
+    offers: [datacenter]
+    aliases: [lenovo, thinksystem, thinkagile]
+  Dell Technologies:
+    tls_coverage: validar
+    offers: [datacenter, networking]
+    aliases: [dell, dell emc, emc, poweredge, powerstore, powermax, powerscale, isilon, vxrail, data domain, powerprotect, vnx, compellent, equallogic, dell networking]
+  NetApp:
+    tls_coverage: confirmada
+    offers: [datacenter]
+    aliases: [netapp, ontap]
+  Supermicro:
+    tls_coverage: confirmada
+    offers: [datacenter]
+    aliases: [supermicro]
+  Oracle:
+    tls_coverage: confirmada
+    offers: [datacenter, software_terceiros]
+    aliases: [oracle, exadata, oracle database appliance, sparc, solaris, oracle linux, weblogic]
+  Microsoft:
+    tls_coverage: validar
+    offers: [software_terceiros]
+    aliases: [microsoft, windows server, sql server, active directory, exchange server, hyper-v, system center]
+  VMware:
+    tls_coverage: validar
+    offers: [datacenter, software_terceiros]
+    aliases: [vmware, vsphere, vcenter, vsan, esxi, vmware cloud foundation, nsx]
+  SUSE:
+    tls_coverage: validar
+    offers: [software_terceiros]
+    aliases: [suse, sles, suse linux enterprise]
+  Red Hat:
+    tls_coverage: validar
+    offers: [software_terceiros]
+    aliases: [red hat, rhel, openshift, red hat enterprise linux, ansible automation platform]
+  HPE:
+    tls_coverage: validar
+    offers: [datacenter]
+    aliases: [hewlett packard enterprise, hpe, proliant, hpe synergy, 3par, nimble storage, alletra, hpe primera, simplivity, storeonce]
+  Hitachi Vantara:
+    tls_coverage: validar
+    offers: [datacenter]
+    aliases: [hitachi vantara, hitachi vsp, hitachi data systems]
+  Pure Storage:
+    tls_coverage: validar
+    offers: [datacenter]
+    aliases: [pure storage, flasharray, flashblade]
+  Nutanix:
+    tls_coverage: validar
+    offers: [datacenter]
+    aliases: [nutanix]
+  Quantum:
+    tls_coverage: validar
+    offers: [datacenter]
+    aliases: [quantum scalar, quantum dxi]
+
+# Texto da justificativa por tipo de serviço identificado.
+service_types:
+  suporte_manutencao: Serviço de suporte/manutenção de infraestrutura
+  aquisicao_com_garantia: Aquisição de hardware com garantia/suporte embutido
+  aquisicao_hardware: Aquisição de hardware (potencial de suporte futuro)
+  software_suporte: Suporte/subscrição de software de terceiros
+  infraestrutura_geral: Contratação de infraestrutura de TIC (escopo a detalhar)
+  servico_ti_generico: Serviço de TI genérico, sem relação concreta com TLS
+  sem_aderencia: Sem aderência identificada

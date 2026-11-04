@@ -1,0 +1,76 @@
+# =============================================================================
+# RADAR TLS — Configuração das fontes e da coleta
+# =============================================================================
+pncp:
+  page_size: 50              # máximo aceito pela API de consulta (validado no CI)
+  # O PNCP limita a taxa de requisições (HTTP 429 observado no CI a partir de ~25 req/min).
+  # O cliente desacelera automaticamente ao receber 429 e volta aos poucos.
+  min_interval_s: 1.0        # intervalo mínimo entre requisições (respeito à fonte)
+  timeout_s: 60
+  max_attempts: 6            # tentativas com backoff exponencial (429/5xx/timeout)
+
+  # Modalidades coletadas (códigos PNCP):
+  #  4 Concorrência eletrônica | 5 Concorrência presencial | 6 Pregão eletrônico
+  #  7 Pregão presencial | 8 Dispensa | 9 Inexigibilidade
+  # 10 Manifestação de interesse | 11 Pré-qualificação (tratadas como "preparação")
+  modalidades: [6, 4, 8, 9, 7, 5, 10, 11]
+
+  # Carga histórica (executada em fatias, retomável, dentro do orçamento de tempo).
+  backfill_days:
+    contratacoes: 365        # últimos 12 meses
+    contratos: 30
+  # Modalidades da carga histórica. Dispensa (8) tem volume muito alto e baixo valor
+  # histórico; continua coberta pelas atualizações diárias e pelo snapshot de propostas.
+  backfill_modalidades: [6, 4, 9, 7, 5]
+  # Propostas abertas: snapshot completo (encerramento até +N dias), refeito a cada
+  # N dias; entre snapshots, as atualizações diárias capturam novas publicações.
+  propostas_horizonte_dias: 180
+  propostas_snapshot_intervalo_dias: 7
+  # Atas vigentes: varredura completa de /v1/atas (vigentes hoje) retomável,
+  # refeita a cada N dias; entre varreduras, /v1/atas/atualizacao mantém em dia.
+  atas_varredura_intervalo_dias: 30
+  atas_varredura_sobreposicao_paginas: 10
+  atas_vencimento_alerta_dias: 90
+
+  # PCA (Plano de Contratações Anual)
+  # Validação real (04/11/2026): /v1/pca/ exige codigoClassificacaoSuperior; /v1/pca/atualizacao
+  # funciona, mas traz ~170 mil itens/dia de todos os assuntos — inviável com o limite de
+  # requisições. Por isso o Radar consulta /v1/pca/ apenas nas classes de TIC listadas abaixo.
+  # Para descobrir/atualizar os códigos: `python -m radar probe --pca` (ou job source-probe do CI).
+  pca:
+    enabled: true
+    anos: [2026, 2027]
+    # 158 = "MANUTENÇÃO E CONSERVAÇÃO DE EQUIPAMENTOS DE PROCESSAMENTO DE DADOS" (Soluções de TIC)
+    #       -> CONFIRMADO em itens reais do PNCP (probe de 04/11/2026).
+    # 70xx / 58xx = classes do catálogo de materiais no padrão FSC (o PNCP usa esse padrão:
+    #       ex. 6550 observado = diagnóstico in vitro). A VALIDAR pelo probe (job source-probe):
+    #       7010 config. de processamento de dados | 7021/7022 unidades centrais | 7025 E/S e
+    #       armazenamento | 7035 equipamentos de suporte | 7050 componentes | 5810 segurança de
+    #       comunicações | 5895 equipamentos de comunicação diversos.
+    # Itens são classificados normalmente; só os aderentes ao TLS são armazenados.
+    classificacoes: ["158", "7010", "7021", "7022", "7025", "7035", "7050", "5810", "5895"]
+    snapshot_intervalo_dias: 7
+    usar_atualizacao: false     # true = acompanha /v1/pca/atualizacao (alto volume)
+
+# Enriquecimento (itens e documentos oficiais) — apenas para candidatos relevantes.
+enrichment:
+  min_score: 45
+  max_requests_per_run: 1500
+  max_itens_por_compra: 100
+
+storage:
+  min_score_to_store: 25     # (também em portfolio_tls.yml; este valor prevalece)
+  publish_min_score: 35      # itens enviados ao site (reduz o tamanho dos dados públicos)
+  publish_max_age_days: 400  # contratações antigas saem do site (continuam na base)
+
+# Fatia máxima do orçamento por fonte (0..1). Impede que uma fonte volumosa deixe as
+# demais sem tempo; o que não couber continua na próxima execução (cursor por dia).
+time_shares:
+  contratacoes_atualizacao: 0.30
+  atas_atualizacao: 0.15
+  contratos_atualizacao: 0.15
+  propostas_abertas: 0.25
+  pca: 0.15
+
+# Orçamento de tempo padrão por execução (minutos). O workflow pode sobrescrever.
+budget_minutes: 150

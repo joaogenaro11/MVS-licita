@@ -1,0 +1,165 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**"]
+  pull_request:
+    paths-ignore: ["**.md", "docs/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  collector-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: collector
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: collector/requirements.txt
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  # Validação com dados REAIS do PNCP. Não bloqueia o CI (a fonte pode estar instável),
+  # mas o log documenta o contrato real da API e o desempenho do classificador.
+  source-probe:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 60
+    env:
+      PYTHONUNBUFFERED: "1"
+    defaults:
+      run:
+        working-directory: collector
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Diagnóstico das APIs do PNCP
+        continue-on-error: true
+        timeout-minutes: 12
+        run: python -m radar probe --days 2
+      - name: Diagnóstico de PCA e das rotas do portal
+        continue-on-error: true
+        timeout-minutes: 25
+        run: python -m radar probe --pca
+      - name: Classificação de licitações reais (amostra)
+        continue-on-error: true
+        timeout-minutes: 20
+        run: python -m radar sample --days 4 --max-pages 30 --top 60
+
+  # Ponta a ponta com dados reais: update (orçamento curto) -> export -> build do site.
+  # Gera um artefato com o site pronto para inspeção. Não bloqueia o CI.
+  pipeline-e2e:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 40
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r collector/requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Coleta real curta (sem carga histórica)
+        working-directory: collector
+        run: python -m radar update --data-dir ../e2e-data --budget-min 25 --no-backfill
+      - name: Resumo
+        run: |
+          python - <<'EOF'
+          import json
+          m = json.load(open("e2e-data/meta.json"))
+          print("status:", m["status"], "| falhas:", m["fontes_com_falha"])
+          for k, v in m["fontes"].items():
+              print(f"  {k:28s} {v.get('status'):10s} vistos={v.get('registros_vistos')} novos={v.get('novos')} erro={(v.get('erro') or '')[:150]}")
+          print("base:", m["totais_base"], "| http:", m["cliente_http"])
+          items = json.load(open("e2e-data/items.json"))["items"]
+          atas = json.load(open("e2e-data/atas.json"))["items"]
+          for x in sorted(items + atas, key=lambda x: -x["classificacao"]["score"])[:25]:
+              c = x["classificacao"]
+              print(f"[{c['score']:3d}] {x['tipo']:11s} {x['estagio']:18s} {x['id']} | {(x['orgao'].get('nome') or '')[:40]} | {x['objeto'][:110]}")
+              print(f"      origem={x['links'].get('origem')} pncp={x['links'].get('pncp')} docs={len(x.get('documentos') or [])}")
+              print(f"      {c['justificativa'][:220]} | alertas={c.get('alertas')}")
+          EOF
+      - name: Teste dos links oficiais coletados (amostra)
+        run: |
+          python - <<'EOF'
+          import json, requests, time
+          items = json.load(open("e2e-data/items.json"))["items"] + json.load(open("e2e-data/atas.json"))["items"]
+          urls = []
+          for x in items:
+              for k in ("origem", "pncp"):
+                  if x["links"].get(k): urls.append((k, x["links"][k]))
+              for d in (x.get("documentos") or [])[:1]: urls.append(("documento", d["url"]))
+          seen, n_ok, n = set(), 0, 0
+          for kind, u in urls:
+              if u in seen or n >= 40: continue
+              seen.add(u); n += 1
+              try:
+                  r = requests.get(u, timeout=30, allow_redirects=True, stream=True)
+                  code = r.status_code; r.close()
+              except Exception as e:
+                  code = type(e).__name__
+              n_ok += code == 200
+              print(f"{kind:10s} {code} {u[:150]}")
+              time.sleep(1)
+          print(f"\n{n_ok}/{n} links responderam HTTP 200")
+          EOF
+
+      - name: Export e build do site
+        run: |
+          cd collector && python -m radar export --data-dir ../e2e-data --out ../web/public/data && cd ../web
+          npm ci && npm run build
+      - name: Teste funcional da interface com dados reais (Playwright)
+        working-directory: web
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+          mkdir -p ../ui-shots
+          (npx vite preview --port 4173 --strictPort > /dev/null 2>&1 &)
+          sleep 4
+          node tests-e2e/ui-check.mjs http://localhost:4173/ ../ui-shots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-screenshots
+          path: ui-shots
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-e2e
+          path: web/dist
+          retention-days: 7
