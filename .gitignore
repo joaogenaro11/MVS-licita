@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+web/dist/
+web/public/data/
+/data/
+.env
+.env.local
+*.local
+.DS_Store
