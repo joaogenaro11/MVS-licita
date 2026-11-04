@@ -1,0 +1,164 @@
+{
+ "app": "Radar TLS",
+ "versao": "1.0.0",
+ "gerado_em": "2026-11-04T10:54:48-03:00",
+ "status": "ok",
+ "fontes_com_falha": [],
+ "fontes": {
+  "contratacoes_atualizacao": {
+   "ultima_execucao": "2026-11-04T10:54:48-03:00",
+   "status": "ok",
+   "erro": null,
+   "ultimo_sucesso": "2026-11-04T10:54:48-03:00",
+   "registros_vistos": 14112,
+   "novos": 148,
+   "atualizados": 2
+  },
+  "atas_atualizacao": {
+   "ultima_execucao": "2026-11-04T10:54:48-03:00",
+   "status": "ok",
+   "erro": null,
+   "ultimo_sucesso": "2026-11-04T10:54:48-03:00",
+   "registros_vistos": 4429,
+   "novos": 22,
+   "atualizados": 0
+  },
+  "contratos_atualizacao": {
+   "ultima_execucao": "2026-11-04T10:54:48-03:00",
+   "status": "ok",
+   "erro": null,
+   "ultimo_sucesso": "2026-11-04T10:54:48-03:00",
+   "registros_vistos": 13300,
+   "novos": 80,
+   "atualizados": 0
+  },
+  "propostas_abertas": {
+   "ultima_execucao": "2026-11-04T10:54:48-03:00",
+   "status": "ok",
+   "erro": null,
+   "paginas": 598,
+   "ultimo_sucesso": "2026-11-04T10:54:48-03:00",
+   "registros_vistos": 29853,
+   "novos": 279,
+   "atualizados": 0
+  },
+  "pca": {
+   "ultima_execucao": "2026-11-04T10:54:48-03:00",
+   "status": "parcial",
+   "erro": "classificação 158/2026: falha após 6 tentativas: HTTP 500; classificação 158/2027: falha após 6 tentativas: HTTP 500; classificação 7010/2026: falha após 6 tentativas: HTTP 500; classificação 7010/2027: falha após 6 tentativas: HTTP 500; classificação 7025/2026: falha após 6 tentativas: HTTP 500; classificação 7025/2027: falha após 6 tentativas: HTTP 500; classificação 7035/2026: falha após 6 tentativas: HTTP 500; classificação 7035/2027: falha após 6 tentativas: HTTP 500",
+   "ultimo_sucesso": "2026-11-04T10:54:48-03:00",
+   "registros_vistos": 7,
+   "novos": 1,
+   "atualizados": 0
+  },
+  "atas_varredura": {
+   "ultima_execucao": "2026-11-04T10:54:48-03:00",
+   "status": "parcial",
+   "erro": null,
+   "progresso": 8.4,
+   "ultimo_sucesso": "2026-11-04T10:54:48-03:00",
+   "registros_vistos": 40750,
+   "novos": 200,
+   "atualizados": 0
+  },
+  "backfill_contratacoes": {
+   "ultima_execucao": "2026-11-04T10:54:48-03:00",
+   "status": "parcial",
+   "erro": null,
+   "progresso": 0.0,
+   "ultimo_sucesso": "2026-11-04T10:54:48-03:00",
+   "registros_vistos": 0,
+   "novos": 0,
+   "atualizados": 0
+  },
+  "backfill_contratos": {
+   "ultima_execucao": "2026-11-04T10:54:48-03:00",
+   "status": "parcial",
+   "erro": null,
+   "progresso": 0.0,
+   "ultimo_sucesso": "2026-11-04T10:54:48-03:00",
+   "registros_vistos": 0,
+   "novos": 0,
+   "atualizados": 0
+  },
+  "enriquecimento": {
+   "ultima_execucao": "2026-11-04T10:54:48-03:00",
+   "status": "parcial",
+   "erro": null,
+   "enriquecidos": 398,
+   "pendentes": 126,
+   "ultimo_sucesso": "2026-11-04T10:54:48-03:00",
+   "registros_vistos": 0,
+   "novos": 0,
+   "atualizados": 0
+  }
+ },
+ "carga_historica": {
+  "contratacoes": {
+   "proximo": null,
+   "limite": "2025-11-04",
+   "progresso": 0.0,
+   "concluido": false
+  },
+  "contratos": {
+   "proximo": null,
+   "limite": "2026-10-05",
+   "progresso": 0.0,
+   "concluido": false
+  },
+  "atas_vigentes": {
+   "pagina": 816,
+   "total_paginas": 9659,
+   "total_registros": 482924,
+   "progresso": 8.4,
+   "concluida_em": null,
+   "iniciada_em": "2026-11-04T10:54:48-03:00"
+  }
+ },
+ "totais_base": {
+  "itens": 508,
+  "contratacoes": 427,
+  "pca": 1,
+  "contratos": 80,
+  "atas": 222
+ },
+ "cliente_http": {
+  "requests": 3060,
+  "retries": 92,
+  "failures": 8,
+  "no_content": 4,
+  "limitadas_429": 51,
+  "by_status": {
+   "200": 2956,
+   "204": 4,
+   "429": 51,
+   "500": 47
+  }
+ },
+ "duracao_s": 17917.5,
+ "classificador": {
+  "versao_config": 3,
+  "configuracao_privada": false,
+  "limiares": {
+   "alta": 80,
+   "analisar": 60,
+   "indireto": 40
+  },
+  "pesos": {
+   "portfolio": 35,
+   "support": 25,
+   "vendor": 15,
+   "value": 10,
+   "timing": 10,
+   "evidence": 5
+  }
+ },
+ "limitacoes": [
+  "Cobertura limitada ao que os órgãos publicam no PNCP. Órgãos que não publicam (ou publicam com atraso) não aparecem.",
+  "ETPs e pesquisas de preço não são publicados de forma estruturada no PNCP; o estágio 'Preparação' só aparece para manifestações de interesse e pré-qualificações.",
+  "PDTI/PDTIC não possuem API pública: devem ser consultados nos sites dos órgãos (módulo futuro 'Análise de Compras').",
+  "A classificação usa o objeto, a informação complementar e, quando coletados, os itens da contratação. PDFs de editais/TRs NÃO são lidos pelo sistema.",
+  "Possibilidade de adesão a atas é indicativa: não há análise jurídica nem verificação de saldo.",
+  "A busca opera sobre a base coletada pelo Radar (não é uma consulta em tempo real a toda a base nacional)."
+ ]
+}
