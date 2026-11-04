@@ -9,3 +9,4 @@ web/public/data/
 .env.local
 *.local
 .DS_Store
+config/portfolio_private.yml

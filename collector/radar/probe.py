@@ -111,8 +111,47 @@ def run(days: int = 2) -> int:
         a = atas_hoje["data"][0]
         print(f"\n--- ata de amostra: {a.get('numeroControlePNCPAta')} compra={a.get('numeroControlePNCPCompra')}")
 
+    if isinstance(atas_hoje, dict) and atas_hoje.get("data"):
+        a_ctrl = atas_hoje["data"][0].get("numeroControlePNCPAta") or ""
+        try:
+            cnpj_a, rest = a_ctrl.split("-1-")
+            seq_c, rest2 = rest.split("/")
+            ano_c, seq_a = rest2.split("-")
+            base_a = f"https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj_a}/compras/{ano_c}/{int(seq_c)}/atas/{int(seq_a)}"
+            _show("ata detalhe (api pncp)", lambda: c.get_json(base_a))
+            _show("ata arquivos (api pncp)", lambda: c.get_json(base_a + "/arquivos"))
+        except ValueError:
+            print(f"  numeroControlePNCPAta em formato inesperado: {a_ctrl!r}")
+
+    probe_pca(c, today)
     print("\nestatísticas do cliente:", c.stats.as_dict())
     return 0
+
+
+def probe_pca(c: PNCPClient, today: date) -> None:
+    """Descobre a forma viável de consultar o PCA (endpoints e códigos de classificação)."""
+    from collections import Counter
+    y = _fmt(today - timedelta(days=1))
+    _show("pca/atualizacao 1 dia", lambda: c.get_json(
+        f"{CONSULTA_BASE}/v1/pca/atualizacao", dict(pagina=1, tamanhoPagina=10, dataInicio=y, dataFim=y)))
+    _show("pca/atualizacao (dataInicial/dataFinal)", lambda: c.get_json(
+        f"{CONSULTA_BASE}/v1/pca/atualizacao", dict(pagina=1, tamanhoPagina=10, dataInicial=y, dataFinal=y)))
+    for code in ["7010", "7025", "7050", "5820", "5895", "70", "58", "1", "2", "5"]:
+        payload = _show(f"pca/ anoPca=2026 codigoClassificacaoSuperior={code}", lambda: c.get_json(
+            f"{CONSULTA_BASE}/v1/pca/", dict(pagina=1, tamanhoPagina=50, anoPca=2026, codigoClassificacaoSuperior=code)))
+        rows = (payload or {}).get("data") if isinstance(payload, dict) else None
+        if rows:
+            cnt: Counter = Counter()
+            for r in rows:
+                for it in (r.get("itens") or [r]):
+                    cnt[(it.get("classificacaoSuperiorCodigo"), it.get("classificacaoSuperiorNome"),
+                         it.get("categoriaItemPcaNome"))] += 1
+            for k, v in cnt.most_common(15):
+                print(f"     {v:4d}  {k}")
+    for uid in (3, 4):
+        _show(f"pca/usuario anoPca=2026 idUsuario={uid} classificacao=7010", lambda: c.get_json(
+            f"{CONSULTA_BASE}/v1/pca/usuario", dict(pagina=1, tamanhoPagina=10, anoPca=2026, idUsuario=uid,
+                                                     codigoClassificacaoSuperior="7010")))
 
 
 if __name__ == "__main__":
