@@ -105,8 +105,11 @@ jobs:
         env:
           # Opcional (acompanhamento compartilhado). URL e chave "anon" do Supabase são
           # públicas por definição; a proteção é feita pelas políticas RLS.
-          VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+          # Projeto Supabase "radar-tls". URL e chave publicável são públicas por definição
+          # (vão para o navegador); a proteção dos dados é o login + RLS (docs/supabase.sql).
+          # Variáveis do repositório (Settings > Variables) sobrescrevem estes valores.
+          VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://wbhhfybpflqnnelwttdv.supabase.co' }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY || 'sb_publishable_2uxgq5l6nHGsGSdf5XFaGg_feNyTEof' }}
           VITE_GITHUB_REPO: ${{ github.repository }}   # botão "Nova busca" no site
         run: |
           npm ci
