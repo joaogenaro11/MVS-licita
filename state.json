@@ -1,12 +1,12 @@
 {
  "contratacoes_atualizacao": {
-  "ate": "2026-11-04"
+  "ate": "2026-11-05"
  },
  "atas_atualizacao": {
-  "ate": "2026-11-04"
+  "ate": "2026-11-05"
  },
  "contratos_atualizacao": {
-  "ate": "2026-11-04"
+  "ate": "2026-11-03"
  },
  "ata_links_pendentes": {
   "12075748000132-1-000143/2024-000038": [
@@ -3824,41 +3824,6 @@
     "data_assinatura": "2026-06-23"
    }
   ],
-  "12075748000132-1-000029/2026-000006": [
-   {
-    "contrato": "82854670000130-2-001291/2026",
-    "fornecedor": {
-     "ni": "63293976000110",
-     "nome": "63.293.976 SERGIO JUVENTINO DE ROSSI JUNIOR REGALIN"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE XAXIM",
-    "valor": 1823.15,
-    "data_assinatura": "2026-10-29"
-   },
-   {
-    "contrato": "83102707000136-2-000908/2026",
-    "fornecedor": {
-     "ni": "63293976000110",
-     "nome": "63.293.976 SERGIO JUVENTINO DE ROSSI JUNIOR REGALIN"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE RIO DO CAMPO",
-    "valor": 449.99,
-    "data_assinatura": "2026-11-03"
-   },
-   {
-    "contrato": "83102707000136-2-000909/2026",
-    "fornecedor": {
-     "ni": "63293976000110",
-     "nome": "63.293.976 SERGIO JUVENTINO DE ROSSI JUNIOR REGALIN"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE RIO DO CAMPO",
-    "valor": 449.99,
-    "data_assinatura": "2026-11-03"
-   }
-  ],
   "12075748000132-1-000143/2024-000037": [
    {
     "contrato": "82911249000113-2-000532/2026",
@@ -6505,24 +6470,25 @@
    "7022/2026",
    "7022/2027",
    "158/2027",
-   "7010/2027"
+   "7010/2027",
+   "7025/2027"
   ]
  },
  "atas_varredura": {
   "data_ref": "2026-11-04",
-  "pagina": 974,
+  "pagina": 1042,
   "iniciada_em": "2026-11-04T10:54:48-03:00",
-  "total_paginas": 9679,
-  "total_registros": 483928,
-  "progresso": 10.1
+  "total_paginas": 9688,
+  "total_registros": 484362,
+  "progresso": 10.7
  },
  "backfill_contratacoes": {
-  "limite": "2025-11-04",
+  "limite": "2025-11-05",
   "progresso": 0.0,
   "concluido": false
  },
  "backfill_contratos": {
-  "limite": "2026-10-05",
+  "limite": "2026-10-06",
   "progresso": 0.0,
   "concluido": false
  }
