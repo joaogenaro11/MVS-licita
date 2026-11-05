@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       budget_min:
-        description: "Orçamento de coleta em minutos (carga histórica inicial: use 300)"
+        description: "Minutos de coleta (busca rápida: 40 · carga histórica longa: 300)"
         required: false
-        default: "150"
+        default: "40"
       backfill:
         description: "Avançar carga histórica (12 meses) e varredura de atas vigentes"
         type: boolean
@@ -107,6 +107,7 @@ jobs:
           # públicas por definição; a proteção é feita pelas políticas RLS.
           VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+          VITE_GITHUB_REPO: ${{ github.repository }}   # botão "Nova busca" no site
         run: |
           npm ci
           npm test

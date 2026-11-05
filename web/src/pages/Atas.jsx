@@ -88,6 +88,7 @@ export function AtaCard({ a, ctx, onOpen }) {
           <button type="button" onClick={() => onOpen(a)} className="mt-1 block text-left text-[14px] leading-snug hover:text-brand"><span className="clamp-3">{a.objeto}</span></button>
           <dl className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[12px]">
             <div><dt className="inline text-muted">Vigência: </dt><dd className="inline">{fmtDate(a.vigencia_inicio) || '?'} a {a.vigencia_status === 'inconsistente' ? 'data inconsistente' : fmtDate(a.vigencia_fim) || '?'}</dd></div>
+            {a.vence_em ? <div title={a.vence_motivo}><dt className="inline text-muted">No Radar até: </dt><dd className="inline">{fmtDate(a.vence_em)}</dd></div> : null}
             <div><dt className="inline text-muted">Fornecedor: </dt><dd className="inline">{(a.fornecedores || []).map((f) => f.nome).join('; ') || 'não identificado'}</dd></div>
             <div><dt className="inline text-muted">Valor da contratação: </dt><dd className="num inline">{money(a.compra?.valor) || 'não informado'}</dd></div>
             {c.ofertas?.length ? <div><dt className="inline text-muted">Oferta TLS: </dt><dd className="inline font-medium">{c.ofertas.join(' + ')}</dd></div> : null}

@@ -133,6 +133,7 @@ export function OppCard({ r, L, ctx, onOpen }) {
                 <dd className={`inline ${dias !== null && dias >= 0 && dias <= 7 ? 'font-medium text-bad' : ''}`}>{fmtDate(prazo, true)} ({relDays(dias)})</dd></div>
             ) : null}
             {r.tipo === 'pca' && r.data_desejada ? <div><dt className="inline text-muted">Data desejada: </dt><dd className="inline">{fmtDate(r.data_desejada)}</dd></div> : null}
+            {r.vence_em ? <div title={r.vence_motivo}><dt className="inline text-muted">No Radar até: </dt><dd className="inline">{fmtDate(r.vence_em)}</dd></div> : null}
             {c.oferta_principal ? <div><dt className="inline text-muted">Oferta TLS: </dt><dd className="inline font-medium">{(c.ofertas || []).join(' + ')}</dd></div> : null}
             {(c.fabricantes || []).length ? <div><dt className="inline text-muted">Fabricante: </dt><dd className="inline">{c.fabricantes.map((f) => f.nome).join(', ')}</dd></div> : null}
           </dl>

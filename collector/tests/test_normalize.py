@@ -132,3 +132,30 @@ def test_adesao_texto():
 
 def test_adesao_ata_encerrada():
     assert adesao_assessment(_ata(vigencia_status="encerrada", possibilidade_adesao_pncp=True), [""])[0] == "encerrada"
+
+
+
+def test_regras_de_vencimento():
+    from radar.normalize import vencimento
+    base = {"tipo": "contratacao", "situacao_id": 1}
+    # contratação: vence no encerramento do prazo de propostas
+    assert vencimento(dict(base, data_encerramento_proposta="2026-11-20T10:00"), NOW)[:2] == ("2026-11-20", False)
+    assert vencimento(dict(base, data_encerramento_proposta="2026-11-01T10:00"), NOW)[1] is True
+    # tolerância configurável após o encerramento
+    assert vencimento(dict(base, data_encerramento_proposta="2026-11-01T10:00"), NOW,
+                      {"contratacoes_dias_apos_encerramento": 10})[1] is False
+    # revogada/anulada sai na hora
+    assert vencimento(dict(base, situacao_id=2, data_encerramento_proposta="2026-12-01T10:00"), NOW)[1] is True
+    # sem prazo informado: publicação + prazo padrão
+    assert vencimento(dict(base, data_publicacao="2026-10-01T10:00"), NOW)[:2] == ("2027-01-29", False)
+    # PCA: fim do ano do plano
+    assert vencimento({"tipo": "pca", "ano": 2026}, NOW)[:2] == ("2026-12-31", False)
+    assert vencimento({"tipo": "pca", "ano": 2025}, NOW)[1] is True
+    # ata: fim da vigência; cancelada sai; vigência inconsistente fica (conferir)
+    assert vencimento({"tipo": "ata", "vigencia_fim": "2027-03-01"}, NOW)[:2] == ("2027-03-01", False)
+    assert vencimento({"tipo": "ata", "vigencia_fim": "2026-11-03"}, NOW)[1] is True
+    assert vencimento({"tipo": "ata", "vigencia_status": "cancelada", "vigencia_fim": "2027-01-01"}, NOW)[1] is True
+    assert vencimento({"tipo": "ata", "vigencia_fim": None, "vigencia_status": "inconsistente"}, NOW)[:2] == (None, False)
+    # contrato: fim da vigência
+    assert vencimento({"tipo": "contrato", "vigencia_fim": "2026-12-31"}, NOW)[1] is False
+    assert vencimento({"tipo": "contrato", "vigencia_fim": "2026-10-31"}, NOW)[1] is True

@@ -18,6 +18,26 @@ const FONTE_LABEL = {
 }
 const STATUS = { ok: ['OK', '#198038'], parcial: ['Parcial', '#b28600'], falha: ['Falha', '#da1e28'], executando: ['Interrompida', '#da1e28'] }
 
+const REPO = import.meta.env.VITE_GITHUB_REPO
+
+/** Abre o workflow no GitHub para disparar uma busca manual (exige login no GitHub com acesso
+ *  ao repositório). O site não guarda token: disparar direto daqui exporia credenciais. */
+export function NovaBusca({ className = '' }) {
+  if (!REPO) return null
+  return (
+    <div className={className}>
+      <a href={`https://github.com/${REPO}/actions/workflows/update-radar.yml`} target="_blank" rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 bg-ink px-3 py-1.5 text-[13px] font-medium text-white hover:bg-ink-2">
+        Nova busca ↗
+      </a>
+      <p className="mt-1 text-[11px] text-muted">
+        Abre o GitHub: clique em <strong>Run workflow</strong> → <strong>Run workflow</strong>. Leva cerca de 40 minutos;
+        o site se atualiza sozinho ao final (recarregue a página).
+      </p>
+    </div>
+  )
+}
+
 export default function Dashboard({ data, ctx, go, onOpen }) {
   const { items, atas, meta } = data
   const k = useMemo(() => {
@@ -72,6 +92,8 @@ export default function Dashboard({ data, ctx, go, onOpen }) {
           <section className="bg-white p-4">
             <h2 className="mb-1 text-[14px] font-semibold">Atualização dos dados</h2>
             <p className="text-[13px]">Última coleta: <strong>{fmtDate(meta.gerado_em, true) || '—'}</strong></p>
+            <p className="text-[12px] text-ink-2">Buscas automáticas: todos os dias às 06:23 e 17:41 (Brasília). O GitHub pode atrasar alguns minutos ou horas.</p>
+            <NovaBusca className="mt-2" />
             <p className="text-[12px]" style={{ color: (STATUS[meta.status] || STATUS.falha)[1] }}>
               Status geral: {(STATUS[meta.status] || ['Desconhecido'])[0]}{meta.fontes_com_falha?.length ? ` — ${meta.fontes_com_falha.length} fonte(s) com falha (dados anteriores mantidos)` : ''}
             </p>

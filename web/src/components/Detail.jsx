@@ -158,6 +158,7 @@ export default function Detail({ r, meta, ctx, onClose }) {
             <KV k="Última alteração detectada" v={fmtDate(r.atualizado_em, true)} />
             <KV k="Atualização na fonte" v={fmtDate(r.data_atualizacao_fonte, true)} />
             <KV k="Itens/documentos coletados em" v={r.enriquecido_em ? fmtDate(r.enriquecido_em, true) : 'Ainda não coletados'} />
+            <KV k="Fica no Radar até" v={r.vence_em ? `${fmtDate(r.vence_em)} (${r.vence_motivo})` : (r.vence_motivo || 'Sem data de vencimento')} />
           </div>
         </Section>
       </div>

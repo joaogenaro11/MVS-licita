@@ -60,8 +60,18 @@ enrichment:
 
 storage:
   min_score_to_store: 25     # (também em portfolio_tls.yml; este valor prevalece)
-  publish_min_score: 35      # itens enviados ao site (reduz o tamanho dos dados públicos)
-  publish_max_age_days: 400  # contratações antigas saem do site (continuam na base)
+  publish_min_score: 35      # entra no site ao atingir este score; depois só sai quando VENCER
+
+# Quando um registro VENCE e sai do site (continua guardado na base histórica, branch data):
+#   contratação -> no encerramento do prazo de propostas (+ tolerância abaixo);
+#                  revogada/anulada sai na hora; sem prazo informado -> publicação + N dias
+#   item de PCA -> 31/12 do ano do plano
+#   ata         -> fim da vigência; cancelada sai na hora; vigência ausente/inconsistente fica (conferir)
+#   contrato    -> fim da vigência; sem vigência informada -> publicação + N dias
+vencimento:
+  contratacoes_dias_apos_encerramento: 0
+  contratacoes_sem_prazo_dias: 120
+  contratos_sem_vigencia_dias: 365
 
 # Fatia máxima do orçamento por fonte (0..1). Impede que uma fonte volumosa deixe as
 # demais sem tempo; o que não couber continua na próxima execução (cursor por dia).
