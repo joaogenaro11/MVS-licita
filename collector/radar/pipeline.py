@@ -386,13 +386,14 @@ class Runner:
         self._backfill("backfill_contratos", days, lambda d: self.client.contratos(d2s(d), d2s(d)), self.ingest_contrato)
 
     def _backfill(self, name: str, days: int, fetch, ingest) -> None:
+        deadline = self._feed_deadline(name)
         with self.feed(name) as rec:
             st = self.store.state.setdefault(name, {})
             limite = self.today - timedelta(days=days)
             st["limite"] = limite.isoformat()
             prox = date.fromisoformat(st["proximo"]) if st.get("proximo") else self.today - timedelta(days=1)
             while prox >= limite:
-                if self.time_left_for_bulk() < 120:
+                if self.time_left_for_bulk() < 120 or time.monotonic() > deadline:
                     rec["status"] = "parcial"
                     rec["erro"] = None
                     break
@@ -416,13 +417,14 @@ class Runner:
             if (self.today - last).days < pc.get("atas_varredura_intervalo_dias", 30):
                 return
             st.clear()
+        deadline = self._feed_deadline("atas_varredura")
         with self.feed("atas_varredura") as rec:
             if not st.get("data_ref"):
                 st.update({"data_ref": self.today.isoformat(), "pagina": 1, "iniciada_em": self.now_iso})
             ref = d2s(date.fromisoformat(st["data_ref"]))
             page = max(1, int(st.get("pagina", 1)) - pc.get("atas_varredura_sobreposicao_paginas", 10))
             while True:
-                if self.time_left_for_bulk() < 120:
+                if self.time_left_for_bulk() < 120 or time.monotonic() > deadline:
                     rec["status"] = "parcial"
                     break
                 payload = self.client.get_json(f"{CONSULTA_BASE}/v1/atas", {

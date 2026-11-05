@@ -71,6 +71,11 @@ time_shares:
   contratos_atualizacao: 0.15
   propostas_abertas: 0.25
   pca: 0.15
+  # cargas longas dividem o tempo restante (1ª coleta real: a varredura de atas
+  # consumiu todo o restante e a carga histórica de contratações ficou em 0%)
+  atas_varredura: 0.30
+  backfill_contratacoes: 0.30
+  backfill_contratos: 0.10
 
 # Orçamento de tempo padrão por execução (minutos). O workflow pode sobrescrever.
 budget_minutes: 150
