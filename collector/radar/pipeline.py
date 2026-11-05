@@ -25,7 +25,7 @@ from . import __version__
 from .classifier import FAIXA_LABEL, STAGE_LABELS, Portfolio, classify, normalize
 from .normalize import (adesao_assessment, compra_ids, normalize_ata, normalize_contratacao,
                         normalize_contrato, normalize_pca_items, portal_name, refresh_ata_vigencia,
-                        restage, safe_url)
+                        restage, safe_url, vencimento)
 from .pncp import CONSULTA_BASE, PNCPClient, SourceError
 from .store import Store, write_json_atomic
 
@@ -222,14 +222,23 @@ class Runner:
         item["classificacao"] = c
         return c
 
+    def _mark_published(self, rec: dict) -> None:
+        """Uma vez publicado no site, o registro só sai quando VENCER — nunca por mudança
+        de score/reclassificação (regra de negócio pedida pelos usuários)."""
+        pmin = self.cfg.get("storage", {}).get("publish_min_score", 35)
+        if not rec.get("publicado_em") and (rec.get("classificacao") or {}).get("score", 0) >= pmin:
+            rec["publicado_em"] = self.now_iso
+
     def reclassify_all(self) -> None:
         soon = self.cfg["pncp"].get("atas_vencimento_alerta_dias", 90)
         for it in self.store.items.values():
             it["estagio"] = restage(it, self.now)
             self.classify_item(it)
+            self._mark_published(it)
         for a in self.store.atas.values():
             refresh_ata_vigencia(a, self.today, soon)
             self.classify_item(a)
+            self._mark_published(a)
             texts = [a.get("objeto"), (a.get("compra") or {}).get("info_complementar"),
                      (a.get("compra") or {}).get("objeto")]
             a["adesao_status"], a["adesao_motivos"] = adesao_assessment(a, texts, a.get("contratos_adesao", 0))
@@ -604,27 +613,26 @@ def export_site(data_dir: Path, out_dir: Path, config_dir: Path) -> dict[str, in
     pf = Portfolio.load(config_dir)
     st = cfg.get("storage", {})
     pmin = st.get("publish_min_score", 35)
-    max_age = st.get("publish_max_age_days", 400)
+    venc_cfg = cfg.get("vencimento", {})
     store = Store(data_dir).load()
-    today = datetime.now(TZ).date()
-    cutoff = (today - timedelta(days=max_age)).isoformat()
+    now = datetime.now(TZ).replace(tzinfo=None)
+    removidos = {"vencidos": 0}
 
-    def keep_item(i: dict) -> bool:
-        if (i.get("classificacao") or {}).get("score", 0) < pmin:
+    def keep(r: dict) -> bool:
+        """Fica no site enquanto não vencer. Entra quando atinge o score mínimo e, depois
+        disso, só sai ao vencer (a base histórica mantém tudo, inclusive os vencidos)."""
+        publicado = r.get("publicado_em") or (r.get("classificacao") or {}).get("score", 0) >= pmin
+        if not publicado:
             return False
-        if i["tipo"] == "pca":
-            return True
-        return (i.get("data_publicacao") or "9999") >= cutoff or i.get("estagio") in ("propostas_abertas", "publicada")
-
-    def keep_ata(a: dict) -> bool:
-        if (a.get("classificacao") or {}).get("score", 0) < pmin:
+        vence_em, vencido, motivo = vencimento(r, now, venc_cfg)
+        r["vence_em"], r["vence_motivo"] = vence_em, motivo
+        if vencido:
+            removidos["vencidos"] += 1
             return False
-        if a.get("vigencia_status") in ("encerrada", "cancelada"):
-            return (a.get("vigencia_fim") or a.get("data_cancelamento") or "0000") >= cutoff
         return True
 
-    items = [_compact(i) for i in store.items.values() if keep_item(i)]
-    atas = [_compact(a) for a in store.atas.values() if keep_ata(a)]
+    items = [_compact(i) for i in store.items.values() if keep(i)]
+    atas = [_compact(a) for a in store.atas.values() if keep(a)]
     out = Path(out_dir)
     lookups = {
         "estagios": STAGE_LABELS,
@@ -637,7 +645,8 @@ def export_site(data_dir: Path, out_dir: Path, config_dir: Path) -> dict[str, in
     write_json_atomic(out / "opportunities.json", {"gerado_em": store.meta.get("gerado_em"), "items": items}, compact=True)
     write_json_atomic(out / "atas.json", {"gerado_em": store.meta.get("gerado_em"), "items": atas}, compact=True)
     meta = dict(store.meta)
-    meta["publicado"] = {"oportunidades": len(items), "atas": len(atas), "score_minimo": pmin}
+    meta["publicado"] = {"oportunidades": len(items), "atas": len(atas), "score_minimo": pmin,
+                         "vencidos_fora_do_site": removidos["vencidos"]}
     meta["lookups"] = lookups
     write_json_atomic(out / "meta.json", meta)
     return {"oportunidades": len(items), "atas": len(atas)}

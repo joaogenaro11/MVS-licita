@@ -12,7 +12,8 @@ Networking, Security, MVS (multivendor), Data Center, Hardware Refresh e suporte
 - **Site estático no GitHub Pages**, sem servidor ligado o tempo todo.
 - **Dados comerciais internos protegidos** por autenticação real (Supabase Auth + RLS, opcional e gratuito).
 
-> Escopo do MVP, limitações e contrato validado da API: veja [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
+> **Guia da equipe (como funciona, quando busca, quando um item sai do site):** [docs/COMO-FUNCIONA.md](docs/COMO-FUNCIONA.md)
+> Escopo do MVP, limitações e contrato validado da API: [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 
 ---
 
@@ -140,7 +141,9 @@ Os dados locais (`/data` e `web/public/data`) são ignorados pelo git.
 |---|---|
 | Ajustar termos, fabricantes, pesos ou limiares | Editar `config/portfolio_tls.yml` → `pytest` → commit (a próxima execução reclassifica tudo) |
 | Ajustar regras comerciais internas | Atualizar o secret `RADAR_PRIVATE_CONFIG` |
+| Fazer uma nova busca agora | Botão **Nova busca** no Dashboard (ou Actions → Atualizar Radar TLS → Run workflow) |
 | Mudar frequência | `cron` em `.github/workflows/update-radar.yml` |
+| Quando um registro sai do site | `config/fontes.yml > vencimento` (só sai ao vencer; a base guarda tudo) |
 | Modalidades, horizonte, carga histórica | `config/fontes.yml` |
 | Reduzir ou ampliar o volume publicado | `storage.publish_min_score` em `config/fontes.yml` |
 | Ver saúde das fontes | Dashboard ("Atualização dos dados") ou resumo da execução no Actions |

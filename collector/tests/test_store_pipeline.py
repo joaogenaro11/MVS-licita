@@ -17,7 +17,9 @@ TI_COMPRA = dict(REAL_COMPRA,
                  orgaoEntidade={"cnpj": "00394460000141", "razaoSocial": "ORGAO FEDERAL DE TESTE", "esferaId": "F"},
                  objetoCompra="Contratação de suporte técnico e manutenção preventiva e corretiva de switches e "
                               "roteadores Cisco com atendimento 24x7",
-                 valorTotalEstimado=3_000_000.0, linkSistemaOrigem="https://cnetmobile.estaleiro.serpro.gov.br/x?compra=1")
+                 valorTotalEstimado=3_000_000.0, linkSistemaOrigem="https://cnetmobile.estaleiro.serpro.gov.br/x?compra=1",
+                 # prazo distante: o teste não pode depender da data em que roda
+                 dataAberturaProposta="2026-01-01T08:00:00", dataEncerramentoProposta="2099-12-31T18:00:00")
 
 
 class FakeClient:
@@ -177,3 +179,28 @@ def test_historico_de_sucesso_da_fonte_sobrevive_a_falha(tmp_path):
     make_runner(tmp_path, FakeClient(fail={"atualizacao"})).run()
     f = json.loads((tmp_path / "meta.json").read_text())["fontes"]["contratacoes_atualizacao"]
     assert f["status"] == "falha" and f["ultimo_sucesso"] == ok and ok
+
+
+
+def test_item_publicado_so_sai_do_site_quando_vence(tmp_path):
+    """Regra de negócio: depois de entrar no site, só sai ao VENCER (não por reclassificação)."""
+    make_runner(tmp_path, FakeClient(compras=[TI_COMPRA])).run()
+    out = tmp_path / "site"
+    assert export_site(tmp_path, out, CONFIG)["oportunidades"] == 1
+    # reclassificação derruba o score abaixo do mínimo: continua no site (ainda não venceu)
+    s = Store(tmp_path).load()
+    it = s.items["00394460000141-1-000123/2026"]
+    assert it["publicado_em"]
+    it["classificacao"]["score"] = 5
+    s.save("t")
+    assert export_site(tmp_path, out, CONFIG)["oportunidades"] == 1
+    pub = json.loads((out / "opportunities.json").read_text())["items"][0]
+    assert pub["vence_em"] == "2099-12-31" and "propostas" in pub["vence_motivo"]
+    # prazo encerrado: sai do site, mas continua na base histórica
+    s = Store(tmp_path).load()
+    s.items["00394460000141-1-000123/2026"]["data_encerramento_proposta"] = "2020-01-01T10:00"
+    s.save("t")
+    n = export_site(tmp_path, out, CONFIG)
+    assert n["oportunidades"] == 0
+    assert "00394460000141-1-000123/2026" in Store(tmp_path).load().items
+    assert json.loads((out / "meta.json").read_text())["publicado"]["vencidos_fora_do_site"] == 1

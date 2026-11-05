@@ -16,13 +16,20 @@ create table if not exists public.allowed_users (
 -- Cadastre os e-mails autorizados (minúsculas). Exemplo:
 -- insert into public.allowed_users (email) values ('pessoa1@empresa.com'), ('pessoa2@empresa.com'), ('pessoa3@empresa.com');
 
-create or replace function public.is_allowed() returns boolean
+-- Função de autorização fora do schema exposto pela API (não vira endpoint /rest/v1/rpc)
+create schema if not exists private;
+revoke all on schema private from public, anon;
+grant usage on schema private to authenticated;
+
+create or replace function private.is_allowed() returns boolean
 language sql stable security definer set search_path = public as $$
   select exists (
     select 1 from public.allowed_users
     where email = lower(coalesce(auth.jwt() ->> 'email', ''))
   );
 $$;
+revoke execute on function private.is_allowed() from public, anon;
+grant execute on function private.is_allowed() to authenticated;
 
 -- Acompanhamento por oportunidade/ata (compartilhado entre os usuários autorizados)
 create table if not exists public.tracking (
@@ -54,14 +61,17 @@ alter table public.radar_config enable row level security;
 drop policy if exists tracking_rw on public.tracking;
 create policy tracking_rw on public.tracking
   for all to authenticated
-  using (public.is_allowed())
-  with check (public.is_allowed());
+  using (private.is_allowed())
+  with check (private.is_allowed());
 
 drop policy if exists config_rw on public.radar_config;
 create policy config_rw on public.radar_config
   for all to authenticated
-  using (public.is_allowed())
-  with check (public.is_allowed());
+  using (private.is_allowed())
+  with check (private.is_allowed());
+
+-- Versão antiga da função (schema public, exposta como /rpc): removida
+drop function if exists public.is_allowed();
 
 -- Nenhum acesso para o papel anônimo
 revoke all on public.tracking, public.radar_config, public.allowed_users from anon;
