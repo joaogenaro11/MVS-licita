@@ -1633,6 +1633,17 @@
     "orgao": "MUNICIPIO DE VILA VELHA",
     "valor": 1550787.12,
     "data_assinatura": "2026-10-29"
+   },
+   {
+    "contrato": "27165554002220-2-000007/2026",
+    "fornecedor": {
+     "ni": "05805349000114",
+     "nome": "AYKO TECHNOLOGY LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE VILA VELHA",
+    "valor": 2338348.68,
+    "data_assinatura": "2026-11-04"
    }
   ],
   "89834410000141-1-000050/2025-000001": [
@@ -8117,6 +8128,173 @@
     "valor": 42858.9,
     "data_assinatura": "2026-11-04"
    }
+  ],
+  "00394502002864-1-000588/2025-000001": [
+   {
+    "contrato": "00394502000144-2-002512/2025",
+    "fornecedor": {
+     "ni": "05340639000130",
+     "nome": "PRIME CONSULTORIA E ASSESSORIA EMPRESARIAL LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "COMANDO DA MARINHA",
+    "valor": 199953.6,
+    "data_assinatura": "2026-01-08"
+   }
+  ],
+  "06202808000138-1-000026/2026-000001": [
+   {
+    "contrato": "06202808000138-2-000121/2026",
+    "fornecedor": {
+     "ni": "36325451000146",
+     "nome": "F W V DE ANDRADE E SOLUCOES"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE POCAO DE PEDRAS",
+    "valor": 3015000.0,
+    "data_assinatura": "2026-10-20"
+   }
+  ],
+  "83039842000184-1-000033/2026-000001": [
+   {
+    "contrato": "83039842000184-2-003209/2026",
+    "fornecedor": {
+     "ni": "22048632000168",
+     "nome": "ELIANE SCHREIBER COMERCIO E SERVICOS DE REFRIGERACAO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE VIDEIRA",
+    "valor": 5536.0,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "01409580000138-1-003485/2025-000001": [
+   {
+    "contrato": "01409580000138-2-002005/2026",
+    "fornecedor": {
+     "ni": "41806677000107",
+     "nome": "GRAFICA E EDITORA COMUNICACAO VISUAL LASER SETE LTDA "
+    },
+    "fruto_adesao": true,
+    "orgao": "ESTADO DE GOIAS",
+    "valor": 156240.0,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "01409580000138-2-002006/2026",
+    "fornecedor": {
+     "ni": "45802500000185",
+     "nome": "BH BRINDES E SERVIÇOS LTDA "
+    },
+    "fruto_adesao": true,
+    "orgao": "ESTADO DE GOIAS",
+    "valor": 27240.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "76276849000154-1-000060/2025-000001": [
+   {
+    "contrato": "76276849000154-2-000343/2025",
+    "fornecedor": {
+     "ni": "04629488000171",
+     "nome": "KHRONOS SEGURANCA PRIVADA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MINISTERIO PUBLICO DO ESTADO DE SANTA CATARINA PROCURADORIA GERAL DE JUSTICA",
+    "valor": 10854.48,
+    "data_assinatura": "2025-11-25"
+   }
+  ],
+  "10572022000180-1-001102/2025-000003": [
+   {
+    "contrato": "10572048000551-2-000827/2026",
+    "fornecedor": {
+     "ni": "58426628000990",
+     "nome": "SAMTRONIC INDUSTRIA E COMERCIO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "SECRETARIA DE SAUDE",
+    "valor": 102280.0,
+    "data_assinatura": "2026-10-20"
+   }
+  ],
+  "23444748000189-1-000124/2025-000001": [
+   {
+    "contrato": "23444748000189-2-000330/2026",
+    "fornecedor": {
+     "ni": "05652043000175",
+     "nome": "RENATO EDMO JORGE DE OLIVEIRA - ME"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE QUIXADA",
+    "valor": 162498.0,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "21186804000105-1-000087/2025-000010": [
+   {
+    "contrato": "21186804000105-2-000334/2026",
+    "fornecedor": {
+     "ni": "47287461000150",
+     "nome": "JEDAL REDENTOR INDUSTRIA E COMERCIO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE FEDERAL DE SAO JOAO DEL-REI",
+    "valor": 38179.02,
+    "data_assinatura": "2026-09-16"
+   }
+  ],
+  "06981344000105-1-000073/2025-000001": [
+   {
+    "contrato": "06981344000105-2-000816/2026",
+    "fornecedor": {
+     "ni": "10513552000157",
+     "nome": "L. H. C. SOARES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "TRIBUNAL DE JUSTICA DO ESTADO DO PIAUI",
+    "valor": 935.0,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "60509015000101-1-000122/2024-000008": [
+   {
+    "contrato": "60509015000101-2-003733/2026",
+    "fornecedor": {
+     "ni": "12811175000168",
+     "nome": "HM LUTFALA CONSTRUCOES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "FUNDACAO PARA O DESENVOLVIMENTO DA EDUCACAO",
+    "valor": 56573.48,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "88830609000139-1-000348/2026-000001": [
+   {
+    "contrato": "88830609000139-2-003601/2026",
+    "fornecedor": {
+     "ni": "02080759000157",
+     "nome": "VIACAO GIRATUR LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE CAXIAS DO SUL",
+    "valor": 63280.0,
+    "data_assinatura": "2026-09-30"
+   }
+  ],
+  "00488478000102-1-000158/2026-000001": [
+   {
+    "contrato": "00488478000102-2-000227/2026",
+    "fornecedor": {
+     "ni": "12006665000191",
+     "nome": "CHAIN TECNOLOGIA E SERVICOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "SUPERIOR TRIBUNAL DE JUSTICA",
+    "valor": 11950578.4,
+    "data_assinatura": "2026-11-03"
+   }
   ]
  },
  "propostas_abertas": {
@@ -8132,7 +8310,8 @@
    "7010/2027",
    "7025/2027",
    "158/2026",
-   "7025/2026"
+   "7025/2026",
+   "7010/2026"
   ]
  },
  "atas_varredura": {
