@@ -3,10 +3,10 @@
   "ate": "2026-11-05"
  },
  "atas_atualizacao": {
-  "ate": "2026-11-07"
+  "ate": "2026-11-08"
  },
  "contratos_atualizacao": {
-  "ate": "2026-11-04"
+  "ate": "2026-11-05"
  },
  "ata_links_pendentes": {
   "12075748000132-1-000143/2024-000038": [
@@ -92,6 +92,28 @@
     "orgao": "MUNICIPIO DE ICARA",
     "valor": 58344.9,
     "data_assinatura": "2026-11-03"
+   },
+   {
+    "contrato": "83841338000101-2-000008/2026",
+    "fornecedor": {
+     "ni": "04602789000101",
+     "nome": "DATEN TECNOLOGIA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "FLORIANOPOLIS CAMARA DE VEREADORES",
+    "valor": 204810.0,
+    "data_assinatura": "2026-11-06"
+   },
+   {
+    "contrato": "83102343000194-2-004006/2026",
+    "fornecedor": {
+     "ni": "04602789000101",
+     "nome": "DATEN TECNOLOGIA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BRUSQUE",
+    "valor": 6827.0,
+    "data_assinatura": "2026-11-06"
    }
   ],
   "17879859000115-1-000138/2025-000001": [
@@ -242,6 +264,17 @@
     "fruto_adesao": false,
     "orgao": "MUNICIPIO DE NAVEGANTES",
     "valor": 47200.0,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "82561093000198-2-000296/2026",
+    "fornecedor": {
+     "ni": "81243735000903",
+     "nome": "POSITIVO TECNOLOGIA S.A."
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SAO JOAQUIM",
+    "valor": 6120.96,
     "data_assinatura": "2026-11-05"
    }
   ],
@@ -725,6 +758,17 @@
     "orgao": "MUNICIPIO DE IRINEOPOLIS",
     "valor": 211.24,
     "data_assinatura": "2026-11-03"
+   },
+   {
+    "contrato": "83102640000130-2-001215/2026",
+    "fornecedor": {
+     "ni": "10402061000139",
+     "nome": "IRD PRODUTOS DE INFORMATICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE ITUPORANGA",
+    "valor": 250.0,
+    "data_assinatura": "2026-11-06"
    }
   ],
   "88830609000139-1-000004/2026-000004": [
@@ -2293,6 +2337,28 @@
     "orgao": "MUNICIPIO DE MARIAPOLIS",
     "valor": 1056.0,
     "data_assinatura": "2026-11-03"
+   },
+   {
+    "contrato": "51405231000116-2-001776/2026",
+    "fornecedor": {
+     "ni": "54933440000120",
+     "nome": "LB SUPERMERCADO E DISTRIBUIDORA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE MARIAPOLIS",
+    "valor": 86.04,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "51405231000116-2-001777/2026",
+    "fornecedor": {
+     "ni": "65870543000105",
+     "nome": "CANARINHO ATACADO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE MARIAPOLIS",
+    "valor": 340.9,
+    "data_assinatura": "2026-11-04"
    }
   ],
   "50052885000140-1-000034/2026-000001": [
@@ -2458,6 +2524,17 @@
     "orgao": "MUNICIPIO DE SAO BENTO DO SUL",
     "valor": 1312.0,
     "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "83102517000119-2-002423/2026",
+    "fornecedor": {
+     "ni": "11118645000140",
+     "nome": "SPOTECH INFORMATICA CORAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE ITAIOPOLIS",
+    "valor": 3280.0,
+    "data_assinatura": "2026-11-06"
    }
   ],
   "00394411000109-1-000274/2025-000001": [
@@ -2691,6 +2768,39 @@
     "orgao": "MUNICIPIO DE LUIZ ALVES",
     "valor": 2500.0,
     "data_assinatura": "2026-11-03"
+   },
+   {
+    "contrato": "81140303000101-2-001172/2026",
+    "fornecedor": {
+     "ni": "21748841000151",
+     "nome": "TECNETWORKING SERVICOS E SOLUCOES EM TI LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE ITAPOA",
+    "valor": 3750.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "81140303000101-2-001173/2026",
+    "fornecedor": {
+     "ni": "21748841000151",
+     "nome": "TECNETWORKING SERVICOS E SOLUCOES EM TI LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE ITAPOA",
+    "valor": 1250.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "82926569000147-2-001031/2026",
+    "fornecedor": {
+     "ni": "21748841000151",
+     "nome": "TECNETWORKING SERVICOS E SOLUCOES EM TI LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE GRAVATAL",
+    "valor": 1249.0,
+    "data_assinatura": "2026-11-06"
    }
   ],
   "08761140000194-1-000251/2024-000001": [
@@ -2840,6 +2950,17 @@
     "orgao": "MUNICIPIO DE NAVEGANTES",
     "valor": 10406.96,
     "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "14007211000160-2-001838/2026",
+    "fornecedor": {
+     "ni": "01425676000351",
+     "nome": "ATHENAS AUTOMAÇÃO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "FUNDO MUNICIPAL DE SAUDE DE JARAGUA DO SUL",
+    "valor": 73725.0,
+    "data_assinatura": "2026-11-06"
    }
   ],
   "83169623000110-1-000542/2026-000001": [
@@ -6906,6 +7027,17 @@
     "orgao": "MUNICIPIO DE IVINHEMA",
     "valor": 47323.5,
     "data_assinatura": "2026-10-30"
+   },
+   {
+    "contrato": "03575875000100-2-000061/2026",
+    "fornecedor": {
+     "ni": "37090234000187",
+     "nome": "PRIME SOLUCOES EM TECNOLOGIA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IVINHEMA",
+    "valor": 42933.0,
+    "data_assinatura": "2026-10-29"
    }
   ],
   "46578498000175-1-000183/2026-000001": [
@@ -7001,6 +7133,28 @@
     "fruto_adesao": false,
     "orgao": "MUNICIPIO DE BELO HORIZONTE",
     "valor": 16848.0,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "18715383000140-2-002954/2026",
+    "fornecedor": {
+     "ni": "01107391001263",
+     "nome": "SUPPORT PRODUTOS NUTRICIONAIS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 15295.0,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "18715383000140-2-002955/2026",
+    "fornecedor": {
+     "ni": "01107391001263",
+     "nome": "SUPPORT PRODUTOS NUTRICIONAIS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 188344.0,
     "data_assinatura": "2026-11-05"
    }
   ],
@@ -8295,6 +8449,1280 @@
     "valor": 11950578.4,
     "data_assinatura": "2026-11-03"
    }
+  ],
+  "18715383000140-1-000428/2026-000004": [
+   {
+    "contrato": "18715383000140-2-002944/2026",
+    "fornecedor": {
+     "ni": "10696932000174",
+     "nome": "T.D.   V. COMERCIO DE PRODUTOS ODONTOLOGICOS E HOSPITALARES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 40800.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "18715383000140-1-001232/2025-000003": [
+   {
+    "contrato": "18715383000140-2-002945/2026",
+    "fornecedor": {
+     "ni": "53431927000142",
+     "nome": "ANTONIO NIVALDO VIEIRA RIBAS"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 26000.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "18715383000140-1-001237/2025-000011": [
+   {
+    "contrato": "18715383000140-2-002951/2026",
+    "fornecedor": {
+     "ni": "04654861000144",
+     "nome": "INDALABOR INDAIA LABORATORIO FARMACEUTICO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 12224.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "18715383000140-1-001237/2025-000014": [
+   {
+    "contrato": "18715383000140-2-002952/2026",
+    "fornecedor": {
+     "ni": "20344116000155",
+     "nome": "NEVALLI ARTIGOS MEDICOS E ORTOPEDICOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 1748.8,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "18715383000140-1-000830/2025-000012": [
+   {
+    "contrato": "18715383000140-2-002953/2026",
+    "fornecedor": {
+     "ni": "40968252000123",
+     "nome": "MEDICINA SEGURA DISTRIBUICAO E PROMOCAO EM VENDAS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 1209.6,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "18715383000140-1-000439/2026-000004": [
+   {
+    "contrato": "18715383000140-2-002956/2026",
+    "fornecedor": {
+     "ni": "11453723000162",
+     "nome": "ORTHONEWS CIRURGICOS E ORTOPEDICOS LTDA."
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 31632.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "18715383000140-1-000439/2026-000002": [
+   {
+    "contrato": "18715383000140-2-002957/2026",
+    "fornecedor": {
+     "ni": "08183359000153",
+     "nome": "PRODIET NUTRICAO CLINICA S.A"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 181880.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "24464109000148-1-000148/2025-000003": [
+   {
+    "contrato": "24464109000148-2-001199/2026",
+    "fornecedor": {
+     "ni": "08512506000191",
+     "nome": "BARROS PRODUCOES PUBLICIDADES, EVENTOS E COMERCIO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE FEDERAL DE ALAGOAS",
+    "valor": 4050.0,
+    "data_assinatura": "2026-10-14"
+   }
+  ],
+  "46523239000147-1-000254/2025-000001": [
+   {
+    "contrato": "46523239000147-2-001191/2026",
+    "fornecedor": {
+     "ni": "26768764000115",
+     "nome": "AR CONFIANCA EMPREENDIMENTOS DIGITAL"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SAO BERNARDO DO CAMPO",
+    "valor": 85.0,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "14921092000157-1-000181/2025-000004": [
+   {
+    "contrato": "14921092000157-2-000127/2026",
+    "fornecedor": {
+     "ni": "45687323000133",
+     "nome": "L N CASTAGNARO  LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "PROCURADORIA GERAL DE JUSTICA DO ESTADO DE MATO GROSSO",
+    "valor": 19989.21,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "34870576000121-1-000089/2025-000001": [
+   {
+    "contrato": "08761132000148-2-000036/2026",
+    "fornecedor": {
+     "ni": "05795607000390",
+     "nome": "WISEIT - SISTEMAS E INFORMATICA LTDA (FILIAL)"
+    },
+    "fruto_adesao": true,
+    "orgao": "SECRETARIA DE ESTADO DA FAZENDA - SEFAZ-PB",
+    "valor": 836568.0,
+    "data_assinatura": "2026-10-22"
+   }
+  ],
+  "46068425000133-1-002636/2025-000004": [
+   {
+    "contrato": "46068425000133-2-010579/2026",
+    "fornecedor": {
+     "ni": "42198801000153",
+     "nome": "GEMELI MEDICAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE ESTADUAL DE CAMPINAS",
+    "valor": 687.2,
+    "data_assinatura": "2026-10-15"
+   }
+  ],
+  "44925691000100-1-000058/2025-000001": [
+   {
+    "contrato": "44925691000100-2-001513/2026",
+    "fornecedor": {
+     "ni": "25136495000101",
+     "nome": "RIO PRETO PRIME NEGÓCIOS & SERVIÇOS EIRELI - ME"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE FLORIDA PAULISTA",
+    "valor": 114.0,
+    "data_assinatura": "2026-10-28"
+   },
+   {
+    "contrato": "44925691000100-2-001514/2026",
+    "fornecedor": {
+     "ni": "28491296000100",
+     "nome": "ML SUPRIMENTOS PARA INFORMATICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE FLORIDA PAULISTA",
+    "valor": 30.0,
+    "data_assinatura": "2026-10-28"
+   }
+  ],
+  "75101873000190-1-000295/2026-000015": [
+   {
+    "contrato": "75101873000190-2-001400/2026",
+    "fornecedor": {
+     "ni": "26950671000107",
+     "nome": "LICERI COMERCIO DE PRODUTOS EM GERAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE TECNOLOGICA FEDERAL DO PARANA",
+    "valor": 88.5,
+    "data_assinatura": "2026-10-19"
+   }
+  ],
+  "03389126000198-1-000196/2025-000001": [
+   {
+    "contrato": "03389126000198-2-000209/2026",
+    "fornecedor": {
+     "ni": "14984352000133",
+     "nome": "EPINET COMERCIO DE EQUIPAMENTOS DE PROTECAO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "CORPO DE BOMBEIROS MILITAR DE MINAS GERAIS",
+    "valor": 292.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "10635424000186-1-000070/2026-000003": [
+   {
+    "contrato": "10635424000186-2-001661/2026",
+    "fornecedor": {
+     "ni": "58600411000106",
+     "nome": "GUERRA COMERCIO E SERVICOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA CATARINENSE",
+    "valor": 1329.3,
+    "data_assinatura": "2026-08-24"
+   }
+  ],
+  "11361243000171-1-000081/2025-000007": [
+   {
+    "contrato": "11361243000171-2-000271/2026",
+    "fornecedor": {
+     "ni": "58923940000132",
+     "nome": "SERTÃO HOSPITALAR LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SALGUEIRO",
+    "valor": 6388.0,
+    "data_assinatura": "2026-03-12"
+   }
+  ],
+  "01153030000109-1-000093/2026-000001": [
+   {
+    "contrato": "01153030000109-2-001035/2026",
+    "fornecedor": {
+     "ni": "04354236000187",
+     "nome": "AUTO POSTO R5 LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE INHUMAS",
+    "valor": 327.15,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "64614449000122-1-002275/2026-000001": [
+   {
+    "contrato": "64614449000122-2-004596/2026",
+    "fornecedor": {
+     "ni": "43652364000169",
+     "nome": "AGNES EDITORA E DISTRIBUIDORA DE LIVROS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE TARUMA",
+    "valor": 6287.7,
+    "data_assinatura": "2026-10-29"
+   },
+   {
+    "contrato": "64614449000122-2-004600/2026",
+    "fornecedor": {
+     "ni": "43652364000169",
+     "nome": "AGNES EDITORA E DISTRIBUIDORA DE LIVROS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE TARUMA",
+    "valor": 3737.7,
+    "data_assinatura": "2026-10-29"
+   },
+   {
+    "contrato": "64614449000122-2-004605/2026",
+    "fornecedor": {
+     "ni": "43652364000169",
+     "nome": "AGNES EDITORA E DISTRIBUIDORA DE LIVROS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE TARUMA",
+    "valor": 11624.22,
+    "data_assinatura": "2026-10-29"
+   },
+   {
+    "contrato": "64614449000122-2-004608/2026",
+    "fornecedor": {
+     "ni": "43652364000169",
+     "nome": "AGNES EDITORA E DISTRIBUIDORA DE LIVROS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE TARUMA",
+    "valor": 10925.88,
+    "data_assinatura": "2026-10-29"
+   },
+   {
+    "contrato": "64614449000122-2-004609/2026",
+    "fornecedor": {
+     "ni": "43652364000169",
+     "nome": "AGNES EDITORA E DISTRIBUIDORA DE LIVROS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE TARUMA",
+    "valor": 8423.08,
+    "data_assinatura": "2026-10-29"
+   },
+   {
+    "contrato": "64614449000122-2-004614/2026",
+    "fornecedor": {
+     "ni": "43652364000169",
+     "nome": "AGNES EDITORA E DISTRIBUIDORA DE LIVROS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE TARUMA",
+    "valor": 3074.7,
+    "data_assinatura": "2026-10-29"
+   },
+   {
+    "contrato": "64614449000122-2-004615/2026",
+    "fornecedor": {
+     "ni": "43652364000169",
+     "nome": "AGNES EDITORA E DISTRIBUIDORA DE LIVROS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE TARUMA",
+    "valor": 8519.48,
+    "data_assinatura": "2026-10-29"
+   }
+  ],
+  "34869354000199-1-000023/2025-000001": [
+   {
+    "contrato": "01591392000173-2-000008/2026",
+    "fornecedor": {
+     "ni": "02985578000170",
+     "nome": "COMPUSERVICE EMPREENDIMENTOS LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "CENTRO DE GESTAO DA TECNOLOGIA DA INFORMACAO",
+    "valor": 240200.0,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "11361243000171-1-000081/2025-000001": [
+   {
+    "contrato": "11361243000171-2-000272/2026",
+    "fornecedor": {
+     "ni": "18063588000198",
+     "nome": "HOSPITALAREMATERIAL MEDICO EIRELI ME"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SALGUEIRO",
+    "valor": 48165.2,
+    "data_assinatura": "2026-03-12"
+   }
+  ],
+  "23555170000138-1-000043/2025-000001": [
+   {
+    "contrato": "23555170000138-2-000136/2026",
+    "fornecedor": {
+     "ni": "27164079000142",
+     "nome": "TRINAY INDUSTRIA E COMERCIO DE CONFECÇÕES EIRELI"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE ACARAPE",
+    "valor": null,
+    "data_assinatura": "2026-08-03"
+   }
+  ],
+  "23555196000186-1-000194/2026-000001": [
+   {
+    "contrato": "23555196000186-2-000771/2026",
+    "fornecedor": {
+     "ni": "49332637000174",
+     "nome": "FORTE MIL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE HORIZONTE",
+    "valor": 231019.2,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "46068425000133-1-000648/2026-000001": [
+   {
+    "contrato": "46068425000133-2-010583/2026",
+    "fornecedor": {
+     "ni": "12420164000580",
+     "nome": "CM HOSPITALAR S.A."
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE ESTADUAL DE CAMPINAS",
+    "valor": 1234.8,
+    "data_assinatura": "2026-10-29"
+   }
+  ],
+  "03575875000100-1-000086/2026-000001": [
+   {
+    "contrato": "03575875000100-2-000062/2026",
+    "fornecedor": {
+     "ni": "54043075000189",
+     "nome": "L2 COMERCIO E SOLUÇÕES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IVINHEMA",
+    "valor": 83600.0,
+    "data_assinatura": "2026-11-03"
+   },
+   {
+    "contrato": "03575875000100-2-000063/2026",
+    "fornecedor": {
+     "ni": "09253952000191",
+     "nome": "sandro vilmar pires "
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IVINHEMA",
+    "valor": 128940.0,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "18715383000140-1-000710/2025-000006": [
+   {
+    "contrato": "18715383000140-2-002958/2026",
+    "fornecedor": {
+     "ni": "50541407000102",
+     "nome": "MEDIC DENTAL VIRTUAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 1777.0,
+    "data_assinatura": "2026-11-06"
+   },
+   {
+    "contrato": "18715383000140-2-002974/2026",
+    "fornecedor": {
+     "ni": "50541407000102",
+     "nome": "MEDIC DENTAL VIRTUAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 1219.0,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "18715383000140-1-001008/2025-000009": [
+   {
+    "contrato": "18715383000140-2-002959/2026",
+    "fornecedor": {
+     "ni": "26395502000152",
+     "nome": "DENTAL UNIVERSO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 22209.6,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "18715383000140-1-000848/2025-000004": [
+   {
+    "contrato": "18715383000140-2-002960/2026",
+    "fornecedor": {
+     "ni": "26395502000152",
+     "nome": "DENTAL UNIVERSO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 4334.55,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "18715383000140-1-000956/2025-000001": [
+   {
+    "contrato": "18715383000140-2-002961/2026",
+    "fornecedor": {
+     "ni": "37730372000183",
+     "nome": "AVANTEMED COMERCIO DE MATERIAL HOSPITALAR LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 4680.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "18715383000140-2-002966/2026",
+    "fornecedor": {
+     "ni": "37730372000183",
+     "nome": "AVANTEMED COMERCIO DE MATERIAL HOSPITALAR LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 1560.0,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "18715383000140-1-001134/2025-000005": [
+   {
+    "contrato": "18715383000140-2-002962/2026",
+    "fornecedor": {
+     "ni": "34637297000112",
+     "nome": "LIFE CARE DIAGNOSTICOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 28144.4,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "18715383000140-1-001134/2025-000004": [
+   {
+    "contrato": "18715383000140-2-002963/2026",
+    "fornecedor": {
+     "ni": "23688733000166",
+     "nome": "JP CIRURGICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 10000.0,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "18715383000140-1-000715/2025-000001": [
+   {
+    "contrato": "18715383000140-2-002964/2026",
+    "fornecedor": {
+     "ni": "76619113000131",
+     "nome": "LABORCLIN PROD PARA LABORATORIOS LIMITADA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 44557.0,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "18715383000140-1-000789/2025-000001": [
+   {
+    "contrato": "18715383000140-2-002965/2026",
+    "fornecedor": {
+     "ni": "23688733000166",
+     "nome": "JP CIRURGICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 2100.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "18715383000140-2-002967/2026",
+    "fornecedor": {
+     "ni": "23688733000166",
+     "nome": "JP CIRURGICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 7950.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "18715383000140-2-002969/2026",
+    "fornecedor": {
+     "ni": "23688733000166",
+     "nome": "JP CIRURGICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 6600.0,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "18715383000140-1-000789/2025-000003": [
+   {
+    "contrato": "18715383000140-2-002968/2026",
+    "fornecedor": {
+     "ni": "41733464000194",
+     "nome": "SHL   SAUDE HOSPITALAR E LABORATORIAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 3240.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "18715383000140-2-002970/2026",
+    "fornecedor": {
+     "ni": "41733464000194",
+     "nome": "SHL   SAUDE HOSPITALAR E LABORATORIAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 5010.0,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "18715383000140-1-001026/2025-000002": [
+   {
+    "contrato": "18715383000140-2-002971/2026",
+    "fornecedor": {
+     "ni": "35706397000116",
+     "nome": "E.C.S. TECNOLOGIA EM SAUDE, COMERCIO, IMPORTACAO E EXPORTACAO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 6001.0,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "18715383000140-1-000830/2025-000011": [
+   {
+    "contrato": "18715383000140-2-002972/2026",
+    "fornecedor": {
+     "ni": "01202521000194",
+     "nome": "PLASTIC WAY PRODUTOS PARA A SAUDE LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 4496.4,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "18715383000140-1-001008/2025-000007": [
+   {
+    "contrato": "18715383000140-2-002973/2026",
+    "fornecedor": {
+     "ni": "28820255000110",
+     "nome": "SUPREMA DENTAL IMPORTACAO, EXPORTACAO E COMERCIO DE PRODUTOS ODONTOLOGICOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 14394.4,
+    "data_assinatura": "2026-11-06"
+   },
+   {
+    "contrato": "18715383000140-2-002981/2026",
+    "fornecedor": {
+     "ni": "28820255000110",
+     "nome": "SUPREMA DENTAL IMPORTACAO, EXPORTACAO E COMERCIO DE PRODUTOS ODONTOLOGICOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 427.46,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "23555196000186-1-000194/2026-000003": [
+   {
+    "contrato": "23555196000186-2-000772/2026",
+    "fornecedor": {
+     "ni": "09251079000106",
+     "nome": "X.R. DISTRIBUIDORA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE HORIZONTE",
+    "valor": 9493.8,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "60509015000101-1-000162/2025-000001": [
+   {
+    "contrato": "60509015000101-2-003738/2026",
+    "fornecedor": {
+     "ni": "04142739000199",
+     "nome": "PECINI & PECINI COMERCIO DE MOVEIS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "FUNDACAO PARA O DESENVOLVIMENTO DA EDUCACAO",
+    "valor": 65277.3,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "18715383000140-1-000710/2025-000002": [
+   {
+    "contrato": "18715383000140-2-002975/2026",
+    "fornecedor": {
+     "ni": "32677058000160",
+     "nome": "DENTAL FREE MATERIAIS E SOLUCOES ODONTOLOGICAS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 4686.6,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "18715383000140-1-001008/2025-000006": [
+   {
+    "contrato": "18715383000140-2-002976/2026",
+    "fornecedor": {
+     "ni": "50541407000102",
+     "nome": "MEDIC DENTAL VIRTUAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 1235.0,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "18715383000140-1-001188/2025-000002": [
+   {
+    "contrato": "18715383000140-2-002977/2026",
+    "fornecedor": {
+     "ni": "50567060000169",
+     "nome": "DENTAL IPO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 7520.76,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "18715383000140-1-001188/2025-000004": [
+   {
+    "contrato": "18715383000140-2-002978/2026",
+    "fornecedor": {
+     "ni": "35706397000116",
+     "nome": "E.C.S. TECNOLOGIA EM SAUDE, COMERCIO, IMPORTACAO E EXPORTACAO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 756.6,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "18715383000140-1-000848/2025-000008": [
+   {
+    "contrato": "18715383000140-2-002979/2026",
+    "fornecedor": {
+     "ni": "28820255000110",
+     "nome": "SUPREMA DENTAL IMPORTACAO, EXPORTACAO E COMERCIO DE PRODUTOS ODONTOLOGICOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 5771.5,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "18715383000140-1-000710/2025-000003": [
+   {
+    "contrato": "18715383000140-2-002980/2026",
+    "fornecedor": {
+     "ni": "50567060000169",
+     "nome": "DENTAL IPO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 3207.6,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "18192898000102-1-000094/2026-000001": [
+   {
+    "contrato": "18192898000102-2-000367/2026",
+    "fornecedor": {
+     "ni": "10372200000129",
+     "nome": "SUL MINEIRA URGENCIA E EMERGENCIA MEDICA LTDA - ME"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SANTA RITA DO SAPUCAI",
+    "valor": 1125536.82,
+    "data_assinatura": "2026-10-20"
+   }
+  ],
+  "45781184000102-1-000327/2026-000001": [
+   {
+    "contrato": "45781184000102-2-001109/2026",
+    "fornecedor": {
+     "ni": "08133583000130",
+     "nome": "LABORATORIO DE PROTESE VIEIRA - LTDA - EPP"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE NOVA ODESSA",
+    "valor": 60060.0,
+    "data_assinatura": "2026-10-19"
+   }
+  ],
+  "10635424000186-1-000099/2026-000015": [
+   {
+    "contrato": "10635424000186-2-001385/2026",
+    "fornecedor": {
+     "ni": "37439428000145",
+     "nome": "TERRA LAVRAS COMERCIO E REPRESENTACOES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA CATARINENSE",
+    "valor": 420.9,
+    "data_assinatura": "2026-09-15"
+   }
+  ],
+  "63025530000104-1-001415/2026-000001": [
+   {
+    "contrato": "63025530000104-2-008933/2026",
+    "fornecedor": {
+     "ni": "01020992000181",
+     "nome": "TECNICA CAMPOY ELETRO- ELETRONICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE DE SAO PAULO",
+    "valor": 13800.0,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "10635424000186-1-000261/2025-000008": [
+   {
+    "contrato": "10635424000186-2-000971/2026",
+    "fornecedor": {
+     "ni": "05037980000110",
+     "nome": "S.O.S ALIMENTOS E TRANSPORTES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA CATARINENSE",
+    "valor": 8750.0,
+    "data_assinatura": "2026-07-06"
+   }
+  ],
+  "63606479000124-1-000870/2025-000003": [
+   {
+    "contrato": "63606479000124-2-001967/2026",
+    "fornecedor": {
+     "ni": "60117802000108",
+     "nome": "DRYWALL PRO FORROS, DIVISÓRIAS E ESCRITÓRIO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "ESTADO DO ACRE",
+    "valor": 8142.0,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "05648738000183-1-000033/2026-000001": [
+   {
+    "contrato": "05648738000183-2-000159/2026",
+    "fornecedor": {
+     "ni": "44088665000174",
+     "nome": "J SILVESTRE DA SILVA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE VARGEM GRANDE",
+    "valor": 271915.0,
+    "data_assinatura": "2026-05-13"
+   },
+   {
+    "contrato": "05648738000183-2-000160/2026",
+    "fornecedor": {
+     "ni": "44088665000174",
+     "nome": "J SILVESTRE DA SILVA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE VARGEM GRANDE",
+    "valor": 201430.0,
+    "data_assinatura": "2026-07-02"
+   }
+  ],
+  "45685872000179-1-000444/2024-000001": [
+   {
+    "contrato": "45685872000179-2-003060/2026",
+    "fornecedor": {
+     "ni": "73856593000166",
+     "nome": "PRATI, DONADUZZI & CIA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 13122.0,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "45685872000179-2-003061/2026",
+    "fornecedor": {
+     "ni": "05847630000110",
+     "nome": "SOMA/SP PRODUTOS HOSPITALARES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 27160.2,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "45685872000179-2-003062/2026",
+    "fornecedor": {
+     "ni": "44734671002286",
+     "nome": "CRISTALIA PRODUTOS QUIMICOS FARMACEUTICOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 2100.0,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "45685872000179-2-003065/2026",
+    "fornecedor": {
+     "ni": "03652030000170",
+     "nome": "CENTERMEDI COM. PROD. HOSPITALARES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 10039.9,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "45685872000179-2-003064/2026",
+    "fornecedor": {
+     "ni": "02520829000493",
+     "nome": "DIMASTER COMERCIO DE PRODUTOS HOSPITALARES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 9280.0,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "45685872000179-2-003066/2026",
+    "fornecedor": {
+     "ni": "12418191000195",
+     "nome": "CONQUISTA DISTRIBUIDORA DE MEDICAMENTOS E PRODUTOS HOSPITALARES EIRELI"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 300.0,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "45685872000179-2-003067/2026",
+    "fornecedor": {
+     "ni": "20202872000220",
+     "nome": "PROVIP DISTRIBUIDORA HOSPITALAR LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 7837.5,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "45685872000179-2-003063/2026",
+    "fornecedor": {
+     "ni": "17472278000164",
+     "nome": "GOLDENPLUS COM DE MED E PROD HOSP LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 2340.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "11049830000120-1-000245/2026-000005": [
+   {
+    "contrato": "11049830000120-2-000246/2026",
+    "fornecedor": {
+     "ni": "46700625000167",
+     "nome": "BR3 COMÉRCIO E DISTRIBUIÇÃO"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE GRAVATA",
+    "valor": 2558.0,
+    "data_assinatura": "2026-10-26"
+   }
+  ],
+  "88830609000139-1-000143/2025-000001": [
+   {
+    "contrato": "88830609000139-2-003359/2026",
+    "fornecedor": {
+     "ni": "02080759000157",
+     "nome": "VIACAO GIRATUR LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE CAXIAS DO SUL",
+    "valor": 672.0,
+    "data_assinatura": "2026-09-21"
+   }
+  ],
+  "01763614000198-1-000034/2026-000001": [
+   {
+    "contrato": "01763614000198-2-003726/2026",
+    "fornecedor": {
+     "ni": "52139016000183",
+     "nome": "PROFI COMERCIO DE ALIMENTOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE CAMPO ALEGRE DE GOIAS",
+    "valor": 267.15,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "01763614000198-2-003727/2026",
+    "fornecedor": {
+     "ni": "55048684000193",
+     "nome": "AR DISTRIBUIDORA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE CAMPO ALEGRE DE GOIAS",
+    "valor": 24.54,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "01763614000198-2-003728/2026",
+    "fornecedor": {
+     "ni": "55048684000193",
+     "nome": "AR DISTRIBUIDORA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE CAMPO ALEGRE DE GOIAS",
+    "valor": 22.4,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "01763614000198-2-003729/2026",
+    "fornecedor": {
+     "ni": "10592763000122",
+     "nome": "PANIFICADORA PALACIO DAS MASSAS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE CAMPO ALEGRE DE GOIAS",
+    "valor": 529.21,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "01763614000198-2-003730/2026",
+    "fornecedor": {
+     "ni": "10592763000122",
+     "nome": "PANIFICADORA PALACIO DAS MASSAS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE CAMPO ALEGRE DE GOIAS",
+    "valor": 223.66,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "01763614000198-2-003731/2026",
+    "fornecedor": {
+     "ni": "10592763000122",
+     "nome": "PANIFICADORA PALACIO DAS MASSAS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE CAMPO ALEGRE DE GOIAS",
+    "valor": 551.27,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "01763614000198-2-003732/2026",
+    "fornecedor": {
+     "ni": "10592763000122",
+     "nome": "PANIFICADORA PALACIO DAS MASSAS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE CAMPO ALEGRE DE GOIAS",
+    "valor": 774.9,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "01763614000198-2-003733/2026",
+    "fornecedor": {
+     "ni": "55048684000193",
+     "nome": "AR DISTRIBUIDORA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE CAMPO ALEGRE DE GOIAS",
+    "valor": 64.25,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "01763614000198-2-003734/2026",
+    "fornecedor": {
+     "ni": "10592763000122",
+     "nome": "PANIFICADORA PALACIO DAS MASSAS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE CAMPO ALEGRE DE GOIAS",
+    "valor": 771.76,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "01763614000198-2-003735/2026",
+    "fornecedor": {
+     "ni": "10592763000122",
+     "nome": "PANIFICADORA PALACIO DAS MASSAS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE CAMPO ALEGRE DE GOIAS",
+    "valor": 441.02,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "01763614000198-2-003736/2026",
+    "fornecedor": {
+     "ni": "10592763000122",
+     "nome": "PANIFICADORA PALACIO DAS MASSAS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE CAMPO ALEGRE DE GOIAS",
+    "valor": 224.7,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "45685872000179-1-000224/2026-000001": [
+   {
+    "contrato": "45685872000179-2-003069/2026",
+    "fornecedor": {
+     "ni": "05005873000100",
+     "nome": "PORTAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 15407.7,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "45685872000179-2-003070/2026",
+    "fornecedor": {
+     "ni": "05847630000110",
+     "nome": "SOMA/SP PRODUTOS HOSPITALARES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 8934.0,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "45685872000179-2-003071/2026",
+    "fornecedor": {
+     "ni": "64117995000158",
+     "nome": "AMA COMERCIO DE ALIMENTOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 632.39,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "60509015000101-1-000159/2025-000001": [
+   {
+    "contrato": "60509015000101-2-003740/2026",
+    "fornecedor": {
+     "ni": "54826367000430",
+     "nome": "MAQMOVEIS INDUSTRIA E COMERCIO DE MOVEIS LTDA."
+    },
+    "fruto_adesao": false,
+    "orgao": "FUNDACAO PARA O DESENVOLVIMENTO DA EDUCACAO",
+    "valor": 152211.02,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "07911696000157-1-000085/2026-000001": [
+   {
+    "contrato": "07911696000157-2-000366/2026",
+    "fornecedor": {
+     "ni": "27068666000138",
+     "nome": "CZAR AUTO PECAS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE AQUIRAZ",
+    "valor": 142855.2,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "42498600000171-1-003575/2025-000004": [
+   {
+    "contrato": "42498600000171-2-005353/2026",
+    "fornecedor": {
+     "ni": "48610545000146",
+     "nome": "portum distribuidor industrial ltda"
+    },
+    "fruto_adesao": false,
+    "orgao": "ESTADO DO RIO DE JANEIRO",
+    "valor": 938941.56,
+    "data_assinatura": "2026-10-29"
+   }
+  ],
+  "45685872000179-1-000269/2025-000001": [
+   {
+    "contrato": "45685872000179-2-003083/2026",
+    "fornecedor": {
+     "ni": "49704499000298",
+     "nome": "CARVALHO ACESSORIOS PARA MOVEIS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 1995.0,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "45685872000179-2-003084/2026",
+    "fornecedor": {
+     "ni": "72881063000105",
+     "nome": "LANA DISTRIBUIDORA DE ALIMENTOS E PAPELARIA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 59.8,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "45685872000179-2-003087/2026",
+    "fornecedor": {
+     "ni": "11552540000102",
+     "nome": "F.S. COMERCIO E SERVICOS EIRELI"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 279.24,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "45685872000179-2-003089/2026",
+    "fornecedor": {
+     "ni": "47646580000152",
+     "nome": "FRANCIELE ELETRO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 2140.0,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "45685872000179-2-003090/2026",
+    "fornecedor": {
+     "ni": "46075872000110",
+     "nome": "TOTAL VITA DISTRIBUIDORA LTDA."
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 151.69,
+    "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "45685872000179-2-003086/2026",
+    "fornecedor": {
+     "ni": "92823764000103",
+     "nome": "DIRCEU LONGO & CIA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE REGISTRO",
+    "valor": 840.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "06554869000164-1-000059/2025-000005": [
+   {
+    "contrato": "06554869000164-2-000234/2025",
+    "fornecedor": {
+     "ni": "59184627000192",
+     "nome": "M D SOARES"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE TERESINA",
+    "valor": 96716.0,
+    "data_assinatura": "2026-06-25"
+   }
+  ],
+  "04380507000179-1-000105/2026-000001": [
+   {
+    "contrato": "04380507000179-2-000072/2026",
+    "fornecedor": {
+     "ni": "22277050000153",
+     "nome": "CARLOS LEONES SANTOS"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE OURO PRETO DO OESTE",
+    "valor": 2400.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "06554869000164-1-000059/2025-000008": [
+   {
+    "contrato": "06554869000164-2-000280/2026",
+    "fornecedor": {
+     "ni": "59184627000192",
+     "nome": "M D SOARES"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE TERESINA",
+    "valor": 549810.0,
+    "data_assinatura": "2026-07-10"
+   }
+  ],
+  "00396895000125-1-000307/2026-000002": [
+   {
+    "contrato": "00396895000125-2-001002/2026",
+    "fornecedor": {
+     "ni": "63067904000588",
+     "nome": "LIFE TECHNOLOGIES BRASIL COMERCIO E INDUSTRIA DE PRODUTOS PARA BIOTECNOLOGIA LTD"
+    },
+    "fruto_adesao": false,
+    "orgao": "MINISTERIO DA AGRICULTURA, PECUARIA E ABASTECIMENTO",
+    "valor": 261219.0,
+    "data_assinatura": "2026-11-05"
+   }
   ]
  },
  "propostas_abertas": {
@@ -8311,24 +9739,27 @@
    "7025/2027",
    "158/2026",
    "7025/2026",
-   "7010/2026"
+   "7010/2026",
+   "7035/2026",
+   "7035/2027",
+   "7050/2026"
   ]
  },
  "atas_varredura": {
   "data_ref": "2026-11-04",
-  "pagina": 1368,
+  "pagina": 1359,
   "iniciada_em": "2026-11-04T10:54:48-03:00",
   "total_paginas": 9720,
-  "total_registros": 485955,
-  "progresso": 14.1
+  "total_registros": 485958,
+  "progresso": 14.0
  },
  "backfill_contratacoes": {
-  "limite": "2025-11-07",
+  "limite": "2025-11-08",
   "progresso": 0.0,
   "concluido": false
  },
  "backfill_contratos": {
-  "limite": "2026-10-08",
+  "limite": "2026-10-09",
   "progresso": 0.0,
   "concluido": false
  }
