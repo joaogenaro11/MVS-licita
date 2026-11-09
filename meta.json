@@ -1,36 +1,36 @@
 {
  "app": "Radar TLS",
  "versao": "1.0.0",
- "gerado_em": "2026-11-08T20:59:04-03:00",
+ "gerado_em": "2026-11-09T13:53:24-03:00",
  "status": "ok",
  "fontes_com_falha": [],
  "fontes": {
   "contratacoes_atualizacao": {
-   "ultima_execucao": "2026-11-08T20:59:04-03:00",
+   "ultima_execucao": "2026-11-09T13:53:24-03:00",
    "status": "parcial",
    "erro": "fatia de tempo da fonte esgotada no meio do dia; será refeito",
-   "ultimo_sucesso": "2026-11-08T20:59:04-03:00",
-   "registros_vistos": 31349,
-   "novos": 0,
-   "atualizados": 0
+   "ultimo_sucesso": "2026-11-09T13:53:24-03:00",
+   "registros_vistos": 8428,
+   "novos": 19,
+   "atualizados": 2
   },
   "atas_atualizacao": {
-   "ultima_execucao": "2026-11-08T20:59:04-03:00",
+   "ultima_execucao": "2026-11-09T13:53:24-03:00",
    "status": "ok",
    "erro": null,
-   "ultimo_sucesso": "2026-11-08T20:59:04-03:00",
-   "registros_vistos": 119,
-   "novos": 0,
-   "atualizados": 0
+   "ultimo_sucesso": "2026-11-09T13:53:24-03:00",
+   "registros_vistos": 2111,
+   "novos": 1,
+   "atualizados": 1
   },
   "contratos_atualizacao": {
-   "ultima_execucao": "2026-11-08T20:59:04-03:00",
+   "ultima_execucao": "2026-11-09T13:53:24-03:00",
    "status": "parcial",
-   "erro": "fatia de tempo da fonte esgotada; continua na próxima execução",
-   "ultimo_sucesso": "2026-11-08T20:59:04-03:00",
-   "registros_vistos": 33626,
-   "novos": 51,
-   "atualizados": 1
+   "erro": "fatia de tempo da fonte esgotada no meio do dia; será refeito",
+   "ultimo_sucesso": "2026-11-09T13:53:24-03:00",
+   "registros_vistos": 8750,
+   "novos": 13,
+   "atualizados": 0
   },
   "propostas_abertas": {
    "ultima_execucao": "2026-11-04T10:54:48-03:00",
@@ -43,51 +43,51 @@
    "atualizados": 0
   },
   "pca": {
-   "ultima_execucao": "2026-11-08T20:59:04-03:00",
+   "ultima_execucao": "2026-11-09T13:53:24-03:00",
    "status": "parcial",
-   "erro": null,
-   "ultimo_sucesso": "2026-11-08T20:59:04-03:00",
-   "registros_vistos": 3245,
-   "novos": 2178,
+   "erro": "classificação 5895/2027: falha após 6 tentativas: HTTP 500",
+   "ultimo_sucesso": "2026-11-09T13:53:24-03:00",
+   "registros_vistos": 0,
+   "novos": 0,
    "atualizados": 0
   },
   "atas_varredura": {
-   "ultima_execucao": "2026-11-08T20:59:04-03:00",
+   "ultima_execucao": "2026-11-09T13:53:24-03:00",
    "status": "parcial",
    "erro": null,
-   "progresso": 16.0,
-   "ultimo_sucesso": "2026-11-08T20:59:04-03:00",
-   "registros_vistos": 10250,
-   "novos": 38,
-   "atualizados": 0
+   "progresso": 15.9,
+   "ultimo_sucesso": "2026-11-09T13:53:24-03:00",
+   "registros_vistos": 150,
+   "novos": 0,
+   "atualizados": 1
   },
   "backfill_contratacoes": {
-   "ultima_execucao": "2026-11-08T20:59:04-03:00",
+   "ultima_execucao": "2026-11-09T13:53:24-03:00",
    "status": "parcial",
    "erro": null,
    "progresso": 0.0,
-   "ultimo_sucesso": "2026-11-08T20:59:04-03:00",
+   "ultimo_sucesso": "2026-11-09T13:53:24-03:00",
    "registros_vistos": 0,
    "novos": 0,
    "atualizados": 0
   },
   "backfill_contratos": {
-   "ultima_execucao": "2026-11-08T20:59:04-03:00",
+   "ultima_execucao": "2026-11-09T13:53:24-03:00",
    "status": "parcial",
    "erro": null,
    "progresso": 0.0,
-   "ultimo_sucesso": "2026-11-08T20:59:04-03:00",
+   "ultimo_sucesso": "2026-11-09T13:53:24-03:00",
    "registros_vistos": 0,
    "novos": 0,
    "atualizados": 0
   },
   "enriquecimento": {
-   "ultima_execucao": "2026-11-08T20:59:04-03:00",
-   "status": "parcial",
+   "ultima_execucao": "2026-11-09T13:53:24-03:00",
+   "status": "ok",
    "erro": null,
-   "enriquecidos": 0,
-   "pendentes": 43,
-   "ultimo_sucesso": "2026-11-08T20:59:04-03:00",
+   "enriquecidos": 34,
+   "pendentes": 0,
+   "ultimo_sucesso": "2026-11-09T13:53:24-03:00",
    "registros_vistos": 0,
    "novos": 0,
    "atualizados": 0
@@ -96,68 +96,55 @@
  "carga_historica": {
   "contratacoes": {
    "proximo": null,
-   "limite": "2025-11-08",
+   "limite": "2025-11-09",
    "progresso": 0.0,
    "concluido": false
   },
   "contratos": {
    "proximo": null,
-   "limite": "2026-10-09",
+   "limite": "2026-10-10",
    "progresso": 0.0,
    "concluido": false
   },
   "atas_vigentes": {
-   "pagina": 1554,
-   "total_paginas": 9720,
-   "total_registros": 485958,
-   "progresso": 16.0,
+   "pagina": 1547,
+   "total_paginas": 9730,
+   "total_registros": 486485,
+   "progresso": 15.9,
    "concluida_em": null,
    "iniciada_em": "2026-11-04T10:54:48-03:00"
   }
  },
  "totais_base": {
-  "itens": 9016,
-  "contratacoes": 732,
+  "itens": 9048,
+  "contratacoes": 751,
   "pca": 7960,
-  "contratos": 324,
-  "atas": 444
+  "contratos": 337,
+  "atas": 445
  },
  "cliente_http": {
-  "requests": 2169,
-  "retries": 146,
-  "failures": 13,
+  "requests": 485,
+  "retries": 21,
+  "failures": 1,
   "no_content": 0,
-  "limitadas_429": 81,
+  "limitadas_429": 16,
   "by_status": {
-   "200": 2010,
-   "429": 81,
-   "502": 2,
-   "503": 73
+   "200": 463,
+   "429": 16,
+   "500": 6
   }
  },
- "duracao_s": 8971.2,
+ "duracao_s": 2109.6,
  "classificador": {
-  "versao_config": 3,
-  "configuracao_privada": false,
-  "limiares": {
-   "alta": 80,
-   "analisar": 60,
-   "indireto": 40
-  },
-  "pesos": {
-   "portfolio": 35,
-   "support": 25,
-   "vendor": 15,
-   "value": 10,
-   "timing": 10,
-   "evidence": 5
-  }
+  "base_ofertas": "privada",
+  "versao_ofertas": "2026-11-09",
+  "ofertas": 61
  },
  "limitacoes": [
   "Cobertura limitada ao que os órgãos publicam no PNCP. Órgãos que não publicam (ou publicam com atraso) não aparecem.",
   "ETPs e pesquisas de preço não são publicados de forma estruturada no PNCP; o estágio 'Preparação' só aparece para manifestações de interesse e pré-qualificações.",
   "PDTI/PDTIC não possuem API pública: devem ser consultados nos sites dos órgãos (módulo futuro 'Análise de Compras').",
-  "A classificação usa o objeto, a informação complementar e, quando coletados, os itens da contratação. PDFs de editais/TRs NÃO são lidos pelo sistema.",
+  "A classificação usa a base de ofertas TLS (privada) sobre o objeto, a informação complementar e, quando coletados, os itens da contratação. PDFs de editais/TRs NÃO são lidos pelo sistema.",
   "Possibilidade de adesão a atas é indicativa: não há análise jurídica nem verificação de saldo.",
   "A busca opera sobre a base coletada pelo Radar (não é uma consulta em tempo real a toda a base nacional)."
  ]

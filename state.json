@@ -3,7 +3,7 @@
   "ate": "2026-11-05"
  },
  "atas_atualizacao": {
-  "ate": "2026-11-08"
+  "ate": "2026-11-09"
  },
  "contratos_atualizacao": {
   "ate": "2026-11-06"
@@ -10924,20 +10924,26 @@
  },
  "atas_varredura": {
   "data_ref": "2026-11-04",
-  "pagina": 1554,
+  "pagina": 1547,
   "iniciada_em": "2026-11-04T10:54:48-03:00",
-  "total_paginas": 9720,
-  "total_registros": 485958,
-  "progresso": 16.0
+  "total_paginas": 9730,
+  "total_registros": 486485,
+  "progresso": 15.9
  },
  "backfill_contratacoes": {
-  "limite": "2025-11-08",
+  "limite": "2025-11-09",
   "progresso": 0.0,
   "concluido": false
  },
  "backfill_contratos": {
-  "limite": "2026-10-09",
+  "limite": "2026-10-10",
   "progresso": 0.0,
   "concluido": false
+ },
+ "classificador": "ofertas_json",
+ "migracao_ofertas": {
+  "em": "2026-11-09T13:53:24-03:00",
+  "mantidos": 0,
+  "retirados": 0
  }
 }
