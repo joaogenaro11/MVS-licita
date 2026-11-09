@@ -44,8 +44,8 @@ Site (GitHub Pages): https://joaogenaro11.github.io/MVS-licita/  → pede login;
 - Cada pessoa entra com **usuário e senha**. No primeiro acesso (e depois de uma redefinição) o site pede para criar uma senha pessoal.
 - **Seus:** favoritos (estrela), filtro Tudo/Logo/MVS, filtros, ordenação e buscas salvas. Ninguém mais vê.
 - **Da equipe:** status comercial, responsável, observação, próximo acompanhamento, órgãos prioritários e parceiros.
-- **Administrador:** menu **Usuários** para criar usuário, redefinir senha (gera senha temporária, mostrada uma vez),
-  desativar/reativar e enviar nova versão da base de ofertas.
+- **Administrador:** menu **Usuários** para criar usuário, redefinir senha, **ver a senha temporária** de quem ainda não
+  entrou (fica guardada criptografada até a pessoa criar a própria senha), desativar/reativar e enviar nova versão da base de ofertas.
 
 ## Como um registro é classificado
 

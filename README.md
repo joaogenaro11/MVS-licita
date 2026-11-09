@@ -89,8 +89,10 @@ funções de administração). Para outro projeto: execute esse arquivo no SQL E
    mensagem clara e o site continua com a última publicação.
 2. **Authentication > Sign In / Providers:** desative "Allow new users to sign up" (usuários são criados pelo admin).
 3. **Primeiro acesso:** cada pessoa entra com o usuário e a senha temporária recebidos e cria a própria senha.
-4. **Administração (só admin):** menu **Usuários** → criar usuário, redefinir senha (gera nova temporária, mostrada uma vez),
-   desativar/reativar e enviar nova versão da **base de ofertas** (`ofertas_tls_radar.json`).
+4. **Administração (só admin):** menu **Usuários** → criar usuário, redefinir senha (gera nova temporária), **ver senha
+   temporária** (enquanto a pessoa não criar a própria), desativar/reativar e enviar nova versão da **base de ofertas**
+   (`ofertas_tls_radar.json`). A senha temporária fica criptografada no Supabase Vault e é apagada quando a pessoa cria a
+   própria senha ou é desativada; senhas pessoais nunca são guardadas.
 
 Como funciona o login: o usuário digita só o nome de usuário; internamente o Supabase Auth usa `<usuario>@radar-tls.invalid`
 (domínio reservado, nenhum e-mail é enviado). Senhas com hash bcrypt; sessão JWT; o Supabase limita tentativas por IP e o
