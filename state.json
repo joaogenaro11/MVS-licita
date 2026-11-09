@@ -2703,30 +2703,6 @@
     "data_assinatura": "2026-11-03"
    }
   ],
-  "12075748000132-1-000143/2024-000034": [
-   {
-    "contrato": "83102574000106-2-001344/2026",
-    "fornecedor": {
-     "ni": "11118645000140",
-     "nome": "SPOTECH INFORMATICA CORAL LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE RIO DO SUL",
-    "valor": 805.01,
-    "data_assinatura": "2026-11-03"
-   },
-   {
-    "contrato": "83102855000150-2-002249/2026",
-    "fornecedor": {
-     "ni": "11118645000140",
-     "nome": "SPOTECH INFORMATICA CORAL LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE NAVEGANTES",
-    "valor": 936.42,
-    "data_assinatura": "2026-11-06"
-   }
-  ],
   "08806721000103-1-000040/2025-000019": [
    {
     "contrato": "08778326000156-2-000304/2026",
@@ -3719,19 +3695,6 @@
     "data_assinatura": "2022-07-06"
    }
   ],
-  "12075748000132-1-000143/2024-000042": [
-   {
-    "contrato": "83102228000110-2-001506/2026",
-    "fornecedor": {
-     "ni": "34180582000157",
-     "nome": "SUPREMA MOVEIS E INFORMATICA LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE ARAQUARI",
-    "valor": 850.0,
-    "data_assinatura": "2026-11-03"
-   }
-  ],
   "00394494000136-1-000586/2026-000005": [
    {
     "contrato": "00394494000136-2-002320/2026",
@@ -4100,19 +4063,6 @@
     "orgao": "MUNICIPIO DE ULIANOPOLIS",
     "valor": 1077522.75,
     "data_assinatura": "2026-06-23"
-   }
-  ],
-  "12075748000132-1-000143/2024-000037": [
-   {
-    "contrato": "82911249000113-2-000532/2026",
-    "fornecedor": {
-     "ni": "07953689000118",
-     "nome": "FAGUNDEZ DISTRIBUICAO LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE ARARANGUA",
-    "valor": 1456.0,
-    "data_assinatura": "2026-11-04"
    }
   ],
   "95594776000193-1-000124/2026-000001": [
@@ -4860,30 +4810,6 @@
     "orgao": "COMANDO DA MARINHA",
     "valor": 90000.0,
     "data_assinatura": "2026-11-03"
-   }
-  ],
-  "12075748000132-1-000029/2026-000018": [
-   {
-    "contrato": "02482295000105-2-000824/2026",
-    "fornecedor": {
-     "ni": "32149829000147",
-     "nome": "PAXIN SOLUCOES E TECNOLOGIA LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "SECRETARIA MUNICIPAL DE EDUCACAO DE ITAPOA - SC",
-    "valor": 44940.0,
-    "data_assinatura": "2026-11-04"
-   },
-   {
-    "contrato": "06089125000116-2-000728/2026",
-    "fornecedor": {
-     "ni": "32149829000147",
-     "nome": "PAXIN SOLUCOES E TECNOLOGIA LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "FUNDO MUNICIPAL DE SAUDE DE IRINEOPOLIS - FMSI",
-    "valor": 3840.0,
-    "data_assinatura": "2026-11-06"
    }
   ],
   "00394494000136-1-000291/2024-000002": [
@@ -10895,6 +10821,41 @@
     "orgao": "MUNICIPIO DE BELO HORIZONTE",
     "valor": 220.0,
     "data_assinatura": "2026-11-06"
+   }
+  ],
+  "04104816000116-1-000035/2026-000001": [
+   {
+    "contrato": "04104816000116-2-000870/2026",
+    "fornecedor": {
+     "ni": "57601436000153",
+     "nome": "MAMUTH TECNOLOGIA DISTRIBUIDORA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE ARIQUEMES",
+    "valor": 14960.0,
+    "data_assinatura": "2026-10-26"
+   },
+   {
+    "contrato": "04104816000116-2-000871/2026",
+    "fornecedor": {
+     "ni": "57601436000153",
+     "nome": "MAMUTH TECNOLOGIA DISTRIBUIDORA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE ARIQUEMES",
+    "valor": 3740.0,
+    "data_assinatura": "2026-10-26"
+   },
+   {
+    "contrato": "04104816000116-2-000872/2026",
+    "fornecedor": {
+     "ni": "57601436000153",
+     "nome": "MAMUTH TECNOLOGIA DISTRIBUIDORA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE ARIQUEMES",
+    "valor": 22440.0,
+    "data_assinatura": "2026-10-26"
    }
   ]
  },
