@@ -127,9 +127,9 @@ jobs:
           print("base:", m["totais_base"], "| http:", m["cliente_http"])
           pub = json.load(open("web/public/data/opportunities.json"))["items"] + json.load(open("web/public/data/atas.json"))["items"]
           print("publicados (base sintética):", len(pub))
-          for x in sorted(pub, key=lambda x: -x["classificacao"]["pontuacao"])[:15]:
+          for x in sorted(pub, key=lambda x: -(x["classificacao"].get("score") or 0))[:15]:
               c = x["classificacao"]
-              print(f"[{c['pontuacao']:5.1f} {'+'.join(c['portfolio'])}] {x['tipo']:11s} {x['estagio']:18s} {x['id']} | {x['objeto'][:100]}")
+              print(f"[{c.get('score') or 0:>3} {c.get('faixa') or '-':9s} {'+'.join(c['portfolio'])}] {x['tipo']:11s} {x['estagio']:18s} {x['id']} | {x['objeto'][:100]}")
           EOF
       - name: Teste dos links oficiais coletados (amostra)
         run: |
