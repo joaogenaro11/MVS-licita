@@ -47,6 +47,22 @@ CASOS = [
     ("Contratação de serviços de sanitização de dados e descarte seguro de discos", ["transversal"], {"data_erasure"}),
 ]
 
+# rev. c: famílias (texto, família principal esperada, portfólio esperado ou None, faixa esperada ou None)
+CASOS_FAMILIA = [
+    ("Contratação de serviços de manutenção preventiva e corretiva de equipamentos de rede (switches e roteadores) com "
+     "reposição de peças", "networking", None, None),
+    ("Aquisição de solução de firewall com garantia de 60 meses", "seguranca", None, "media"),
+    ("Renovação de garantia dos servidores de rede do datacenter", "servidores_storage", None, "media"),
+    ("Aquisição de servidores rack e storage para modernização do data center", "refresh", None, None),
+    ("Contratação de suporte técnico para a plataforma alta (computador de grande porte)", "ibm_logo", ["logo"], None),
+]
+NADA = [
+    "Capacitação de servidores públicos em gestão de redes",
+    "Serviço de manutenção da rede elétrica e lógica",
+    "Aquisição de notebooks com Wi-Fi",
+    "Contratação de fábrica de software",
+]
+
 
 @pytest.mark.parametrize("texto,portfolio,ofertas", CASOS, ids=[c[0][:50] for c in CASOS])
 def test_caso_de_aceite(texto, portfolio, ofertas):
@@ -57,3 +73,45 @@ def test_caso_de_aceite(texto, portfolio, ofertas):
         return
     assert r["portfolio"] == portfolio
     assert ofertas <= casadas, f"faltando {ofertas - casadas}; casou {casadas}"
+
+
+@pytest.mark.skipif(BASE is None or not getattr(BASE, "familias", None), reason="base real sem famílias (rev. c)")
+@pytest.mark.parametrize("texto,familia,portfolio,faixa", CASOS_FAMILIA, ids=[c[0][:50] for c in CASOS_FAMILIA])
+def test_caso_familia(texto, familia, portfolio, faixa):
+    r = BASE.classificar([texto])
+    assert r["tls"] and r["familia_principal"] == familia, (r["familias"], [o["id"] for o in r["ofertas_casadas"]])
+    if portfolio:
+        assert r["portfolio"] == portfolio
+    if faixa:
+        assert r["faixa"] == faixa, r["aderencia"]
+
+
+@pytest.mark.parametrize("texto", NADA)
+def test_caso_nada(texto):
+    r = BASE.classificar([texto])
+    assert not r["tls"], (r["familias"], [o["id"] for o in r["ofertas_casadas"]])
+
+
+
+# rev. d: excluir avaliado no registro inteiro do PCA (ficha técnica + classe/descrição)
+from radar.pipeline import classificar_registro  # noqa: E402
+
+CASOS_REGISTRO = [
+    ({"tipo": "pca", "objeto": "QUANTIDADE PORTAS: 8, TIPO: NÃO GERENCIÁVEL",
+      "info_complementar": "SWITCH | Material | EQUIPAMENTOS DE REDE DE TIC - LOCAL E REMOTA | Aquisição de switch"}, None),
+    ({"tipo": "pca", "objeto": "TIPO: SERVER SWITCH, 2 CONSOLES",
+      "info_complementar": "CHAVEADORA | Material | EQUIPAMENTOS DE REDE DE TIC | Aquisição de Switch chaveador KVM"}, None),
+    ({"tipo": "pca", "objeto": "QUANTIDADE PORTAS: 48, TIPO PORTAS: 1000 BASE T, SLOTS SFP+",
+      "info_complementar": "SWITCH | Material | EQUIPAMENTOS DE REDE DE TIC | Aquisição de switches de rede"}, "networking"),
+    ({"tipo": "contratacao", "objeto": "Aquisição de equipamentos de informática",
+      "itens": [{"descricao": "Notebook"}, {"descricao": "Switch gerenciável 48 portas com garantia"}]}, "networking"),
+]
+
+
+@pytest.mark.parametrize("rec,familia", CASOS_REGISTRO, ids=["pca_nao_gerenciavel", "pca_kvm", "pca_switch_48", "contratacao_lotes_mistos"])
+def test_caso_registro(rec, familia):
+    r = classificar_registro(BASE, rec)
+    if familia is None:
+        assert not r["tls"], (r["familias"], [o["id"] for o in r["ofertas_casadas"]])
+    else:
+        assert r["tls"] and r["familia_principal"] == familia, (r["familias"], [o["id"] for o in r["ofertas_casadas"]])

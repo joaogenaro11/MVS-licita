@@ -49,6 +49,24 @@ await safe('Dashboard carrega com KPIs e data da última coleta', async () => {
   check('Dashboard carrega com KPIs e data da última coleta', missing.length === 0 && ultima > 0,
     missing.length ? `faltando: ${missing.join(', ')}` : '')
 })
+await safe('Painel "Oportunidades por família": famílias na ordem, quantidade, valor e clique filtra', async () => {
+  const painel = page.locator('section[aria-label="Oportunidades por família"]')
+  const itens = painel.locator('li button')
+  const n = await itens.count()
+  const primeiro = itens.first()
+  const titulo = (await primeiro.getAttribute('title')) || ''
+  const habilitado = painel.locator('li button:not([disabled])').first()
+  const nome = (await habilitado.locator('span').first().innerText()).trim()
+  const qtd = Number(((await habilitado.locator('span').nth(1).innerText()).split('·')[0]).replace(/\D/g, ''))
+  await habilitado.click()
+  await page.waitForSelector('text=/resultado\\(s\\) na base coletada/')
+  const filtrado = await countText(page)
+  await page.click('text=limpar filtros')
+  check('Painel "Oportunidades por família": famílias na ordem, quantidade, valor e clique filtra',
+    n >= 3 && filtrado === qtd && titulo.length > 0, `${n} famílias; "${nome}" → ${filtrado} (painel ${qtd})`)
+  await page.locator('nav[aria-label="Navegação principal"] button', { hasText: 'Dashboard' }).click()
+  await page.waitForSelector('text=Radar de Demanda Pública')
+})
 await safe('Card "Atualização dos dados" só com título, última coleta e status geral', async () => {
   const card = page.locator('section[aria-label="Atualização dos dados"]')
   const t = await card.innerText()
@@ -77,14 +95,39 @@ await safe('Listagem de oportunidades com dados coletados', async () => {
   total = await countText(page)
   check('Listagem de oportunidades com dados coletados', total > 0, `${total} oportunidades`)
 })
-await safe('Card: valor, pontuação, selo de portfólio, ofertas casadas (chips) e termos destacados', async () => {
+await safe('Card limpo: aderência, família, portfólio e alertas (sem nome de oferta)', async () => {
   const card = page.locator('main ul > li').first()
   const txt = await card.innerText()
-  const chips = await card.locator('span.rounded-full').count()
-  const marks = await page.locator('main ul > li mark').count()
-  const ok = /Valor estimado:/.test(txt) && /pontuação/.test(txt) && /(Logo IBM \+ MVS|Logo IBM|MVS|Transversal)/.test(txt) &&
-    /Termos:/.test(txt) && chips > 0 && marks > 0
-  check('Card: valor, pontuação, selo de portfólio, ofertas casadas (chips) e termos destacados', ok, `${chips} chips, ${marks} destaques na página`)
+  const ofertaChips = await page.locator('main ul > li span.rounded-full').count()
+  const termosLinha = /Termos:/.test(txt)
+  const faixa = /(Alta|Média|Baixa) aderência/.test(txt)
+  const portfolio = /(Logo IBM \+ MVS|Logo IBM|MVS|Transversal)/.test(txt)
+  const familia = await card.locator('[title="Família principal"]').count()
+  check('Card limpo: aderência, família, portfólio e alertas (sem nome de oferta)',
+    /Valor estimado:/.test(txt) && faixa && portfolio && familia === 1 && ofertaChips === 0 && !termosLinha,
+    `faixa ${faixa}, família ${familia}, portfólio ${portfolio}, chips de oferta ${ofertaChips}`)
+})
+await safe('Ordenação padrão por aderência (maior primeiro)', async () => {
+  const v = (await page.locator('main ul > li .num.text-2xl').allInnerTexts()).map(Number)
+  check('Ordenação padrão por aderência (maior primeiro)', v.length > 0 && v.every((x, i) => i === 0 || v[i - 1] >= x), v.slice(0, 8).join(' ≥ '))
+})
+await safe('Filtro de aderência (Alta/Média/Baixa) e por família', async () => {
+  const sel = page.locator('label:has-text("Aderência") select').first()
+  const cont = {}
+  for (const f of ['alta', 'media', 'baixa']) {
+    await sel.selectOption(f); await page.waitForTimeout(200)
+    cont[f] = await countText(page)
+    const labels = await page.locator('main ul > li .num.text-2xl + div span').allInnerTexts()
+    const nome = { alta: 'Alta', media: 'Média', baixa: 'Baixa' }[f]
+    if (labels.some((l) => !l.startsWith(nome))) cont[f + '_erro'] = true
+  }
+  await sel.selectOption('')
+  await page.waitForTimeout(200)
+  const fam = page.locator('label:has-text("Família") select').first()
+  const opcoes = await fam.locator('option').count()
+  check('Filtro de aderência (Alta/Média/Baixa) e por família',
+    cont.alta + cont.media + cont.baixa <= total && !cont.alta_erro && !cont.media_erro && !cont.baixa_erro && opcoes >= 2,
+    `alta ${cont.alta} · média ${cont.media} · baixa ${cont.baixa} · famílias ${opcoes - 1}`)
 })
 await safe('Filtro de portfólio Tudo / Logo / MVS com contadores', async () => {
   const radios = page.locator('[role="radiogroup"][aria-label="Portfólio"] [role="radio"]')
@@ -158,22 +201,58 @@ await safe('Busca por palavra-chave filtra resultados', async () => {
 await safe('Filtros avançados (UF, pontuação, valor, prazo, foco DF/federal)', async () => {
   await page.click('text=Mais filtros')
   const labels = ['Órgão / unidade', 'UF', 'Município', 'Modalidade', 'Selo', 'Valor mínimo (R$)', 'Valor máximo (R$)',
-    'Publicado a partir de', 'Prazo de propostas até', 'Pontuação mínima', 'Foco']
+    'Publicado a partir de', 'Prazo de propostas até', 'Oferta TLS', 'Foco']
   const missing = []
-  for (const l of labels) if (!(await page.locator(`label:has-text("${l}")`).count())) missing.push(l)
+  for (const l of labels) if (!(await page.locator(`label:has-text("${l}"), div:has(> span:text-is("${l}"))`).count())) missing.push(l)
   check('Filtros avançados presentes', missing.length === 0, missing.join(', '))
-  await page.locator('label:has-text("Pontuação mínima") select').selectOption('4.5')
+  await page.locator('label:has-text("Aderência") select').first().selectOption('alta')
   await page.waitForTimeout(200)
   const scores = await page.locator('main ul > li .num.text-2xl').allInnerTexts()
-  const allOk = scores.every((s) => Number(s.replace(',', '.')) >= 4.5)
-  check('Filtro de pontuação mínima respeitado em todos os cards', allOk, `${scores.length} cards`)
-  await page.locator('label:has-text("Valor mínimo (R$)") input').fill('999999999999')
+  const allOk = scores.every((s) => Number(s) >= 70)
+  check('Filtro de aderência alta respeitado em todos os cards (≥ 70)', allOk, `${scores.length} cards`)
+  // valor mínimo digitado ("Outro valor…"): só sobram registros sem valor; "Ocultar sem valor" zera
+  await page.locator('select[aria-label="Valor mínimo (atalhos)"]').first().selectOption('outro')
+  await page.locator('input[aria-label="Valor mínimo (R$)"]').first().fill('999999999999')
+  await page.waitForTimeout(250)
+  const sobra = await page.locator('main ul > li').evaluateAll((els) => els.map((e) => e.innerText))
+  const soSemValor = sobra.every((t) => /Valor (estimado|homologado): não informado/.test(t))
+  await page.locator('input[aria-label="Ocultar sem valor"]').first().check()
   await page.waitForTimeout(200)
-  const n = await countText(page)
-  check('Filtro de valor mínimo exclui registros', n === 0)
+  check('Filtro de valor mínimo: sem valor continua; "Ocultar sem valor" remove', soSemValor && (await countText(page)) === 0,
+    `${sobra.length} sem valor antes de ocultar`)
   await page.click('text=limpar filtros')
   await page.waitForTimeout(200)
   check('Limpar filtros restaura a listagem', (await countText(page)) === total)
+})
+await safe('Atalho R$ 10 mil: cards com valor ≥ 10 mil (ou sem valor) e painel por família acompanha', async () => {
+  const lerValores = () => page.locator('main ul > li').evaluateAll((els) => els.map((e) => {
+    const m = e.innerText.match(/Valor (?:estimado|homologado): (R\$\s?[\d.,]+|não informado)/)
+    return m ? m[1] : ''
+  }))
+  const num = (v) => Number(v.replace(/[^\d,]/g, '').replace(',', '.'))
+  // Esperado vem dos próprios dados exibidos: o atalho tira exatamente os cards com valor < 10 mil.
+  // (a lista pagina de 50 em 50: a conta exata só vale quando todos os cards estão na tela)
+  const antes = await lerValores()
+  const abaixo = antes.filter((v) => v && v !== 'não informado' && num(v) < 10000).length
+  const todosVisiveis = antes.length === total
+  await page.locator('select[aria-label="Valor mínimo (atalhos)"]').first().selectOption('10000')
+  await page.waitForTimeout(250)
+  const n10 = await countText(page)
+  const valores = await lerValores()
+  const ok = valores.every((v) => v === 'não informado' || num(v) >= 10000)
+  await page.locator('nav[aria-label="Navegação principal"] button', { hasText: 'Dashboard' }).click()
+  await page.waitForSelector('section[aria-label="Oportunidades por família"]')
+  const nota = await page.locator('section[aria-label="Oportunidades por família"]').innerText()
+  const fam = page.locator('section[aria-label="Oportunidades por família"] li button:not([disabled])').first()
+  const qtd = Number(((await fam.locator('span').nth(1).innerText()).split('·')[0]).replace(/\D/g, ''))
+  await fam.click()
+  await page.waitForSelector('text=/resultado\\(s\\) na base coletada/')
+  const lista = await countText(page)
+  check('Atalho R$ 10 mil: cards com valor ≥ 10 mil (ou sem valor) e painel por família acompanha',
+    ok && (todosVisiveis ? n10 === total - abaixo : (abaixo ? n10 < total : n10 <= total)) && lista === qtd && /valor mínimo/.test(nota), `${n10} de ${total} (${abaixo} abaixo de 10 mil); família: painel ${qtd} = lista ${lista}`)
+  await page.locator('select[aria-label="Valor mínimo (atalhos)"]').first().selectOption('')
+  await page.click('text=limpar filtros')
+  await page.waitForTimeout(200)
 })
 await safe('Ordenação por prazo/valor/publicação', async () => {
   for (const v of ['prazo', 'valor', 'publicacao', 'score']) await page.locator('select:near(:text("Ordenar por"))').first().selectOption(v)
@@ -182,13 +261,14 @@ await safe('Ordenação por prazo/valor/publicação', async () => {
 await shot(page, '02-oportunidades')
 
 // 3. Detalhes
-await safe('Tela de detalhes: ofertas casadas, como casou, termos, pontuação e coleta', async () => {
+await safe('Detalhe com "Por que apareceu": ofertas (nome) ou família e termos', async () => {
   await page.locator('main ul > li button:has-text("Detalhes")').first().click()
   await page.waitForSelector('[role="dialog"]')
   const t = await page.locator('[role="dialog"]').innerText()
-  const ok = /Classificação TLS/.test(t) && /Portfólio:/.test(t) && /Como casou/.test(t) && /(Termo exato|Marca \+ serviço)/.test(t) &&
-    /Coletado pelo Radar em/.test(t) && /PDFs não são lidos/.test(t)
-  check('Tela de detalhes: ofertas casadas, como casou, termos, pontuação e coleta', ok)
+  const marks = await page.locator('[role="dialog"] section mark').count()
+  const ok = /Por que apareceu/.test(t) && /(termo exato|marca \+ serviço|pela família)/.test(t) && marks > 0 &&
+    /aderência/i.test(t) && /Coletado pelo Radar em/.test(t) && /PDFs não são lidos/.test(t)
+  check('Detalhe com "Por que apareceu": ofertas (nome) ou família e termos', ok, `${marks} termos destacados`)
   const access = await page.locator('[role="dialog"] a', { hasText: /Abrir no (Portal de Compras|PNCP)/ }).count()
   check('Botão de acesso direto também na tela de detalhes', access > 0)
   await shot(page, '03-detalhe')
@@ -238,7 +318,7 @@ await safe('Radar de Atas: aviso de adesão indicativa e filtros', async () => {
   await nav(page, 'Radar de Atas')
   await page.waitForSelector('text=Radar de Atas.')
   const t = await page.locator('main').innerText()
-  const filters = ['Vigência', 'Adesão', 'Órgão gerenciador', 'Oferta TLS', 'Selo', 'Valor mínimo (R$)']
+  const filters = ['Vigência', 'Adesão', 'Órgão gerenciador', 'Aderência', 'Família', 'Selo', 'Valor mínimo (R$)']
   const missing = filters.filter((f) => !t.includes(f))
   check('Radar de Atas: aviso de adesão indicativa e filtros', /indicativo/.test(t) && missing.length === 0, missing.join(', '))
   await page.locator('label:has-text("Vigência") select').selectOption('')

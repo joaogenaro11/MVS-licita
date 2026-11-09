@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { aggregateValue, bySearchThen, filterAtas, filterItems, indexRecord, matchesPartner, matchesPriority, portfolioCounts, portfolioLabel, SORTS } from './filters.js'
+import { aggregateValue, bySearchThen, passaValor, valorCard, filterAtas, filterItems, indexRecord, matchesPartner, matchesPriority, portfolioCounts, portfolioLabel, SORTS } from './filters.js'
 
 const mk = (o) => indexRecord({
   tipo: 'contratacao', orgao: { nome: 'ORGAO A', esfera: 'F', cnpj: '00394460000141' },
@@ -10,12 +10,12 @@ const mk = (o) => indexRecord({
 
 const items = [
   mk({ id: '1', objeto: 'Manutenção de switches Cisco', valor_estimado: 100, estagio: 'propostas_abertas',
-    classificacao: { pontuacao: 9, ofertas: ['Suporte multivendor Cisco'], portfolio: ['mvs'], termos: ['Cisco'] },
+    classificacao: { pontuacao: 9, aderencia: 100, faixa: 'alta', ofertas: ['Suporte multivendor Cisco'], portfolio: ['mvs'], termos: ['Cisco'] },
     data_publicacao: '2026-10-01T10:00', data_encerramento_proposta: '2026-11-20T10:00' }),
   mk({ id: '2', objeto: 'Aquisição de storage', valor_estimado: null, estagio: 'publicada',
     orgao: { nome: 'MUNICIPIO X', esfera: 'M', cnpj: '1' }, unidade: { uf: 'SP', municipio: 'Campinas' } }),
   mk({ id: '3', tipo: 'pca', objeto: 'Suporte a firewall', valor_estimado: 50, estagio: 'planejamento',
-    classificacao: { pontuacao: 4.5, ofertas: [], portfolio: ['logo', 'mvs'] } }),
+    classificacao: { pontuacao: 4.5, aderencia: 75, faixa: 'alta', ofertas: [], portfolio: ['logo', 'mvs'] } }),
   mk({ id: '3', tipo: 'pca', objeto: 'duplicado', valor_estimado: 50 }),
 ]
 
@@ -44,15 +44,40 @@ test('filtro de portfólio Tudo / Logo / MVS e contadores', () => {
 
 test('filtros combinados', () => {
   assert.deepEqual(filterItems(items, { uf: 'DF', estagio: 'propostas_abertas' }).map((r) => r.id), ['1'])
-  assert.deepEqual(filterItems(items, { oferta: 'Suporte multivendor Cisco', scoreMin: 6 }).map((r) => r.id), ['1'])
-  assert.deepEqual(filterItems(items, { vmin: 60 }).map((r) => r.id), ['1'])
+  assert.deepEqual(filterItems(items, { oferta: 'Suporte multivendor Cisco', faixa: 'alta' }).map((r) => r.id), ['1'])
+  assert.deepEqual(filterItems(items, { vmin: 60 }).map((r) => r.id), ['1', '2'])   // '2' não tem valor: continua
+  assert.deepEqual(filterItems(items, { vmin: 60, ocultarSemValor: true }).map((r) => r.id), ['1'])
   assert.deepEqual(filterItems(items, { prazoAte: '2026-11-30' }).map((r) => r.id), ['1'])
   assert.deepEqual(filterItems(items, { foco: 'df_federal' }).map((r) => r.id), ['1', '3', '3'])
   assert.deepEqual(filterItems(items, { municipio: 'campinas' }).map((r) => r.id), ['2'])
 })
 
 test('valor agregado não duplica nem soma ausentes', () => {
-  assert.deepEqual(aggregateValue(items), { total: 150, n: 2 })
+  assert.deepEqual(aggregateValue(items), { total: 150, n: 2, duplicado: 0 })
+})
+
+test('valor agregado: PCA repetido (2026 e 2027) e edital republicado contam uma vez', () => {
+  const org = { cnpj: '1', nome: 'X' }
+  const v = aggregateValue([
+    { id: 'p26', tipo: 'pca', orgao: org, objeto: 'Switch gerenciável 48 portas', valor_estimado: 100, ano: 2026 },
+    { id: 'p27', tipo: 'pca', orgao: org, objeto: 'Switch gerenciável 48 portas', valor_estimado: 100, ano: 2027 },
+    { id: 'c1', tipo: 'contratacao', orgao: org, objeto: 'Contratação de solução de TIC para expansão do data center corporativo', valor_estimado: 500 },
+    { id: 'c2', tipo: 'contratacao', orgao: org, objeto: 'REABERTURA da contratação de solução de TIC para expansão do data center corporativo', valor_estimado: 500 },
+    { id: 'c3', tipo: 'contratacao', orgao: org, objeto: 'Aquisição de firewall', valor_estimado: 500 },
+    { id: 'a1', tipo: 'ata', orgao: org, objeto: 'Ata', compra: { valor: 999 } },
+  ])
+  assert.deepEqual(v, { total: 1100, n: 3, duplicado: 600 })
+})
+
+test('filtro por faixa de aderência e por família; ordenação por aderência', () => {
+  const rs = [
+    mk({ id: 'a', objeto: 'x', classificacao: { aderencia: 50, faixa: 'media', pontuacao: 3, familias: ['seguranca'], portfolio: ['mvs'] } }),
+    mk({ id: 'b', objeto: 'y', classificacao: { aderencia: 100, faixa: 'alta', pontuacao: 10, familias: ['networking', 'seguranca'], portfolio: ['mvs'] } }),
+    mk({ id: 'c', objeto: 'z', classificacao: { aderencia: 33, faixa: 'baixa', pontuacao: 2, familias: ['ibm_logo'], portfolio: ['logo'] } }),
+  ]
+  assert.deepEqual(filterItems(rs, { faixa: 'alta' }).map((r) => r.id), ['b'])
+  assert.deepEqual(filterItems(rs, { familia: 'seguranca' }).map((r) => r.id), ['a', 'b'])
+  assert.deepEqual([...rs].sort(SORTS.score).map((r) => r.id), ['b', 'a', 'c'])
 })
 
 test('órgãos prioritários por nome ou CNPJ', () => {
@@ -77,4 +102,23 @@ test('filtro de atas por vigência e adesão', () => {
   assert.deepEqual(filterAtas(atas, { vigencia: 'vigentes' }).map((a) => a.id), ['a', 'c'])
   assert.deepEqual(filterAtas(atas, { vigencia: 'vence_em_breve' }).map((a) => a.id), ['c'])
   assert.deepEqual(filterAtas(atas, { adesao: 'potencial_verificar' }).map((a) => a.id), ['a'])
+})
+
+test('valor mínimo: usa o valor do card; sem valor continua, a menos de "Ocultar sem valor"', () => {
+  const rs = [
+    mk({ id: 'barato', objeto: 'Switch 8 portas', valor_estimado: 2380 }),
+    mk({ id: 'caro', objeto: 'Switches core', valor_estimado: 56_000_000 }),
+    mk({ id: 'homologado', objeto: 'Firewall', valor_estimado: null, valor_homologado: 20000 }),
+    mk({ id: 'sigiloso', objeto: 'Storage', valor_estimado: null }),
+  ]
+  assert.equal(valorCard(rs[2]), 20000)
+  assert.deepEqual(filterItems(rs, { vmin: 10000 }).map((r) => r.id), ['caro', 'homologado', 'sigiloso'])
+  assert.deepEqual(filterItems(rs, { vmin: 10000, ocultarSemValor: true }).map((r) => r.id), ['caro', 'homologado'])
+  const atas = [
+    indexRecord({ id: 'a1', tipo: 'ata', objeto: 'x', vigencia_status: 'vigente', compra: { valor: 0 }, orgao: {}, unidade: {} }),
+    indexRecord({ id: 'a2', tipo: 'ata', objeto: 'y', vigencia_status: 'vigente', compra: { valor: 50000 }, orgao: {}, unidade: {} }),
+  ]
+  assert.deepEqual(filterAtas(atas, { vmin: 10000 }).map((a) => a.id), ['a1', 'a2'])
+  assert.deepEqual(filterAtas(atas, { ocultarSemValor: true }).map((a) => a.id), ['a2'])
+  assert.equal(passaValor(rs[0], {}), true)
 })

@@ -31,6 +31,7 @@ def test_palavra_inteira_nunca_pedaco(base):
 def test_termo_exato_vale_3_e_prioridade_alta_multiplica(base):
     r = base.classificar(["Pontos de acesso para o prédio"])
     assert ids(r) == ["sint_rede_sem_fio"] and r["pontuacao"] == 3            # média: sem multiplicador
+    assert r["aderencia"] == 50 and r["faixa"] == "media" and r["via"] == "oferta"
     r = base.classificar(["Contratação de suporte Cisco"])
     assert ids(r) == ["sint_suporte_cisco"] and r["pontuacao"] == 4.5         # alta: 3 x 1,5
     assert r["ofertas_casadas"][0]["via"] == "termo_exato"
@@ -41,11 +42,11 @@ def test_marca_mais_servico_no_mesmo_texto_vale_2(base):
     assert ids(r) == ["sint_suporte_cisco"] and r["pontuacao"] == 3           # 2 x 1,5
     assert r["ofertas_casadas"][0]["via"] == "marca_servico"
     # marca e serviço em textos diferentes (objeto x item) não casam
-    assert not base.classificar(["Aquisição de switches Catalyst", "Serviço de manutenção predial"])["tls"]
+    assert not base.classificar(["Licenças Catalyst", "Serviço de manutenção predial"])["tls"]
 
 
 def test_so_marca_nao_classifica_mas_fica_como_sinal(base):
-    r = base.classificar(["Aquisição de switches Cisco"])
+    r = base.classificar(["Equipamentos Cisco para o auditório"])
     assert not r["tls"] and r["pontuacao"] == 0 and "Cisco" in r["sinais"]
 
 
@@ -57,10 +58,12 @@ def test_excluir_da_oferta_impede_o_casamento(base):
     assert not base.classificar(["Curso de suporte técnico em Cisco"])["tls"]
 
 
-def test_soma_das_ofertas_casadas(base):
+def test_soma_das_ofertas_casadas_com_bonus_de_duas_familias(base):
     r = base.classificar(["Manutenção de mainframe e suporte Cisco"])
     assert set(ids(r)) == {"sint_mainframe", "sint_suporte_cisco"}
-    assert r["pontuacao"] == 9                                                 # 4,5 + 4,5
+    # (3 + 3) x 1,5 (oferta principal de prioridade alta) + 1 (duas famílias) = 10 -> aderência 100
+    assert r["pontuacao"] == 10 and r["aderencia"] == 100 and r["faixa"] == "alta"
+    assert r["familias"] == ["networking", "ibm_logo"]          # empate de peso -> menor 'ordem'
 
 
 def test_exclusao_global_reduz_pela_metade_e_gera_selo(base):
@@ -115,3 +118,93 @@ def test_base_invalida_falha_com_mensagem_clara(tmp_path):
     d["ofertas"][1]["id"] = d["ofertas"][0]["id"]
     with pytest.raises(OfertasError, match="duplicado"):
         BaseOfertas.from_dict(d)
+
+
+# ------------------------------------------------------------- rev. c: famílias e aderência
+def test_caminho_familia_quando_nenhuma_oferta_casa(base):
+    r = base.classificar(["Manutenção preventiva de equipamentos de rede (switches e roteadores)"])
+    assert r["tls"] and r["via"] == "familia" and ids(r) == []
+    assert r["familias"] == ["networking"] and r["familia_principal"] == "networking"
+    assert r["pontuacao"] == 3 and r["aderencia"] == 50 and r["faixa"] == "media"   # 2 x 1,5 (família alta)
+    assert r["portfolio"] == ["mvs"]
+    assert {"switches", "manutenção"} <= set(r["termos"])
+
+
+def test_caminho_familia_so_se_nenhuma_oferta_casou(base):
+    r = base.classificar(["Suporte Cisco e manutenção de switches"])
+    assert r["via"] == "oferta" and r["familias_casadas"] == []
+
+
+def test_caminho_familia_exige_categoria_e_servico_no_mesmo_texto_e_respeita_excluir(base):
+    assert base.classificar(["Aquisição de switches"])["tls"]                  # categoria + serviço: casa
+    assert not base.classificar(["Switches de rede", "manutenção predial"])["tls"]
+    assert not base.classificar(["Manutenção da rede elétrica e switches"])["tls"]
+    assert not base.classificar(["Capacitação de servidores públicos em switches e manutenção"])["tls"]
+
+
+def test_familia_ibm_vai_para_logo_e_media_prioridade_nao_multiplica(base):
+    r = base.classificar(["Suporte técnico da plataforma alta (computador de grande porte)"])
+    assert r["familias"] == ["ibm_logo"] and r["portfolio"] == ["logo"]
+    assert r["pontuacao"] == 2 and r["aderencia"] == 33 and r["faixa"] == "baixa"
+
+
+def test_duas_familias_pelo_caminho_c_somam_e_ganham_bonus(base):
+    r = base.classificar(["Aquisição de firewall e de switches"])
+    assert r["familias"] == ["networking", "seguranca"]                      # mesmo peso -> ordem
+    assert r["pontuacao"] == (2 + 2) * 1.5 + 1 and r["aderencia"] == 100
+
+
+def test_marca_no_texto_acrescenta_portfolio_no_caminho_de_familia(base):
+    r = base.classificar(["Aquisição de switches para o ambiente mainframe"])
+    assert r["via"] == "familia" and r["portfolio"] == ["logo", "mvs"]
+
+
+def test_faixas_de_aderencia():
+    from radar.ofertas import aderencia_de
+    assert aderencia_de(6) == (100, "alta") and aderencia_de(4.2) == (70, "alta")
+    assert aderencia_de(4.1) == (68, "media") and aderencia_de(2.4) == (40, "media")
+    assert aderencia_de(2.3) == (38, "baixa") and aderencia_de(20) == (100, "alta")
+
+
+def test_resumo_publico_traz_familias_em_ordem(base):
+    r = base.resumo_publico()
+    assert [f["id"] for f in r["familias"]][:3] == ["networking", "seguranca", "servidores_storage"]
+    assert r["ofertas"]["sint_mainframe"]["familia"] == "ibm_logo"
+
+
+def test_oferta_com_familia_inexistente_falha(tmp_path):
+    d = json.loads(FIXTURE_OFERTAS.read_text())
+    d["ofertas"][0]["familia"] = "nao_existe"
+    with pytest.raises(OfertasError, match="família inexistente"):
+        BaseOfertas.from_dict(d)
+
+
+
+# ------------------------------------------------------- rev. d: excluir por registro no PCA
+from radar.pipeline import classificar_registro  # noqa: E402
+
+
+def _pca(objeto, info):
+    return {"tipo": "pca", "objeto": objeto, "info_complementar": info}
+
+
+def test_pca_avalia_ficha_e_classe_juntas_para_excluir(base):
+    r = classificar_registro(base, _pca("QUANTIDADE PORTAS: 8, TIPO: NÃO GERENCIÁVEL",
+                                        "SWITCH | Material | EQUIPAMENTOS DE REDE DE TIC - LOCAL E REMOTA | Aquisição de switch"))
+    assert not r["tls"]
+    r = classificar_registro(base, _pca("TIPO: SERVER SWITCH, 2 CONSOLES",
+                                        "CHAVEADORA | Material | EQUIPAMENTOS DE REDE DE TIC | Aquisição de Switch chaveador KVM"))
+    assert not r["tls"]
+
+
+def test_pca_switch_de_rede_continua_networking(base):
+    r = classificar_registro(base, _pca("QUANTIDADE PORTAS: 48, TIPO PORTAS: 1000 BASE T, SLOTS SFP+",
+                                        "SWITCH | Material | EQUIPAMENTOS DE REDE DE TIC | Aquisição de switches de rede"))
+    assert r["tls"] and r["familia_principal"] == "networking"
+
+
+def test_contratacao_com_lotes_mistos_continua_texto_a_texto(base):
+    rec = {"tipo": "contratacao", "objeto": "Aquisição de equipamentos de informática",
+           "itens": [{"descricao": "Notebook"}, {"descricao": "Switch gerenciável 48 portas com garantia"}]}
+    r = classificar_registro(base, rec)
+    assert r["tls"] and r["familia_principal"] == "networking"

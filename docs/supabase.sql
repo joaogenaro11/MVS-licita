@@ -452,3 +452,16 @@ grant execute on function private.is_allowed(), private.is_admin(), private.exig
   private.ver_senha_temporaria(uuid) to authenticated;
 revoke execute on function public.admin_listar_usuarios(), public.admin_ver_senha_temporaria(uuid) from public, anon;
 grant execute on function public.admin_listar_usuarios(), public.admin_ver_senha_temporaria(uuid) to authenticated;
+
+-- Ao apagar a linha da senha temporária (inclusive quando o usuário é excluído direto no painel),
+-- o segredo correspondente sai do Vault: nada fica órfão.
+create or replace function private.tg_apaga_segredo_senha() returns trigger
+language plpgsql security definer set search_path = '' as $$
+begin
+  delete from vault.secrets where id = old.secret_id;
+  return old;
+end $$;
+revoke execute on function private.tg_apaga_segredo_senha() from public, anon, authenticated;
+drop trigger if exists apaga_segredo_senha on private.senhas_temporarias;
+create trigger apaga_segredo_senha after delete on private.senhas_temporarias
+  for each row execute function private.tg_apaga_segredo_senha();

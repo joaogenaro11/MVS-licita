@@ -82,6 +82,22 @@ export function matchesPartner(r, partners) {
   })
 }
 
+/** Valor exibido no card: ata → valor da contratação de origem; demais → estimado, ou
+ *  homologado quando não houver estimado. null = sem valor informado (ou sigiloso). */
+export function valorCard(r) {
+  const n = (x) => (Number(x) > 0 ? Number(x) : null)
+  if (r.tipo === 'ata') return n(r.compra?.valor)
+  return n(r.valor_estimado) ?? n(r.valor_homologado)
+}
+
+/** Filtro de valor (mínimo/máximo) sobre o valor do card. Registro sem valor continua
+ *  aparecendo, a menos que "Ocultar sem valor" esteja marcado. */
+export function passaValor(r, f) {
+  const v = valorCard(r)
+  if (v == null) return !f.ocultarSemValor
+  return inRange(v, f.vmin, f.vmax)
+}
+
 const inRange = (v, min, max) => {
   if (min !== '' && min != null && !(v >= Number(min))) return false
   if (max !== '' && max != null && !(v <= Number(max))) return false
@@ -103,8 +119,9 @@ export function filterItems(items, f, ctx = {}) {
     if (f.estagio && r.estagio !== f.estagio) return false
     if (f.oferta && !(c.ofertas || []).includes(f.oferta)) return false
     if (f.selo && !(c.selos || []).some((x) => x.tipo === f.selo)) return false
-    if ((f.vmin || f.vmax) && !inRange(r.valor_estimado ?? -1, f.vmin, f.vmax)) return false
-    if (f.scoreMin && !((c.pontuacao || 0) >= Number(f.scoreMin))) return false
+    if (!passaValor(r, f)) return false
+    if (f.faixa && c.faixa !== f.faixa) return false
+    if (f.familia && !(c.familias || []).includes(f.familia)) return false
     if (f.pubDe && !((r.data_publicacao || '') >= f.pubDe)) return false
     if (f.pubAte && !((r.data_publicacao || '').slice(0, 10) <= f.pubAte)) return false
     if (f.prazoAte) {
@@ -131,8 +148,9 @@ export function filterAtas(atas, f, ctx = {}) {
     if (f.adesao && a.adesao_status !== f.adesao) return false
     if (f.oferta && !(c.ofertas || []).includes(f.oferta)) return false
     if (f.selo && !(c.selos || []).some((x) => x.tipo === f.selo)) return false
-    if ((f.vmin || f.vmax) && !inRange(a.compra?.valor ?? -1, f.vmin, f.vmax)) return false
-    if (f.scoreMin && !((c.pontuacao || 0) >= Number(f.scoreMin))) return false
+    if (!passaValor(a, f)) return false
+    if (f.faixa && c.faixa !== f.faixa) return false
+    if (f.familia && !(c.familias || []).includes(f.familia)) return false
     if (f.uf && a.unidade?.uf !== f.uf) return false
     if (f.prioritarios && !matchesPriority(a, ctx.priorityOrgs)) return false
     if (f.favoritos && !ctx.isFav?.(a.id)) return false
@@ -141,28 +159,50 @@ export function filterAtas(atas, f, ctx = {}) {
 }
 
 export const SORTS = {
-  score: (a, b) => (b.classificacao?.pontuacao || 0) - (a.classificacao?.pontuacao || 0),
+  // aderência (maior primeiro); empate: pontos brutos; depois publicação mais recente
+  score: (a, b) => ((b.classificacao?.aderencia || 0) - (a.classificacao?.aderencia || 0))
+    || ((b.classificacao?.pontuacao || 0) - (a.classificacao?.pontuacao || 0))
+    || (b.data_publicacao || '').localeCompare(a.data_publicacao || ''),
   valor: (a, b) => (b.valor_estimado ?? b.compra?.valor ?? 0) - (a.valor_estimado ?? a.compra?.valor ?? 0),
   publicacao: (a, b) => (b.data_publicacao || '').localeCompare(a.data_publicacao || ''),
   prazo: (a, b) => (a.data_encerramento_proposta || '9999').localeCompare(b.data_encerramento_proposta || '9999'),
   vencimento: (a, b) => (a.vigencia_fim || '9999').localeCompare(b.vigencia_fim || '9999'),
 }
 
-/** Soma valores estimados SEM duplicar registros e ignorando valores ausentes/sigilosos. */
+const tokens = (t) => new Set((norm(t).match(/[a-z0-9]{3,}/g) || []))
+const jaccard = (a, b) => {
+  let i = 0
+  for (const x of a) if (b.has(x)) i++
+  return i / Math.max(1, a.size + b.size - i)
+}
+
+/** Soma valores estimados (contratações e itens de PCA) SEM duplicidade e ignorando valores
+ *  ausentes/sigilosos. Conta uma vez só: o mesmo registro (id), o mesmo item de PCA repetido
+ *  (mesmo órgão, descrição e valor — ex.: planos 2026 e 2027) e o edital republicado (mesmo órgão
+ *  e valor, objeto ≥ 60% igual). Atas e contratos não entram (são a mesma demanda já contada). */
 export function aggregateValue(items) {
   const seen = new Set()
+  const grupos = new Map()
   let total = 0
   let n = 0
+  let dup = 0
   for (const r of items) {
     if (seen.has(r.id)) continue
     seen.add(r.id)
     if (!['contratacao', 'pca'].includes(r.tipo)) continue
     const v = Number(r.valor_estimado)
     if (!v || v <= 0) continue
+    const key = `${r.tipo}|${r.orgao?.cnpj || r.orgao?.nome || ''}|${v.toFixed(2)}`
+    const tk = tokens(r.objeto)
+    const lista = grupos.get(key) || []
+    const limiar = r.tipo === 'pca' ? 0.999 : 0.6
+    if (lista.some((o) => jaccard(tk, o) >= limiar)) { dup += v; continue }
+    lista.push(tk)
+    grupos.set(key, lista)
     total += v
     n += 1
   }
-  return { total, n }
+  return { total, n, duplicado: dup }
 }
 
 export function uniqueSorted(values) {

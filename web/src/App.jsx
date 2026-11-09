@@ -95,16 +95,19 @@ function Radar({ auth }) {
   }, [prefs])
   const setSort = useCallback((s) => { setSortState(s); prefs.update({ ordenacao: s }) }, [prefs])
 
+  const familias = useMemo(() => Object.fromEntries((data?.meta?.lookups?.familias || []).map((f) => [f.id, f])), [data])
   const ctx = useMemo(() => ({
-    isFav: favoritos.isFav, toggleFav: favoritos.toggle, favoritos, tracking, auth, commercial, prefs,
+    isFav: favoritos.isFav, toggleFav: favoritos.toggle, favoritos, tracking, auth, commercial, prefs, familias,
     config: commercial.config, priorityOrgs: commercial.config.priority_orgs,
-  }), [favoritos, tracking, auth, commercial, prefs])
+  }), [favoritos, tracking, auth, commercial, prefs, familias])
 
   const go = useCallback((r, f) => {
-    if (r === 'oportunidades') setFilters({ ...EMPTY_FILTERS, portfolio: filters.portfolio, ...f })
-    if (r === 'atas') setAtaFilters({ ...EMPTY_ATA_FILTERS, portfolio: ataFilters.portfolio, vigencia: '', ...f })
+    // atalhos do Dashboard mantêm as escolhas pessoais de portfólio e de valor mínimo
+    const pessoal = (x) => ({ portfolio: x.portfolio, vmin: x.vmin, ocultarSemValor: x.ocultarSemValor })
+    if (r === 'oportunidades') setFilters({ ...EMPTY_FILTERS, ...pessoal(filters), ...f })
+    if (r === 'atas') setAtaFilters({ ...EMPTY_ATA_FILTERS, ...pessoal(ataFilters), vigencia: '', ...f })
     nav(r)
-  }, [nav, setFilters, setAtaFilters, filters.portfolio, ataFilters.portfolio])
+  }, [nav, setFilters, setAtaFilters, filters, ataFilters])
 
   const navItems = NAV.filter((n) => !n.admin || auth.isAdmin)
 
@@ -158,7 +161,8 @@ function Radar({ auth }) {
         ) : (
           <>
             <h1 className="mb-4 text-[24px] font-light">{TITLES[route]}</h1>
-            {route === 'dashboard' && <Dashboard data={data} ctx={ctx} go={go} onOpen={setOpen} />}
+            {route === 'dashboard' && <Dashboard data={data} ctx={ctx} go={go} onOpen={setOpen}
+              filtroValor={{ vmin: filters.vmin, ocultarSemValor: filters.ocultarSemValor }} />}
             {route === 'oportunidades' && <Oportunidades data={data} filters={filters} setFilters={setFilters} sort={sort} setSort={setSort} ctx={ctx} onOpen={setOpen} />}
             {route === 'atas' && <Atas data={data} filters={ataFilters} setFilters={setAtaFilters} ctx={ctx} onOpen={setOpen} />}
             {route === 'acompanhamento' && <Acompanhamento data={data} ctx={ctx} onOpen={setOpen} />}
