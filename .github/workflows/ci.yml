@@ -29,13 +29,20 @@ jobs:
           cache: pip
           cache-dependency-path: collector/requirements.txt
       - run: pip install -r requirements.txt
-      # Regras de casamento: base sintética. Os 12 casos de aceite usam a base REAL (privada),
+      # Dados reais já coletados (branch data, pública, sem a classificação) para o teste que
+      # confere se a nota de aderência diferencia as oportunidades (valores distintos e faixas).
+      - name: Baixar a base coletada (branch data)
+        run: |
+          git fetch --depth=1 origin data:refs/remotes/origin/data
+          git worktree add "$RUNNER_TEMP/dados-reais" origin/data
+      # Regras de casamento: base sintética. Os casos de aceite usam a base REAL (privada),
       # lida do Supabase com o secret; sem o secret, eles aparecem como "skipped" (com o motivo).
-      # Só o resultado (passou/falhou) vai para o log: nada da base é impresso.
+      # Só o resultado (passou/falhou) e contagens vão para o log: nada da base é impresso.
       - run: python -m pytest -q -rs
         env:
           SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://wbhhfybpflqnnelwttdv.supabase.co' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RADAR_DADOS_REAIS: ${{ runner.temp }}/dados-reais
 
   web:
     runs-on: ubuntu-latest

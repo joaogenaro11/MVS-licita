@@ -490,7 +490,7 @@ class Runner:
 
         def prioridade(x: dict) -> tuple:
             c = x.get("classificacao") or {}
-            return (not c.get("tls"), -(c.get("pontuacao") or 0))
+            return (not c.get("tls"), -(c.get("score") or 0))
 
         with self.feed("enriquecimento") as rec:
             cands = [i for i in self.store.items.values()
@@ -653,8 +653,9 @@ def classificar_registro(base: BaseOfertas, item: dict) -> dict:
     (info_complementar) viram um único texto, para que um "excluir" de um lado valha para o
     outro (ex.: "SWITCH" na classe e "TIPO: NÃO GERENCIÁVEL" na ficha). Contratação, ata e
     contrato continuam texto a texto: edital com lotes mistos não cai por causa de um lote."""
+    ctx = {"estagio": item.get("estagio"), "valor": valor_registro(item)}
     if item.get("tipo") == "pca":
-        return base.classificar([" | ".join(t for t in (item.get("objeto"), item.get("info_complementar")) if t)])
+        return base.classificar([" | ".join(t for t in (item.get("objeto"), item.get("info_complementar")) if t)], **ctx)
     compra = item.get("compra") or {}
     textos = [item.get("objeto"), item.get("info_complementar")]
     if item.get("tipo") == "ata":
@@ -664,7 +665,20 @@ def classificar_registro(base: BaseOfertas, item: dict) -> dict:
         textos += [i.get("descricao") for i in itens]
     elif item.get("itens_texto"):
         textos += item["itens_texto"].split(" | ")
-    return base.classificar(textos)
+    return base.classificar(textos, tem_itens=bool(itens or item.get("itens_texto")), **ctx)
+
+
+def valor_registro(item: dict) -> float | None:
+    """Valor usado na nota e no card: estimado, ou homologado quando não há estimado;
+    na ata, o valor da contratação de origem."""
+    def pos(x):
+        try:
+            return float(x) if x is not None and float(x) > 0 else None
+        except (TypeError, ValueError):
+            return None
+    if item.get("tipo") == "ata":
+        return pos((item.get("compra") or {}).get("valor"))
+    return pos(item.get("valor_estimado")) or pos(item.get("valor_homologado"))
 
 
 def carregar_ofertas() -> BaseOfertas:
@@ -757,7 +771,7 @@ def run_reprocess(data_dir: Path, config_dir: Path, exemplos: int = 10, seed: in
         "migracao": r.store.state.get("migracao_ofertas"),
         "exemplos": {k: [{"id": x["id"], "tipo": x["tipo"], "objeto": (x.get("objeto") or "")[:220],
                           "ofertas": [o["id"] for o in x["classificacao"]["ofertas_casadas"]],
-                          "termos": x["classificacao"]["termos"][:8], "pontuacao": x["classificacao"]["pontuacao"],
+                          "termos": x["classificacao"]["termos"][:8], "score": x["classificacao"]["score"],
                           "selos": [s["tipo"] for s in x["classificacao"]["selos"]]}
                          for x in rnd.sample(v, min(exemplos, len(v)))] for k, v in grupos.items()},
     }
@@ -802,11 +816,11 @@ def run_sample(config_dir: Path, days: int = 3, max_pages: int = 20, top: int = 
         print(f"falha atas: {exc}")
     r.reclassify_all()
     found = sorted(list(r.store.items.values()) + list(r.store.atas.values()),
-                   key=lambda x: -x["classificacao"]["pontuacao"])
+                   key=lambda x: -(x["classificacao"]["score"] or 0))
     print(f"\nregistros vistos: {r.counters['vistos']} | casaram oferta TLS: {len(found)}")
     for x in found[:top]:
         c = x["classificacao"]
-        print(f"\n[{c['pontuacao']:5.1f} {'+'.join(c['portfolio'])}] {x['tipo']} {x['id']} | {x['orgao'].get('nome')} | {x.get('estagio')}")
+        print(f"\n[{c['score']:>3} {'+'.join(c['portfolio'])}] {x['tipo']} {x['id']} | {x['orgao'].get('nome')} | {x.get('estagio')}")
         print(f"   objeto: {x.get('objeto', '')[:260]}")
         print(f"   ofertas: {', '.join(o['id'] for o in c['ofertas_casadas'])} | termos: {', '.join(c['termos'])[:200]}")
         print(f"   links: {x['links']}")

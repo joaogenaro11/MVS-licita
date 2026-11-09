@@ -4,8 +4,7 @@ import json
 import pytest
 
 from conftest import FIXTURE_OFERTAS
-from radar.ofertas import (SELO_FALSO_POSITIVO, SELO_INDISPONIVEL, BaseOfertas, OfertasError, norm,
-                           portfolio_label)
+from radar.ofertas import SELO_FALSO_POSITIVO, BaseOfertas, OfertasError, norm, portfolio_label
 
 
 @pytest.fixture(scope="module")
@@ -28,18 +27,18 @@ def test_palavra_inteira_nunca_pedaco(base):
     assert ids(base.classificar(["Manutenção de storage HP"])) == ["sint_storage_hp"]
 
 
-def test_termo_exato_vale_3_e_prioridade_alta_multiplica(base):
+def test_termo_exato_forca_1_e_fator_de_prioridade(base):
     r = base.classificar(["Pontos de acesso para o prédio"])
-    assert ids(r) == ["sint_rede_sem_fio"] and r["pontuacao"] == 3            # média: sem multiplicador
-    assert r["aderencia"] == 50 and r["faixa"] == "media" and r["via"] == "oferta"
+    assert ids(r) == ["sint_rede_sem_fio"] and r["via"] == "oferta"
+    assert r["componentes"]["portfolio"] == 31.5                               # 35 x 1,0 x 0,9 (média)
     r = base.classificar(["Contratação de suporte Cisco"])
-    assert ids(r) == ["sint_suporte_cisco"] and r["pontuacao"] == 4.5         # alta: 3 x 1,5
+    assert ids(r) == ["sint_suporte_cisco"] and r["componentes"]["portfolio"] == 35   # alta: x 1,0
     assert r["ofertas_casadas"][0]["via"] == "termo_exato"
 
 
 def test_marca_mais_servico_no_mesmo_texto_vale_2(base):
     r = base.classificar(["Manutenção de switches Catalyst"])
-    assert ids(r) == ["sint_suporte_cisco"] and r["pontuacao"] == 3           # 2 x 1,5
+    assert ids(r) == ["sint_suporte_cisco"] and r["componentes"]["portfolio"] == 31.5   # 35 x 0,9 x 1,0
     assert r["ofertas_casadas"][0]["via"] == "marca_servico"
     # marca e serviço em textos diferentes (objeto x item) não casam
     assert not base.classificar(["Licenças Catalyst", "Serviço de manutenção predial"])["tls"]
@@ -47,7 +46,7 @@ def test_marca_mais_servico_no_mesmo_texto_vale_2(base):
 
 def test_so_marca_nao_classifica_mas_fica_como_sinal(base):
     r = base.classificar(["Equipamentos Cisco para o auditório"])
-    assert not r["tls"] and r["pontuacao"] == 0 and "Cisco" in r["sinais"]
+    assert not r["tls"] and r["score"] is None and r["faixa"] is None and "Cisco" in r["sinais"]
 
 
 def test_oferta_sem_termos_servico_so_casa_por_termo_exato(base):
@@ -58,17 +57,15 @@ def test_excluir_da_oferta_impede_o_casamento(base):
     assert not base.classificar(["Curso de suporte técnico em Cisco"])["tls"]
 
 
-def test_soma_das_ofertas_casadas_com_bonus_de_duas_familias(base):
+def test_varias_ofertas_casadas_e_familia_principal(base):
     r = base.classificar(["Manutenção de mainframe e suporte Cisco"])
     assert set(ids(r)) == {"sint_mainframe", "sint_suporte_cisco"}
-    # (3 + 3) x 1,5 (oferta principal de prioridade alta) + 1 (duas famílias) = 10 -> aderência 100
-    assert r["pontuacao"] == 10 and r["aderencia"] == 100 and r["faixa"] == "alta"
-    assert r["familias"] == ["networking", "ibm_logo"]          # empate de peso -> menor 'ordem'
+    assert r["familias"] == ["networking", "ibm_logo"]          # mesma força -> menor 'ordem'
 
 
-def test_exclusao_global_reduz_pela_metade_e_gera_selo(base):
-    r = base.classificar(["Aquisição de notebooks e suporte Cisco"])
-    assert r["tls"] and r["pontuacao"] == 2.25
+def test_exclusao_global_limita_a_nota_e_gera_selo(base):
+    r = base.classificar(["Aquisição de notebooks e suporte técnico Cisco 24x7"], estagio="propostas_abertas", valor=9e6)
+    assert r["tls"] and r["score"] == 45                         # teto exclusao_global
     assert r["selos"][0]["texto"] == SELO_FALSO_POSITIVO and "notebooks" in r["selos"][0]["detalhe"]
 
 
@@ -84,16 +81,15 @@ def test_portfolio_logo_mvs_ambos_e_transversal(base):
     assert portfolio_label(["logo", "mvs"]) == "Logo IBM + MVS"
 
 
-def test_oferta_indisponivel_no_brasil_gera_selo_com_alternativa(base):
+def test_oferta_indisponivel_no_brasil_nao_gera_selo(base):
+    # disponivel_brasil = "nao" fica no JSON só como informação
     r = base.classificar(["Serviço de sanitização de dados de discos"])
-    assert r["tls"] and r["portfolio"] == ["transversal"]
-    selo = [s for s in r["selos"] if s["tipo"] == "indisponivel_brasil"][0]
-    assert selo["texto"] == SELO_INDISPONIVEL and "alternativa sintética Y" in selo["detalhe"]
+    assert r["tls"] and r["portfolio"] == ["transversal"] and r["selos"] == []
 
 
 def test_nenhuma_oferta_nao_e_oportunidade(base):
     r = base.classificar(["Aquisição de mobiliário de escritório"])
-    assert r == {**r, "tls": False, "ofertas_casadas": [], "portfolio": [], "pontuacao": 0}
+    assert r == {**r, "tls": False, "ofertas_casadas": [], "portfolio": [], "score": None}
 
 
 def test_termos_que_casaram_sao_guardados(base):
@@ -125,7 +121,7 @@ def test_caminho_familia_quando_nenhuma_oferta_casa(base):
     r = base.classificar(["Manutenção preventiva de equipamentos de rede (switches e roteadores)"])
     assert r["tls"] and r["via"] == "familia" and ids(r) == []
     assert r["familias"] == ["networking"] and r["familia_principal"] == "networking"
-    assert r["pontuacao"] == 3 and r["aderencia"] == 50 and r["faixa"] == "media"   # 2 x 1,5 (família alta)
+    assert r["componentes"]["portfolio"] == 21 and r["score"] <= 69   # 35 x 0,6 (família alta); teto só família
     assert r["portfolio"] == ["mvs"]
     assert {"switches", "manutenção"} <= set(r["termos"])
 
@@ -145,13 +141,12 @@ def test_caminho_familia_exige_categoria_e_servico_no_mesmo_texto_e_respeita_exc
 def test_familia_ibm_vai_para_logo_e_media_prioridade_nao_multiplica(base):
     r = base.classificar(["Suporte técnico da plataforma alta (computador de grande porte)"])
     assert r["familias"] == ["ibm_logo"] and r["portfolio"] == ["logo"]
-    assert r["pontuacao"] == 2 and r["aderencia"] == 33 and r["faixa"] == "baixa"
+    assert r["componentes"]["portfolio"] == 18.9                              # 35 x 0,6 x 0,9 (média)
 
 
 def test_duas_familias_pelo_caminho_c_somam_e_ganham_bonus(base):
     r = base.classificar(["Aquisição de firewall e de switches"])
-    assert r["familias"] == ["networking", "seguranca"]                      # mesmo peso -> ordem
-    assert r["pontuacao"] == (2 + 2) * 1.5 + 1 and r["aderencia"] == 100
+    assert r["familias"] == ["networking", "seguranca"]                      # mesma força -> ordem
 
 
 def test_marca_no_texto_acrescenta_portfolio_no_caminho_de_familia(base):
@@ -159,11 +154,80 @@ def test_marca_no_texto_acrescenta_portfolio_no_caminho_de_familia(base):
     assert r["via"] == "familia" and r["portfolio"] == ["logo", "mvs"]
 
 
-def test_faixas_de_aderencia():
-    from radar.ofertas import aderencia_de
-    assert aderencia_de(6) == (100, "alta") and aderencia_de(4.2) == (70, "alta")
-    assert aderencia_de(4.1) == (68, "media") and aderencia_de(2.4) == (40, "media")
-    assert aderencia_de(2.3) == (38, "baixa") and aderencia_de(20) == (100, "alta")
+def test_faixas_da_nota(base):
+    f = base.pontuacao.faixa
+    assert [f(n) for n in (100, 80, 79, 60, 59, 40, 39, 0)] == [
+        "alta", "alta", "analisar", "analisar", "indireto", "indireto", "baixa", "baixa"]
+
+
+# ------------------------------------------------------------- nota (modelo da versão anterior)
+def test_nota_completa_suporte_cisco_propostas_abertas(base):
+    r = base.classificar(["Contratação de serviços de suporte técnico e manutenção corretiva on-site de switches Cisco"],
+                         estagio="propostas_abertas")
+    c = r["componentes"]
+    # portfólio 35 x 0,9 (marca + serviço, alta) · suporte 25 (saturou) · fabricante 15 (aliança) · valor 10 x 0,3
+    # (sem valor) · estágio 10 · evidências 5 x 3/5 (oferta forte, suporte, marca) = 87,5
+    assert (c["portfolio"], c["suporte"], c["fabricante"], c["valor"], c["estagio"], c["evidencias"]) == (31.5, 25, 15, 3, 10, 3)
+    assert r["score"] == 88 and r["faixa"] == "alta" and r["relacao"] == "direta" and not r["via_parceiro"]
+    assert r["score_tecnico"] == 93 and r["score_comercial"] == 65
+
+
+def test_suporte_termo_longo_consome_o_curto_e_satura(base):
+    _, termos, _ = base.pontuacao.suporte(norm("manutenção corretiva"))
+    assert termos == ["manutenção corretiva"]                  # "manutenção" não conta de novo
+    forca, _, _ = base.pontuacao.suporte(norm("garantia"))
+    assert forca == 0.5
+    r = base.classificar(["Suporte Cisco com garantia"])
+    assert r["componentes"]["suporte"] == round(25 * 1.0 / 1.5, 1)   # suporte (0,5) + garantia (0,5)
+
+
+def test_so_aquisicao_vale_0_3_e_e_oportunidade_indireta(base):
+    r = base.classificar(["Aquisição de switches Catalyst"])
+    assert r["componentes"]["suporte"] == 7.5 and r["relacao"] == "indireta" and r["via_parceiro"]
+    assert "Oportunidade indireta" in r["justificativa"]
+
+
+def test_fabricante_alianca_outras_e_nenhum(base):
+    assert base.classificar(["Suporte Cisco"])["componentes"]["fabricante"] == 15
+    assert base.classificar(["Manutenção de storage HP"])["componentes"]["fabricante"] == 12   # outra marca: 0,8
+    assert base.classificar(["Projeto de rede do campus"])["componentes"]["fabricante"] == 0
+
+
+def test_valor_estagio_e_itens_tornam_a_nota_continua(base):
+    t = ["Manutenção de switches Catalyst"]
+    notas = {base.classificar(t, estagio=e, valor=v, tem_itens=i)["score"]
+             for e in (None, "julgamento", "propostas_abertas") for v in (None, 50e3, 2e6, 9e6) for i in (False, True)}
+    assert len(notas) >= 10
+    assert base.classificar(t, valor=9e6)["score"] > base.classificar(t, valor=50e3)["score"]
+    assert base.classificar(t, estagio="propostas_abertas")["score"] > base.classificar(t, estagio="encerrada")["score"]
+
+
+def test_teto_so_familia(base):
+    r = base.classificar(["Manutenção preventiva e suporte técnico 24x7 de switches Cisco Catalyst do data center, on-site",
+                          "Aquisição de switches com garantia"], estagio="propostas_abertas", valor=9e6)
+    assert r["via"] == "oferta"
+    r = base.classificar(["Manutenção preventiva e suporte técnico 24x7 on-site de switches e roteadores"],
+                         estagio="propostas_abertas", valor=9e6, tem_itens=True)
+    assert r["via"] == "familia" and r["score"] == 69
+
+
+def test_justificativa_so_com_termos_encontrados(base):
+    r = base.classificar(["Contratação de suporte técnico Cisco 24x7"])
+    j = r["justificativa"]
+    assert j.startswith("Possível aderência a Suporte de rede Cisco (sintético)")
+    assert "“suporte técnico”" in j and "“24x7”" in j and "fabricante(s): Cisco" in j
+    assert "garantia" not in j and "Oportunidade indireta" not in j
+
+
+def test_base_sem_bloco_pontuacao_falha(tmp_path):
+    d = json.loads(FIXTURE_OFERTAS.read_text())
+    del d["pontuacao"]
+    with pytest.raises(OfertasError, match="pontuacao"):
+        BaseOfertas.from_dict(d)
+    d = json.loads(FIXTURE_OFERTAS.read_text())
+    del d["pontuacao"]["pesos"]["suporte"]
+    with pytest.raises(OfertasError, match="pesos.suporte"):
+        BaseOfertas.from_dict(d)
 
 
 def test_resumo_publico_traz_familias_em_ordem(base):

@@ -1,6 +1,6 @@
 {
  "_aviso": "BASE SINTÉTICA PARA TESTES. Não é a base de ofertas TLS (privada, fora do repositório). Mesmo formato de ofertas_tls_radar.json; termos genéricos e nomes públicos de produtos.",
- "versao": "sintetica-2",
+ "versao": "sintetica-3",
  "regras_de_match": {
   "normalizacao": "ver radar/ofertas.py",
   "oferta_casa_se": "ver radar/ofertas.py"
@@ -235,5 +235,109 @@
    "termos_servico": [],
    "excluir": []
   }
- ]
+ ],
+ "pontuacao": {
+  "descricao": "Parâmetros SINTÉTICOS no mesmo formato da base real (modelo da versão anterior do Radar).",
+  "pesos": {
+   "portfolio": 35,
+   "suporte": 25,
+   "fabricante": 15,
+   "valor": 10,
+   "estagio": 10,
+   "evidencias": 5
+  },
+  "forca_portfolio": {
+   "exato": 1.0,
+   "marca_servico": 0.9,
+   "familia": 0.6
+  },
+  "fator_prioridade": {
+   "alta": 1.0,
+   "media": 0.9,
+   "baixa": 0.75
+  },
+  "suporte": {
+   "fortes": [
+    "manutenção corretiva",
+    "manutenção preventiva",
+    "suporte técnico",
+    "on-site",
+    "24x7",
+    "renovação de subscrição"
+   ],
+   "medios": [
+    "manutenção",
+    "garantia",
+    "suporte",
+    "subscrição"
+   ],
+   "aquisicao": [
+    "aquisição",
+    "fornecimento",
+    "registro de preços"
+   ],
+   "saturacao": 1.5,
+   "so_aquisicao": 0.3
+  },
+  "fabricante": {
+   "alianca": [
+    "Cisco",
+    "Catalyst",
+    "IBM",
+    "mainframe",
+    "IBM Z",
+    "VMware"
+   ],
+   "outras": 0.8
+  },
+  "faixas_valor": [
+   {
+    "min": 5000000,
+    "fator": 1.0
+   },
+   {
+    "min": 1000000,
+    "fator": 0.8
+   },
+   {
+    "min": 300000,
+    "fator": 0.6
+   },
+   {
+    "min": 100000,
+    "fator": 0.4
+   },
+   {
+    "min": 0.01,
+    "fator": 0.2
+   }
+  ],
+  "valor_desconhecido": 0.3,
+  "estagio": {
+   "planejamento": 1.0,
+   "preparacao": 0.9,
+   "propostas_abertas": 1.0,
+   "publicada": 0.8,
+   "julgamento": 0.3,
+   "ata_vigente": 0.7,
+   "concluida": 0.2,
+   "encerrada": 0.0
+  },
+  "fator_tecnico_pleno": 0.55,
+  "tetos": {
+   "so_familia": 69,
+   "exclusao_global": 45
+  },
+  "faixas": {
+   "alta": 80,
+   "analisar": 60,
+   "indireto": 40
+  },
+  "rotulos": {
+   "alta": "Alta prioridade",
+   "analisar": "Analisar",
+   "indireto": "Potencial indireto",
+   "baixa": "Baixa aderência"
+  }
+ }
 }
