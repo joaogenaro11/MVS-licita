@@ -1,4 +1,5 @@
 import { norm } from './format.js'
+import { matchQuery, parseQuery, searchText } from './search.js'
 
 /** Índice de busca textual (calculado uma vez por registro). */
 export function indexRecord(r) {
@@ -6,15 +7,60 @@ export function indexRecord(r) {
   const parts = [
     r.id, r.numero, r.processo, r.objeto, r.info_complementar,
     r.orgao?.nome, r.unidade?.nome, r.unidade?.municipio, r.orgao_subrogado,
-    (c.ofertas || []).join(' '), (c.fabricantes || []).map((f) => f.nome).join(' '),
+    (c.ofertas || []).join(' '), (c.termos || []).join(' '),
     (r.itens || []).map((i) => i.descricao).join(' '),
     (r.fornecedores || []).map((f) => f.nome).join(' '),
     r.fornecedor?.nome,
   ]
-  r._q = norm(parts.filter(Boolean).join(' '))
+  r._q = searchText(parts)
   r._org = norm([r.orgao?.nome, r.unidade?.nome].filter(Boolean).join(' '))
   return r
 }
+
+/** Portfólio do registro: ['logo'], ['mvs'], ['logo','mvs'] ou ['transversal']. */
+export const portfolioOf = (r) => r.classificacao?.portfolio || []
+
+/** Filtro Tudo / Logo / MVS. "Logo IBM + MVS" aparece nos dois; Transversal só em Tudo. */
+export function matchesPortfolio(r, p) {
+  if (!p || p === 'tudo') return true
+  return portfolioOf(r).includes(p)
+}
+
+export function portfolioCounts(records) {
+  const n = { tudo: records.length, logo: 0, mvs: 0 }
+  for (const r of records) {
+    const pf = portfolioOf(r)
+    if (pf.includes('logo')) n.logo += 1
+    if (pf.includes('mvs')) n.mvs += 1
+  }
+  return n
+}
+
+export function portfolioLabel(pf = []) {
+  if (pf.includes('logo') && pf.includes('mvs')) return 'Logo IBM + MVS'
+  if (pf.includes('logo')) return 'Logo IBM'
+  if (pf.includes('mvs')) return 'MVS'
+  return pf.length ? 'Transversal' : ''
+}
+
+/** Aplica a busca: devolve os registros que casam, cada um com a lista de termos que casaram
+ *  em `_casou` (usada para ordenar e para mostrar "casou: ..." no card). */
+export function applySearch(records, q) {
+  const parsed = parseQuery(q)
+  if (parsed.mode === 'vazio') {
+    for (const r of records) r._casou = null
+    return records
+  }
+  const out = []
+  for (const r of records) {
+    const m = matchQuery(parsed, r._q || '')
+    if (m && m.length) { r._casou = m.map((t) => t.label); out.push(r) } else r._casou = null
+  }
+  return out
+}
+
+/** Ordenação: primeiro quem casou MAIS termos da busca; depois o critério escolhido. */
+export const bySearchThen = (sortFn) => (a, b) => ((b._casou?.length || 0) - (a._casou?.length || 0)) || sortFn(a, b)
 
 export function matchesPriority(r, terms) {
   if (!terms || !terms.length) return false
@@ -44,12 +90,11 @@ const inRange = (v, min, max) => {
 
 /** Filtro de oportunidades (contratações, PCA, contratos). Todos os critérios são opcionais. */
 export function filterItems(items, f, ctx = {}) {
-  const words = norm(f.q).split(' ').filter(Boolean)
   const org = norm(f.orgao)
   const mun = norm(f.municipio)
-  return items.filter((r) => {
+  return applySearch(items, f.q).filter((r) => {
     const c = r.classificacao || {}
-    if (words.length && !words.every((w) => r._q.includes(w))) return false
+    if (!matchesPortfolio(r, f.portfolio)) return false
     if (org && !r._org.includes(org)) return false
     if (f.uf && r.unidade?.uf !== f.uf) return false
     if (mun && !norm(r.unidade?.municipio).includes(mun)) return false
@@ -57,10 +102,9 @@ export function filterItems(items, f, ctx = {}) {
     if (f.modalidade && r.modalidade?.nome !== f.modalidade) return false
     if (f.estagio && r.estagio !== f.estagio) return false
     if (f.oferta && !(c.ofertas || []).includes(f.oferta)) return false
-    if (f.fabricante && !(c.fabricantes || []).some((x) => x.nome === f.fabricante)) return false
-    if (f.relacao && c.relacao !== f.relacao) return false
+    if (f.selo && !(c.selos || []).some((x) => x.tipo === f.selo)) return false
     if ((f.vmin || f.vmax) && !inRange(r.valor_estimado ?? -1, f.vmin, f.vmax)) return false
-    if (f.scoreMin && !((c.score || 0) >= Number(f.scoreMin))) return false
+    if (f.scoreMin && !((c.pontuacao || 0) >= Number(f.scoreMin))) return false
     if (f.pubDe && !((r.data_publicacao || '') >= f.pubDe)) return false
     if (f.pubAte && !((r.data_publicacao || '').slice(0, 10) <= f.pubAte)) return false
     if (f.prazoAte) {
@@ -75,11 +119,10 @@ export function filterItems(items, f, ctx = {}) {
 }
 
 export function filterAtas(atas, f, ctx = {}) {
-  const words = norm(f.q).split(' ').filter(Boolean)
   const org = norm(f.orgao)
-  return atas.filter((a) => {
+  return applySearch(atas, f.q).filter((a) => {
     const c = a.classificacao || {}
-    if (words.length && !words.every((w) => a._q.includes(w))) return false
+    if (!matchesPortfolio(a, f.portfolio)) return false
     if (org && !a._org.includes(org)) return false
     if (f.vigencia === 'vigentes' && !['vigente', 'vence_em_breve'].includes(a.vigencia_status)) return false
     if (f.vigencia === 'vence_em_breve' && a.vigencia_status !== 'vence_em_breve') return false
@@ -87,9 +130,9 @@ export function filterAtas(atas, f, ctx = {}) {
     if (f.vigencia === 'a_conferir' && !['inconsistente', 'sem_data'].includes(a.vigencia_status)) return false
     if (f.adesao && a.adesao_status !== f.adesao) return false
     if (f.oferta && !(c.ofertas || []).includes(f.oferta)) return false
-    if (f.fabricante && !(c.fabricantes || []).some((x) => x.nome === f.fabricante)) return false
+    if (f.selo && !(c.selos || []).some((x) => x.tipo === f.selo)) return false
     if ((f.vmin || f.vmax) && !inRange(a.compra?.valor ?? -1, f.vmin, f.vmax)) return false
-    if (f.scoreMin && !((c.score || 0) >= Number(f.scoreMin))) return false
+    if (f.scoreMin && !((c.pontuacao || 0) >= Number(f.scoreMin))) return false
     if (f.uf && a.unidade?.uf !== f.uf) return false
     if (f.prioritarios && !matchesPriority(a, ctx.priorityOrgs)) return false
     if (f.favoritos && !ctx.isFav?.(a.id)) return false
@@ -98,7 +141,7 @@ export function filterAtas(atas, f, ctx = {}) {
 }
 
 export const SORTS = {
-  score: (a, b) => (b.classificacao?.score || 0) - (a.classificacao?.score || 0),
+  score: (a, b) => (b.classificacao?.pontuacao || 0) - (a.classificacao?.pontuacao || 0),
   valor: (a, b) => (b.valor_estimado ?? b.compra?.valor ?? 0) - (a.valor_estimado ?? a.compra?.valor ?? 0),
   publicacao: (a, b) => (b.data_publicacao || '').localeCompare(a.data_publicacao || ''),
   prazo: (a, b) => (a.data_encerramento_proposta || '9999').localeCompare(b.data_encerramento_proposta || '9999'),

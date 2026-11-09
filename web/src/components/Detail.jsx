@@ -2,13 +2,7 @@ import { useEffect, useState } from 'react'
 import { ESFERAS, fmtDate, money } from '../lib/format.js'
 import { matchesPartner, matchesPriority } from '../lib/filters.js'
 import { STATUS_COMERCIAL } from '../lib/private.js'
-import { ADESAO, Badge, dateOrNA, ExtLink, FAIXA, inputCls, KV, PortalLinks, RELACAO, ScoreBadge, Star, TIPO, valueOrNA, VIGENCIA } from './ui.jsx'
-
-const COMP = [
-  ['portfolio', 'Aderência ao portfólio', 35], ['suporte', 'Evidência de suporte/manutenção', 25],
-  ['fabricante', 'Fabricante/tecnologia', 15], ['valor', 'Potencial comercial (valor)', 10],
-  ['estagio', 'Oportunidade temporal (estágio)', 10], ['evidencias', 'Completude das evidências', 5],
-]
+import { ADESAO, Badge, dateOrNA, ExtLink, Highlight, inputCls, KV, PortalLinks, PortfolioBadge, ScoreBadge, Selos, Star, TIPO, valueOrNA, VIGENCIA } from './ui.jsx'
 
 function Section({ title, children, right }) {
   return (
@@ -32,7 +26,7 @@ export default function Detail({ r, meta, ctx, onClose }) {
   const c = r.classificacao || {}
   const L = meta.lookups || {}
   const isAta = r.tipo === 'ata'
-  const notes = (c.fabricantes || []).map((f) => [f.nome, ctx.config?.vendor_notes?.[f.nome]]).filter(([, n]) => n)
+  const notes = Object.entries(ctx.config?.vendor_notes || {}).filter(([v]) => (c.termos || []).some((t) => t.toLowerCase() === v.toLowerCase()))
   const partners = matchesPartner(r, ctx.config?.partners)
   const prio = matchesPriority(r, ctx.priorityOrgs)
 
@@ -56,9 +50,9 @@ export default function Detail({ r, meta, ctx, onClose }) {
         </header>
 
         <div className="px-5 py-4">
-          <p className="whitespace-pre-line text-[15px] leading-relaxed">{r.objeto || 'Objeto não informado'}</p>
+          <p className="whitespace-pre-line text-[15px] leading-relaxed">{r.objeto ? <Highlight text={r.objeto} terms={c.termos} /> : 'Objeto não informado'}</p>
           {r.info_complementar && r.info_complementar !== r.objeto ? (
-            <p className="mt-2 whitespace-pre-line text-[13px] text-ink-2"><span className="text-muted">Informação complementar: </span>{r.info_complementar}</p>
+            <p className="mt-2 whitespace-pre-line text-[13px] text-ink-2"><span className="text-muted">Informação complementar: </span><Highlight text={r.info_complementar} terms={c.termos} /></p>
           ) : null}
           <div className="mt-4">
             <PortalLinks links={r.links} />
@@ -72,56 +66,36 @@ export default function Detail({ r, meta, ctx, onClose }) {
         </div>
 
         <Section title="Classificação TLS" right={<ScoreBadge c={c} />}>
-          <p className="text-[13px]">{c.justificativa}</p>
-          <div className="mt-3 grid grid-cols-1 gap-x-6 sm:grid-cols-2">
-            <KV k="Oferta TLS sugerida" v={(c.ofertas || []).join(' + ') || null} />
-            <KV k="Tipo de serviço identificado" v={c.tipo_servico_label} />
-            <KV k="Relação com o TLS" v={RELACAO[c.relacao]} />
-            <KV k="Atuação por parceiro licitante" v={c.via_parceiro ? 'Possível (aquisição/fornecimento)' : 'Não indicada pelos dados'} />
-            <KV k="Aderência técnica / urgência comercial" v={`${c.score_tecnico}/100 · ${c.score_comercial}/100`} />
-            <KV k="Faixa" v={FAIXA[c.faixa]?.label} />
+          <div className="flex flex-wrap items-center gap-2 text-[13px]">
+            <span className="text-muted">Portfólio:</span><PortfolioBadge c={c} />
+            {c.versao_ofertas ? <span className="text-[11px] text-muted">base de ofertas {c.versao_ofertas}</span> : null}
           </div>
-          {(c.fabricantes || []).length ? (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {c.fabricantes.map((f) => (
-                <Badge key={f.nome} className={f.cobertura === 'confirmada' ? 'bg-[#defbe6] text-[#0e6027] ring-[#a7f0ba]' : 'bg-[#fcf4d6] text-[#8e6a00] ring-[#f1c21b]'}
-                  title={f.cobertura === 'confirmada' ? 'Fabricante citado em material público de suporte multivendor da IBM' : 'Cobertura TLS a validar'}>
-                  {f.nome} · {f.cobertura === 'confirmada' ? 'cobertura confirmada' : f.cobertura === 'fora_tls' ? 'fora do TLS' : 'validar cobertura'}
-                </Badge>
-              ))}
-            </div>
-          ) : null}
+          {(c.ofertas_casadas || []).length ? (
+            <table className="mt-3 w-full text-left text-[12px]">
+              <thead className="text-muted"><tr><th className="py-1 pr-2">Oferta</th><th className="pr-2">Como casou</th><th className="pr-2">Termos</th><th className="text-right">Pontos</th></tr></thead>
+              <tbody>
+                {c.ofertas_casadas.map((o) => (
+                  <tr key={o.id} className="border-t border-line align-top">
+                    <td className="py-1.5 pr-2"><span className="rounded-full bg-brand-soft px-2 py-0.5 font-medium text-brand-dark">{o.nome_pt}</span></td>
+                    <td className="pr-2">{o.via === 'termo_exato' ? 'Termo exato' : 'Marca + serviço'}</td>
+                    <td className="pr-2">{o.termos.map((t) => <mark key={t} className="mr-1 bg-[#fcf4d6] px-0.5">{t}</mark>)}</td>
+                    <td className="num text-right">{o.pontos}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : <p className="mt-2 text-[13px] text-muted">Nenhuma oferta da base casou com o texto deste registro.</p>}
+          <div className="mt-3"><Selos c={c} detalhe /></div>
           {notes.length ? (
             <ul className="mt-3 border-l-2 border-purple bg-[#f6f2ff] px-3 py-2 text-[12px]">
               {notes.map(([n, t]) => <li key={n}><strong>{n}:</strong> {t}</li>)}
-              <li className="text-[11px] text-muted">Nota comercial interna (configuração privada).</li>
+              <li className="text-[11px] text-muted">Nota comercial interna (configuração da equipe).</li>
             </ul>
           ) : null}
-          {(c.alertas || []).length ? (
-            <ul className="mt-3 list-disc pl-5 text-[12px] text-[#8e6a00]">{c.alertas.map((a) => <li key={a}>{a}</li>)}</ul>
-          ) : null}
-          <div className="mt-4 grid gap-1.5">
-            {COMP.map(([k, label, max]) => (
-              <div key={k} className="grid grid-cols-[1fr_auto] items-center gap-2 text-[12px] sm:grid-cols-[220px_1fr_auto]">
-                <span className="text-ink-2">{label}</span>
-                <div className="hidden h-1.5 bg-line sm:block"><div className="h-1.5 bg-brand" style={{ width: `${Math.min(100, ((c.componentes?.[k] || 0) / max) * 100)}%` }} /></div>
-                <span className="num text-right text-muted">{(c.componentes?.[k] ?? 0).toFixed(1)} / {max}</span>
-              </div>
-            ))}
-          </div>
-          {(c.evidencias || []).length ? (
-            <details className="mt-3 text-[12px]">
-              <summary className="cursor-pointer text-brand">Evidências encontradas no texto ({c.evidencias.length})</summary>
-              <ul className="mt-2 flex flex-col gap-1.5">
-                {c.evidencias.map((e, i) => (
-                  <li key={i}><Badge>{e.categoria}</Badge> <strong>{e.termo}</strong>{e.trecho ? <span className="text-ink-2"> — “{e.trecho}”</span> : null}</li>
-                ))}
-              </ul>
-            </details>
-          ) : null}
           <p className="mt-3 text-[11px] text-muted">
-            Classificação automática baseada no objeto, informação complementar{r.itens?.length ? ' e itens' : ''} publicados no PNCP.
-            Editais e documentos em PDF não são lidos pelo sistema. Aderência tecnológica não confirma elegibilidade comercial — validação humana necessária.
+            Pontuação: termo exato = 3; marca + serviço no mesmo texto = 2; x1,5 para oferta de prioridade alta; soma das ofertas.
+            Termos de exclusão global reduzem a pontuação pela metade. Analisados: objeto, informação complementar{r.itens?.length ? ' e itens' : ''} publicados no PNCP
+            (PDFs não são lidos). Aderência tecnológica não confirma elegibilidade comercial — validação humana necessária.
           </p>
         </Section>
 
@@ -135,7 +109,7 @@ export default function Detail({ r, meta, ctx, onClose }) {
                 <tbody>
                   {r.itens.map((i) => (
                     <tr key={i.numero} className="border-t border-line align-top">
-                      <td className="py-1 pr-2 num">{i.numero}</td><td className="pr-2">{i.descricao}</td>
+                      <td className="py-1 pr-2 num">{i.numero}</td><td className="pr-2"><Highlight text={i.descricao} terms={c.termos} /></td>
                       <td className="num pr-2 text-right">{i.quantidade ?? '—'} {i.unidade || ''}</td>
                       <td className="num text-right">{i.sigiloso ? 'sigiloso' : money(i.valor_total) || '—'}</td>
                     </tr>
@@ -273,15 +247,13 @@ function Tracking({ r, ctx }) {
   const [msg, setMsg] = useState('')
   const shared = ctx.tracking.shared
   const save = async () => {
-    try { await ctx.tracking.save(r.id, r.tipo, { ...form, favorito: Boolean(t.favorito) }); setMsg('Salvo.') } catch (e) { setMsg(`Erro: ${e.message}`) }
+    try { await ctx.tracking.save(r.id, r.tipo, form); setMsg('Salvo.') } catch (e) { setMsg(`Erro: ${e.message}`) }
   }
   return (
-    <Section title="Acompanhamento comercial" right={<span className="text-[11px] text-muted">{shared ? 'Compartilhado (acesso autenticado)' : 'Somente neste navegador'}</span>}>
+    <Section title="Acompanhamento comercial (equipe)" right={<span className="text-[11px] text-muted">{shared ? 'Compartilhado com a equipe' : 'Somente neste navegador'}</span>}>
       {!shared ? (
-        <p className="mb-2 text-[12px] text-[#8e6a00]">
-          {ctx.auth.enabled ? 'Entre com seu usuário para compartilhar com a equipe.' : 'Banco compartilhado não configurado: estes dados ficam apenas neste computador/navegador.'}
-        </p>
-      ) : null}
+        <p className="mb-2 text-[12px] text-[#8e6a00]">Banco compartilhado não configurado: estes dados ficam apenas neste computador/navegador.</p>
+      ) : <p className="mb-2 text-[11px] text-muted">Status, responsável e observação são vistos por toda a equipe. O favorito (estrela) é pessoal.</p>}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <label className="flex flex-col gap-1 text-[11px] text-ink-2">Status comercial
           <select className={inputCls} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
