@@ -163,8 +163,8 @@ def probe_pca(c: PNCPClient, today: date, pages: int = 40) -> None:
     TLS, para consultar /v1/pca/ apenas nessas classes (muito menos requisições)."""
     from collections import Counter
     from pathlib import Path
-    from .classifier import Portfolio, classify
-    pf = Portfolio.load(Path(__file__).resolve().parents[2] / "config", private="")
+    from .ofertas import BaseOfertas
+    base = BaseOfertas.load()  # sem base privada: lista as classes de TIC por nome
     # Janela de 2 dias e páginas pequenas: com dataInicio == dataFim a API devolve 204,
     # e janelas longas (20 dias) excedem o tempo de resposta do PNCP (validado no CI).
     ini, fim = _fmt(today - timedelta(days=2)), _fmt(today)
@@ -188,11 +188,11 @@ def probe_pca(c: PNCPClient, today: date, pages: int = 40) -> None:
                 n_items += 1
                 key = (it.get("classificacaoSuperiorCodigo"), it.get("classificacaoSuperiorNome"), it.get("categoriaItemPcaNome"))
                 allc[key] += 1
-                if classify(pf, [it.get("descricaoItem") or ""])["score"] >= 40:
+                if base and base.classificar([it.get("descricaoItem") or ""])["tls"]:
                     rel[key] += 1
                     exemplos.setdefault(key, (it.get("descricaoItem") or "")[:140])
         print(f"  amostra página {page * 37}: itens acumulados={n_items}", flush=True)
-    print(f"\n  itens analisados: {n_items}; classes com itens aderentes (score>=40):")
+    print(f"\n  itens analisados: {n_items}; classes com itens que casam oferta TLS:")
     for k, v in rel.most_common(40):
         print(f"     {v:4d}/{allc[k]:5d}  codigo={k[0]!r} nome={k[1]!r} categoria={k[2]!r}  ex: {exemplos[k]!r}")
     print("\n  classes de TIC por nome (todas):")

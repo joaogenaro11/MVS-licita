@@ -1,0 +1,30 @@
+{
+  "_aviso": "BASE SINTÉTICA PARA TESTES. Não é a base de ofertas TLS (privada, fora do repositório). Mesmo formato de ofertas_tls_radar.json; termos genéricos e nomes públicos de produtos.",
+  "versao": "sintetica-1",
+  "regras_de_match": {"normalizacao": "ver radar/ofertas.py", "oferta_casa_se": "ver radar/ofertas.py"},
+  "termos_servico_globais": ["manutenção", "suporte técnico"],
+  "exclusoes_globais": ["notebook", "notebooks", "Power BI", "tablets"],
+  "marcas_logo": ["IBM", "mainframe", "IBM Z"],
+  "marcas_mvs": ["Cisco", "VMware", "Brocade", "HP"],
+  "ofertas": [
+    {"id": "sint_suporte_cisco", "nome_pt": "Suporte de rede Cisco (sintético)", "portfolio": "MVS", "prioridade": "alta",
+     "disponivel_brasil": "sim", "regras": [],
+     "busca": {"termos_exatos": ["suporte Cisco", "Cisco ACI"], "marcas": ["Cisco", "Catalyst"],
+               "termos_servico": ["suporte técnico", "manutenção", "24x7"], "excluir": ["curso"]}},
+    {"id": "sint_rede_sem_fio", "nome_pt": "Rede sem fio (sintético)", "portfolio": "MVS", "prioridade": "media",
+     "disponivel_brasil": "sim", "regras": [],
+     "busca": {"termos_exatos": ["pontos de acesso", "controladora wireless"], "marcas": ["Meraki"], "termos_servico": [], "excluir": []}},
+    {"id": "sint_mainframe", "nome_pt": "Manutenção de mainframe (sintético)", "portfolio": "Logo IBM", "prioridade": "alta",
+     "disponivel_brasil": "sim", "regras": [],
+     "busca": {"termos_exatos": ["manutenção de mainframe"], "marcas": ["mainframe", "IBM Z"], "termos_servico": ["manutenção", "garantia"], "excluir": []}},
+    {"id": "sint_storage_hp", "nome_pt": "Storage HP (sintético)", "portfolio": "MVS", "prioridade": "baixa",
+     "disponivel_brasil": "confirmar", "regras": [],
+     "busca": {"termos_exatos": [], "marcas": ["HP"], "termos_servico": ["manutenção"], "excluir": []}},
+    {"id": "sint_sanitizacao", "nome_pt": "Sanitização de dados (sintético)", "portfolio": "Transversal", "prioridade": "baixa",
+     "disponivel_brasil": "nao", "regras": ["Indisponível no Brasil: usar a alternativa sintética Y"],
+     "busca": {"termos_exatos": ["sanitização de dados"], "marcas": [], "termos_servico": [], "excluir": []}},
+    {"id": "sint_projeto", "nome_pt": "Projeto de rede (sintético)", "portfolio": "Transversal", "prioridade": "media",
+     "disponivel_brasil": "sim", "regras": [],
+     "busca": {"termos_exatos": ["projeto de rede"], "marcas": [], "termos_servico": [], "excluir": []}}
+  ]
+}

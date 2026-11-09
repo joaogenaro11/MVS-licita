@@ -8,9 +8,36 @@ Regras de honestidade:
 from __future__ import annotations
 
 import re
+import unicodedata
 from datetime import date, datetime, timedelta
 from typing import Any
 from urllib.parse import urlparse
+
+STAGE_LABELS = {
+    "planejamento": "Planejamento (PCA)",
+    "preparacao": "Preparação (ETP/pesquisa de preços)",
+    "publicada": "Edital/aviso publicado",
+    "propostas_abertas": "Propostas abertas",
+    "julgamento": "Julgamento/homologação",
+    "ata_vigente": "Ata vigente",
+    "concluida": "Contratação concluída",
+    "encerrada": "Encerrada/cancelada",
+}
+
+
+def normalize_text(text: str | None) -> str:
+    """Minúsculas, sem acento, só [a-z0-9-/.] e espaços simples (regex de adesão e afins)."""
+    out: list[str] = []
+    for ch in unicodedata.normalize("NFKD", text or ""):
+        if unicodedata.combining(ch):
+            continue
+        ch = ch.lower()
+        if not (ch.isalnum() or ch in "-/."):
+            ch = " "
+        if ch == " " and (not out or out[-1] == " "):
+            continue
+        out.append(ch)
+    return "".join(out).strip()
 
 PNCP_APP = "https://pncp.gov.br/app"
 
@@ -257,11 +284,10 @@ def vigencia_status(inicio: str | None, fim: str | None, cancelado: bool, today:
 def adesao_assessment(ata: dict, texts: list[str], contratos_adesao: int = 0) -> tuple[str, list[str]]:
     """Avalia a POSSIBILIDADE de adesão apenas com evidência pública disponível.
     Nunca afirma elegibilidade jurídica nem saldo."""
-    from .classifier import normalize
     motivos: list[str] = []
     if ata.get("vigencia_status") in ("encerrada", "cancelada"):
         return "encerrada", ["Ata encerrada, vencida ou cancelada segundo o PNCP."]
-    text = normalize(" ".join(t for t in texts if t))
+    text = normalize_text(" ".join(t for t in texts if t))
     neg = any(re.search(p, text) for p in ADESAO_NEG)
     pos = any(re.search(p, text) for p in ADESAO_POS)
     flag = ata.get("possibilidade_adesao_pncp")
@@ -419,3 +445,55 @@ def normalize_pca_items(r: dict, ano_filter: set[int] | None = None) -> list[dic
                       "origem": None, "origem_portal": None},
         })
     return out
+
+
+# ----------------------------------------------------------------- vencimento
+def vencimento(item: dict, now: datetime, cfg: dict | None = None) -> tuple[str | None, bool, str]:
+    """Data em que o registro deixa de estar ativo e sai do site (continua na base histórica).
+
+    Retorna (vence_em ISO ou None, já_venceu, motivo). Regras (configuráveis em fontes.yml > vencimento):
+      contratação  -> encerramento do prazo de propostas (+ dias de tolerância);
+                      revogada/anulada encerra na hora; sem prazo informado -> publicação + N dias
+      item de PCA  -> fim do ano do plano (31/12 do anoPca)
+      ata          -> fim da vigência publicada; cancelada encerra na hora;
+                      vigência ausente/inconsistente -> nunca vence automaticamente (conferir)
+      contrato     -> fim da vigência; sem vigência -> publicação + N dias
+    """
+    cfg = cfg or {}
+    today = now.date()
+    t = item.get("tipo")
+    if t == "contratacao":
+        if item.get("situacao_id") in (2, 3):
+            return today.isoformat(), True, f"contratação {str(item.get('situacao') or 'revogada/anulada').lower()}"
+        enc = parse_dt(item.get("data_encerramento_proposta"))
+        if enc:
+            fim = enc + timedelta(days=int(cfg.get("contratacoes_dias_apos_encerramento", 0)))
+            return fim.date().isoformat(), fim < now, "encerramento do prazo de propostas"
+        pub = parse_dt(item.get("data_publicacao"))
+        if pub:
+            fim = pub + timedelta(days=int(cfg.get("contratacoes_sem_prazo_dias", 120)))
+            return fim.date().isoformat(), fim < now, "sem prazo de propostas informado (publicação + prazo padrão)"
+        return None, False, "sem datas informadas"
+    if t == "pca":
+        try:
+            fim = date(int(item.get("ano")), 12, 31)
+        except (TypeError, ValueError):
+            return None, False, "ano do PCA não informado"
+        return fim.isoformat(), fim < today, "fim do ano do plano de contratações"
+    if t == "ata":
+        if item.get("vigencia_status") == "cancelada" or item.get("cancelado"):
+            return (item.get("data_cancelamento") or today.isoformat())[:10], True, "ata cancelada"
+        fim = parse_dt(item.get("vigencia_fim"))
+        if fim:
+            return fim.date().isoformat(), fim.date() < today, "fim da vigência da ata"
+        return None, False, "vigência não informada ou inconsistente — conferir na ata"
+    if t == "contrato":
+        fim = parse_dt(item.get("vigencia_fim"))
+        if fim:
+            return fim.date().isoformat(), fim.date() < today, "fim da vigência do contrato"
+        pub = parse_dt(item.get("data_publicacao"))
+        if pub:
+            f = pub + timedelta(days=int(cfg.get("contratos_sem_vigencia_dias", 365)))
+            return f.date().isoformat(), f < now, "sem vigência informada (publicação + prazo padrão)"
+        return None, False, "sem datas informadas"
+    return None, False, ""

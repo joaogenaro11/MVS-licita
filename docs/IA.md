@@ -2,7 +2,8 @@
 
 ## Decisão para o MVP
 
-**O MVP usa apenas o classificador por regras** (`config/portfolio_tls.yml` + `collector/radar/classifier.py`).
+**O Radar usa apenas classificação por regras**: a base de ofertas TLS (JSON privado) aplicada por `collector/radar/ofertas.py`.
+(O classificador anterior, por taxonomia pública e score 0–100, está em `docs/legado/`.)
 Ele é explicável (cada ponto do score vem de um termo encontrado no texto), roda em milissegundos
 dentro do GitHub Actions e pode ser calibrado sem reprogramar o sistema.
 

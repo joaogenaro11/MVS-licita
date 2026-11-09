@@ -1,11 +1,6 @@
 import { fmtDate, money } from '../lib/format.js'
-
-export const FAIXA = {
-  alta: { label: 'Alta prioridade', cls: 'bg-[#defbe6] text-[#0e6027] ring-[#a7f0ba]', bar: '#198038' },
-  analisar: { label: 'Analisar', cls: 'bg-brand-soft text-brand-dark ring-[#a6c8ff]', bar: '#0f62fe' },
-  indireto: { label: 'Potencial indireto', cls: 'bg-[#fcf4d6] text-[#8e6a00] ring-[#f1c21b]', bar: '#b28600' },
-  baixa: { label: 'Baixa aderência', cls: 'bg-field text-muted ring-line', bar: '#8d8d8d' },
-}
+import { portfolioLabel } from '../lib/filters.js'
+import { highlightParts } from '../lib/highlight.js'
 
 export const ADESAO = {
   potencial_verificar: { label: 'Potencial de adesão a verificar', cls: 'bg-[#f6f2ff] text-[#6929c4] ring-[#d4bbff]' },
@@ -24,8 +19,16 @@ export const VIGENCIA = {
 }
 
 export const TIPO = { contratacao: 'Contratação', pca: 'PCA', contrato: 'Contrato', ata: 'Ata' }
-export const RELACAO = {
-  direta: 'Oportunidade direta', indireta: 'Oportunidade indireta', a_validar: 'Relação a validar', sem: 'Sem relação',
+
+const PORTFOLIO_CLS = {
+  'Logo IBM': 'bg-[#0f62fe] text-white ring-[#0f62fe]',
+  MVS: 'bg-[#6929c4] text-white ring-[#6929c4]',
+  'Logo IBM + MVS': 'bg-[#002d9c] text-white ring-[#002d9c]',
+  Transversal: 'bg-field text-ink-2 ring-line',
+}
+export const SELO_CLS = {
+  falso_positivo: 'bg-[#fcf4d6] text-[#8e6a00] ring-[#f1c21b]',
+  indisponivel_brasil: 'bg-[#fff1f1] text-[#a2191f] ring-[#ffb3b8]',
 }
 
 export function Badge({ children, className = '', title }) {
@@ -36,19 +39,82 @@ export function Badge({ children, className = '', title }) {
   )
 }
 
+export function PortfolioBadge({ c }) {
+  const label = portfolioLabel(c?.portfolio)
+  if (!label) return null
+  return <Badge className={PORTFOLIO_CLS[label]}>{label}</Badge>
+}
+
+/** Pontuação da base de ofertas: termo exato = 3; marca + serviço = 2; x1,5 prioridade alta; soma. */
 export function ScoreBadge({ c }) {
   if (!c) return null
-  const f = FAIXA[c.faixa] || FAIXA.baixa
   return (
-    <div className="flex items-center gap-2" title={`Aderência TLS ${c.score}/100 — ${f.label}`}>
-      <div className="num text-2xl font-semibold leading-none" style={{ color: f.bar }}>{c.score}</div>
-      <div className="flex flex-col gap-1">
-        <div className="h-1.5 w-16 bg-line"><div className="h-1.5" style={{ width: `${c.score}%`, background: f.bar }} /></div>
-        <span className="text-[11px] font-medium text-ink-2">{f.label}</span>
-      </div>
+    <div className="flex flex-col items-end gap-1" title="Pontuação TLS: termo exato = 3, marca + serviço = 2, x1,5 se prioridade alta; soma das ofertas que casaram">
+      <div className="num text-2xl font-semibold leading-none text-ink">{(c.pontuacao ?? 0).toLocaleString('pt-BR')}</div>
+      <span className="text-[11px] text-muted">pontuação</span>
+      <PortfolioBadge c={c} />
     </div>
   )
 }
+
+export function OfertaChips({ c, max = 99 }) {
+  const list = c?.ofertas_casadas || []
+  if (!list.length) return null
+  return (
+    <div className="flex flex-wrap gap-1">
+      {list.slice(0, max).map((o) => (
+        <span key={o.id} title={`${o.via === 'termo_exato' ? 'Termo exato' : 'Marca + serviço'} · ${o.pontos} pts · ${o.termos.join(', ')}`}
+          className="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-medium text-brand-dark">{o.nome_pt}</span>
+      ))}
+      {list.length > max ? <span className="px-1 text-[11px] text-muted">+{list.length - max}</span> : null}
+    </div>
+  )
+}
+
+export function Selos({ c, detalhe = false }) {
+  const selos = c?.selos || []
+  if (!selos.length) return null
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex flex-wrap gap-1">
+        {selos.map((s) => <Badge key={s.tipo} className={SELO_CLS[s.tipo]} title={s.detalhe}>{s.texto}</Badge>)}
+      </div>
+      {detalhe ? selos.map((s) => <p key={s.tipo} className="text-[12px] text-ink-2">{s.detalhe}</p>) : null}
+    </div>
+  )
+}
+
+/** Texto com os termos que deram match destacados. */
+export function Highlight({ text, terms }) {
+  return highlightParts(text, terms).map((p, i) => (p.hit
+    ? <mark key={i} className="bg-[#fcf4d6] px-0.5 text-inherit">{p.text}</mark>
+    : <span key={i}>{p.text}</span>))
+}
+
+export function Casou({ r }) {
+  if (!r._casou?.length) return null
+  return <p className="mt-1 text-[12px] text-brand-dark"><span className="text-muted">casou: </span>{r._casou.join(', ')}</p>
+}
+
+/** Controle segmentado Tudo / Logo / MVS, com contadores que respeitam os demais filtros. */
+export function PortfolioSwitch({ value, onChange, counts }) {
+  const opts = [['tudo', 'Tudo'], ['logo', 'Logo'], ['mvs', 'MVS']]
+  return (
+    <div role="radiogroup" aria-label="Portfólio" className="inline-flex bg-white ring-1 ring-line">
+      {opts.map(([k, label]) => {
+        const on = (value || 'tudo') === k
+        return (
+          <button key={k} type="button" role="radio" aria-checked={on} onClick={() => onChange(k)}
+            className={`px-4 py-1.5 text-[13px] ${on ? 'bg-ink text-white' : 'text-ink-2 hover:bg-field'}`}>
+            {label} <span className={`num ${on ? 'text-[#c6c6c6]' : 'text-muted'}`}>({(counts?.[k] ?? 0).toLocaleString('pt-BR')})</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+export const SEARCH_HINT = 'Separe termos por vírgula para buscar qualquer um deles. Use aspas para frase exata.'
 
 export function isSafeUrl(u) {
   return typeof u === 'string' && /^https?:\/\/[^\s"<>]+\.[^\s"<>]+$/i.test(u)
