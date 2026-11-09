@@ -22,8 +22,8 @@ from zoneinfo import ZoneInfo
 import yaml
 
 from . import __version__
-from .classifier import FAIXA_LABEL, STAGE_LABELS, Portfolio, classify, normalize
-from .normalize import (adesao_assessment, compra_ids, normalize_ata, normalize_contratacao,
+from .ofertas import BaseOfertas, OfertasError, norm as norm_ofertas
+from .normalize import (STAGE_LABELS, adesao_assessment, compra_ids, normalize_ata, normalize_contratacao,
                         normalize_contrato, normalize_pca_items, portal_name, refresh_ata_vigencia,
                         restage, safe_url, vencimento)
 from .pncp import CONSULTA_BASE, PNCPClient, SourceError
@@ -37,8 +37,8 @@ LIMITACOES = [
     "ETPs e pesquisas de preço não são publicados de forma estruturada no PNCP; o estágio 'Preparação' só aparece para "
     "manifestações de interesse e pré-qualificações.",
     "PDTI/PDTIC não possuem API pública: devem ser consultados nos sites dos órgãos (módulo futuro 'Análise de Compras').",
-    "A classificação usa o objeto, a informação complementar e, quando coletados, os itens da contratação. "
-    "PDFs de editais/TRs NÃO são lidos pelo sistema.",
+    "A classificação usa a base de ofertas TLS (privada) sobre o objeto, a informação complementar e, quando "
+    "coletados, os itens da contratação. PDFs de editais/TRs NÃO são lidos pelo sistema.",
     "Possibilidade de adesão a atas é indicativa: não há análise jurídica nem verificação de saldo.",
     "A busca opera sobre a base coletada pelo Radar (não é uma consulta em tempo real a toda a base nacional).",
 ]
@@ -56,11 +56,11 @@ def days_between(a: date, b: date) -> Iterable[date]:
 
 
 class Runner:
-    def __init__(self, data_dir: Path, config_dir: Path, budget_min: float | None = None, backfill: bool = True):
+    def __init__(self, data_dir: Path, config_dir: Path, budget_min: float | None = None, backfill: bool = True,
+                 ofertas: BaseOfertas | None = None):
         self.config_dir = Path(config_dir)
         self.cfg = yaml.safe_load(open(self.config_dir / "fontes.yml", encoding="utf-8"))
-        self.pf = Portfolio.load(self.config_dir)
-        self.private_overlay = bool(os.environ.get("RADAR_PRIVATE_CONFIG") or (self.config_dir / "portfolio_private.yml").exists())
+        self.ofertas = ofertas or carregar_ofertas()
         pc = self.cfg["pncp"]
         self.client = PNCPClient(timeout=pc.get("timeout_s", 60), max_attempts=pc.get("max_attempts", 6),
                                  min_interval=pc.get("min_interval_s", 0.3))
@@ -72,7 +72,6 @@ class Runner:
         self.today = self.now.date()
         self.now_iso = datetime.now(TZ).isoformat(timespec="seconds")
         st = self.cfg.get("storage", {})
-        self.min_store = st.get("min_score_to_store", self.pf.raw.get("min_score_to_store", 25))
         self.sources: dict[str, dict[str, Any]] = dict(self.store.meta.get("fontes") or {})
         self.page_size = pc.get("page_size", 50)
         self.modalidades = pc.get("modalidades", [6])
@@ -90,14 +89,12 @@ class Runner:
         return self.time_left() - reserve
 
     def _build_prefilter(self) -> re.Pattern:
-        """Regex única com todos os termos de oferta e fabricantes: descarta rapidamente
-        os registros sem nenhuma relação (a grande maioria)."""
-        alts = [t.regex.pattern.removeprefix("(?<![a-z0-9])").removesuffix("(?![a-z0-9])")
-                for t in self.pf.offer_terms + self.pf.vendor_terms]
-        return re.compile(r"(?<![a-z0-9])(?:" + "|".join(alts) + r")(?![a-z0-9])")
+        """Regex única com todos os termos exatos e marcas da base de ofertas: descarta
+        rapidamente os registros sem nenhuma relação (a grande maioria)."""
+        return self.ofertas.prefiltro()
 
     def relevant_text(self, *texts: str | None) -> bool:
-        return bool(self._prefilter.search(normalize(" ".join(t for t in texts if t))))
+        return bool(self._prefilter.search(norm_ofertas(" ".join(t for t in texts if t))))
 
     @contextmanager
     def feed(self, name: str):
@@ -142,8 +139,7 @@ class Runner:
         if not item:
             return
         if not known:
-            c = self.classify_item(item)
-            if c["score"] < self.min_store:
+            if not self.classify_item(item)["tls"]:
                 return
         self._count(self.store.upsert(self.store.items, item, self.now_iso))
 
@@ -157,8 +153,7 @@ class Runner:
         if not ata:
             return
         if not known:
-            c = self.classify_item(ata)
-            if c["score"] < self.min_store:
+            if not self.classify_item(ata)["tls"]:
                 return
         self._count(self.store.upsert(self.store.atas, ata, self.now_iso))
         self._apply_pending_links(ata["id"])
@@ -177,8 +172,7 @@ class Runner:
         if ata_id:
             self._link_contract_to_ata(ata_id, ct)
         if not known:
-            c = self.classify_item(ct)
-            if c["score"] < self.min_store:
+            if not self.classify_item(ct)["tls"]:
                 return
         self._count(self.store.upsert(self.store.items, ct, self.now_iso))
 
@@ -214,22 +208,37 @@ class Runner:
 
     # -------------------------------------------------------- classificação
     def classify_item(self, item: dict) -> dict:
-        texts = [item.get("objeto"), item.get("info_complementar")]
-        if item["tipo"] == "ata":
-            texts.append((item.get("compra") or {}).get("info_complementar"))
-        value = item.get("valor_estimado") or item.get("valor_homologado") or (item.get("compra") or {}).get("valor")
-        c = classify(self.pf, texts, stage=item.get("estagio"), value=value, item_texts=[item.get("itens_texto")])
-        item["classificacao"] = c
+        item["classificacao"] = c = classificar_registro(self.ofertas, item)
         return c
 
     def _mark_published(self, rec: dict) -> None:
-        """Uma vez publicado no site, o registro só sai quando VENCER — nunca por mudança
-        de score/reclassificação (regra de negócio pedida pelos usuários)."""
-        pmin = self.cfg.get("storage", {}).get("publish_min_score", 35)
-        if not rec.get("publicado_em") and (rec.get("classificacao") or {}).get("score", 0) >= pmin:
+        """Uma vez publicado no site (casou alguma oferta TLS), o registro só sai quando
+        VENCER — nunca por reclassificação (regra de negócio pedida pelos usuários)."""
+        if not rec.get("publicado_em") and (rec.get("classificacao") or {}).get("tls"):
             rec["publicado_em"] = self.now_iso
 
+    def migrar_base_ofertas(self) -> dict[str, int]:
+        """Troca de classificador (taxonomia antiga -> base de ofertas JSON): a publicação é
+        redecidida UMA vez com a regra nova. Depois disso vale de novo "só sai quando vencer"."""
+        st = self.store.state
+        if st.get("classificador") == "ofertas_json":
+            return {}
+        resumo = {"mantidos": 0, "retirados": 0}
+        for rec in list(self.store.items.values()) + list(self.store.atas.values()):
+            if not rec.get("publicado_em"):
+                continue
+            if classificar_registro(self.ofertas, rec)["tls"]:
+                resumo["mantidos"] += 1
+            else:
+                rec["publicado_em"] = None
+                resumo["retirados"] += 1
+        st["classificador"] = "ofertas_json"
+        st["migracao_ofertas"] = {"em": self.now_iso, **resumo}
+        log.info("migração para a base de ofertas JSON: %s", resumo)
+        return resumo
+
     def reclassify_all(self) -> None:
+        self.migrar_base_ofertas()
         soon = self.cfg["pncp"].get("atas_vencimento_alerta_dias", 90)
         for it in self.store.items.values():
             it["estagio"] = restage(it, self.now)
@@ -379,7 +388,7 @@ class Runner:
             if not known:
                 if not self.relevant_text(item["objeto"], item.get("info_complementar")):
                     continue
-                if self.classify_item(item)["score"] < self.min_store:
+                if not self.classify_item(item)["tls"]:
                     continue
             self._count(self.store.upsert(self.store.items, item, self.now_iso))
 
@@ -460,18 +469,24 @@ class Runner:
     def enrich(self) -> None:
         en = self.cfg.get("enrichment", {})
         budget = int(en.get("max_requests_per_run", 1500))
-        min_score = en.get("min_score", 45)
         start_req = self.client.stats.requests
+
+        def candidato(x: dict) -> bool:
+            c = x.get("classificacao") or {}
+            return bool(c.get("tls") or c.get("sinais"))  # casou oferta, ou ao menos cita uma marca
+
+        def prioridade(x: dict) -> tuple:
+            c = x.get("classificacao") or {}
+            return (not c.get("tls"), -(c.get("pontuacao") or 0))
+
         with self.feed("enriquecimento") as rec:
             cands = [i for i in self.store.items.values()
-                     if i["tipo"] == "contratacao" and not i.get("enriquecido_em")
-                     and (i.get("classificacao") or {}).get("score", 0) >= min_score - 15]
+                     if i["tipo"] == "contratacao" and not i.get("enriquecido_em") and candidato(i)]
             atas = [a for a in self.store.atas.values() if not a.get("enriquecido_em")
-                    and a.get("vigencia_status") not in ("encerrada", "cancelada")
-                    and (a.get("classificacao") or {}).get("score", 0) >= min_score - 15]
+                    and a.get("vigencia_status") not in ("encerrada", "cancelada") and candidato(a)]
             # mais promissores primeiro
-            cands.sort(key=lambda x: -(x.get("classificacao") or {}).get("score", 0))
-            atas.sort(key=lambda x: -(x.get("classificacao") or {}).get("score", 0))
+            cands.sort(key=prioridade)
+            atas.sort(key=prioridade)
             done = 0
             for item in cands + atas:
                 if self.client.stats.requests - start_req >= budget or self.time_left() < 90:
@@ -565,8 +580,8 @@ class Runner:
             },
             "cliente_http": self.client.stats.as_dict(),
             "duracao_s": round(time.monotonic() - self.t0, 1),
-            "classificador": {"versao_config": self.pf.raw.get("version"), "configuracao_privada": self.private_overlay,
-                              "limiares": self.pf.thresholds, "pesos": self.pf.weights},
+            "classificador": {"base_ofertas": "privada", "versao_ofertas": self.ofertas.versao,
+                              "ofertas": len(self.ofertas.ofertas)},
             "limitacoes": LIMITACOES,
         }
 
@@ -599,29 +614,56 @@ FIELDS_DROP = {"itens_texto", "feeds", "enriquecimento_erro"}
 def _compact(item: dict) -> dict:
     out = {k: v for k, v in item.items() if k not in FIELDS_DROP}
     c = dict(out.get("classificacao") or {})
-    c["evidencias"] = (c.get("evidencias") or [])[:8]
-    c.pop("ofertas_chave", None)
+    c.pop("sinais", None)
     out["classificacao"] = c
     if out.get("itens"):
         out["itens"] = out["itens"][:40]
     return out
 
 
-def export_site(data_dir: Path, out_dir: Path, config_dir: Path) -> dict[str, int]:
-    """Gera os arquivos estáticos lidos pela interface (somente dados públicos)."""
+def classificar_registro(base: BaseOfertas, item: dict) -> dict:
+    """Textos analisados: objeto/descrição, informação complementar, cada item (isolado),
+    descrição do item de PCA e, para atas, o objeto/informação da contratação de origem."""
+    compra = item.get("compra") or {}
+    textos = [item.get("objeto"), item.get("info_complementar")]
+    if item.get("tipo") == "ata":
+        textos += [compra.get("objeto"), compra.get("info_complementar")]
+    itens = item.get("itens") or []
+    if itens:
+        textos += [i.get("descricao") for i in itens]
+    elif item.get("itens_texto"):
+        textos += item["itens_texto"].split(" | ")
+    return base.classificar(textos)
+
+
+def carregar_ofertas() -> BaseOfertas:
+    try:
+        base = BaseOfertas.load()
+    except Exception as exc:  # noqa: BLE001
+        raise OfertasError(f"falha ao carregar a base de ofertas: {exc}") from exc
+    if base is None:
+        raise OfertasError(
+            "Base de ofertas TLS não configurada. Defina RADAR_OFERTAS_FILE/RADAR_OFERTAS_JSON, coloque o arquivo em "
+            "config/ofertas_tls_radar.json (não versionado) ou configure SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY.")
+    return base
+
+
+def export_site(data_dir: Path, out_dir: Path, config_dir: Path, ofertas: BaseOfertas | None = None) -> dict[str, int]:
+    """Gera os arquivos lidos pela interface. Contém a classificação TLS (derivada da base
+    privada): em produção vai para o Supabase (acesso só com login), nunca para o GitHub Pages."""
     cfg = yaml.safe_load(open(Path(config_dir) / "fontes.yml", encoding="utf-8"))
-    pf = Portfolio.load(config_dir)
-    st = cfg.get("storage", {})
-    pmin = st.get("publish_min_score", 35)
+    base = ofertas or carregar_ofertas()
     venc_cfg = cfg.get("vencimento", {})
     store = Store(data_dir).load()
     now = datetime.now(TZ).replace(tzinfo=None)
     removidos = {"vencidos": 0}
+    for r in list(store.items.values()) + list(store.atas.values()):
+        r["classificacao"] = classificar_registro(base, r)
 
     def keep(r: dict) -> bool:
-        """Fica no site enquanto não vencer. Entra quando atinge o score mínimo e, depois
+        """Fica no site enquanto não vencer. Entra quando casa alguma oferta TLS e, depois
         disso, só sai ao vencer (a base histórica mantém tudo, inclusive os vencidos)."""
-        publicado = r.get("publicado_em") or (r.get("classificacao") or {}).get("score", 0) >= pmin
+        publicado = r.get("publicado_em") or (r.get("classificacao") or {}).get("tls")
         if not publicado:
             return False
         vence_em, vencido, motivo = vencimento(r, now, venc_cfg)
@@ -634,18 +676,11 @@ def export_site(data_dir: Path, out_dir: Path, config_dir: Path) -> dict[str, in
     items = [_compact(i) for i in store.items.values() if keep(i)]
     atas = [_compact(a) for a in store.atas.values() if keep(a)]
     out = Path(out_dir)
-    lookups = {
-        "estagios": STAGE_LABELS,
-        "faixas": FAIXA_LABEL,
-        "limiares": pf.thresholds,
-        "ofertas": {k: {"label": v["label"], "descricao": v.get("description")} for k, v in pf.raw["offers"].items()},
-        "fabricantes": sorted(pf.raw.get("vendors", {})),
-        "tipos_servico": pf.raw.get("service_types", {}),
-    }
+    lookups = {"estagios": STAGE_LABELS, **base.resumo_publico()}
     write_json_atomic(out / "opportunities.json", {"gerado_em": store.meta.get("gerado_em"), "items": items}, compact=True)
     write_json_atomic(out / "atas.json", {"gerado_em": store.meta.get("gerado_em"), "items": atas}, compact=True)
     meta = dict(store.meta)
-    meta["publicado"] = {"oportunidades": len(items), "atas": len(atas), "score_minimo": pmin,
+    meta["publicado"] = {"oportunidades": len(items), "atas": len(atas), "criterio": "casou ao menos uma oferta TLS",
                          "vencidos_fora_do_site": removidos["vencidos"]}
     meta["lookups"] = lookups
     write_json_atomic(out / "meta.json", meta)
@@ -655,6 +690,50 @@ def export_site(data_dir: Path, out_dir: Path, config_dir: Path) -> dict[str, in
 # ------------------------------------------------------------------ comandos
 def run_update(data_dir: Path, config_dir: Path, budget_min: float | None = None, backfill: bool = True) -> int:
     return Runner(data_dir, config_dir, budget_min, backfill).run()
+
+
+def run_reprocess(data_dir: Path, config_dir: Path, exemplos: int = 10, seed: int = 7,
+                  ofertas: BaseOfertas | None = None, salvar: bool = True) -> dict[str, Any]:
+    """Reprocessa a base inteira com a base de ofertas atual (idempotente) e imprime o relatório:
+    total publicado antes/depois, distribuição por portfólio e exemplos aleatórios."""
+    import random
+    r = Runner(data_dir, config_dir, budget_min=1, backfill=False, ofertas=ofertas)
+    venc_cfg = r.cfg.get("vencimento", {})
+    todos = list(r.store.items.values()) + list(r.store.atas.values())
+
+    def no_site(rec: dict, antigo: bool) -> bool:
+        if vencimento(rec, r.now, venc_cfg)[1]:
+            return False
+        if antigo:  # regra anterior: publicado (sticky) ou score >= 35 da taxonomia antiga
+            return bool(rec.get("publicado_em") or (rec.get("classificacao") or {}).get("score", 0) >= 35)
+        return bool(rec.get("publicado_em"))
+
+    antes = sum(1 for x in todos if no_site(x, True))
+    r.reclassify_all()
+    depois = [x for x in todos if no_site(x, False)]
+    grupos: dict[str, list[dict]] = {"logo": [], "mvs": [], "ambos": [], "transversal": []}
+    for x in depois:
+        pf = set((x.get("classificacao") or {}).get("portfolio") or [])
+        g = "ambos" if {"logo", "mvs"} <= pf else "logo" if "logo" in pf else "mvs" if "mvs" in pf else "transversal"
+        grupos[g].append(x)
+    rnd = random.Random(seed)
+    rel = {
+        "base_total": len(todos),
+        "no_site_antes": antes,
+        "no_site_depois": len(depois),
+        "casaram_oferta": sum(1 for x in todos if (x.get("classificacao") or {}).get("tls")),
+        "por_portfolio": {k: len(v) for k, v in grupos.items()},
+        "migracao": r.store.state.get("migracao_ofertas"),
+        "exemplos": {k: [{"id": x["id"], "tipo": x["tipo"], "objeto": (x.get("objeto") or "")[:220],
+                          "ofertas": [o["id"] for o in x["classificacao"]["ofertas_casadas"]],
+                          "termos": x["classificacao"]["termos"][:8], "pontuacao": x["classificacao"]["pontuacao"],
+                          "selos": [s["tipo"] for s in x["classificacao"]["selos"]]}
+                         for x in rnd.sample(v, min(exemplos, len(v)))] for k, v in grupos.items()},
+    }
+    if salvar:
+        r.store.meta["reprocessado_em"] = r.now_iso
+        r.store.save(r.store.meta.get("gerado_em") or r.now_iso)
+    return rel
 
 
 def run_reclassify(data_dir: Path, config_dir: Path) -> int:
@@ -692,13 +771,13 @@ def run_sample(config_dir: Path, days: int = 3, max_pages: int = 20, top: int = 
         print(f"falha atas: {exc}")
     r.reclassify_all()
     found = sorted(list(r.store.items.values()) + list(r.store.atas.values()),
-                   key=lambda x: -x["classificacao"]["score"])
-    print(f"\nregistros vistos: {r.counters['vistos']} | armazenáveis (score>={r.min_store}): {len(found)}")
+                   key=lambda x: -x["classificacao"]["pontuacao"])
+    print(f"\nregistros vistos: {r.counters['vistos']} | casaram oferta TLS: {len(found)}")
     for x in found[:top]:
         c = x["classificacao"]
-        print(f"\n[{c['score']:3d} {c['faixa']}] {x['tipo']} {x['id']} | {x['orgao'].get('nome')} | {x.get('estagio')}")
+        print(f"\n[{c['pontuacao']:5.1f} {'+'.join(c['portfolio'])}] {x['tipo']} {x['id']} | {x['orgao'].get('nome')} | {x.get('estagio')}")
         print(f"   objeto: {x.get('objeto', '')[:260]}")
-        print(f"   {c['justificativa'][:300]}")
+        print(f"   ofertas: {', '.join(o['id'] for o in c['ofertas_casadas'])} | termos: {', '.join(c['termos'])[:200]}")
         print(f"   links: {x['links']}")
     if out:
         write_json_atomic(out, {"items": found})

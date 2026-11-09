@@ -5,8 +5,12 @@
                                          # coleta incremental + avanço da carga histórica
   python -m radar reclassify --data-dir ../data
                                          # reaplica o classificador (após editar config/)
-  python -m radar export --data-dir ../data --out ../web/public/data
-                                         # gera os JSON públicos consumidos pelo site
+  python -m radar reprocessar --data-dir ../data
+                                         # reaplica a base de ofertas e imprime o relatório
+  python -m radar export --data-dir ../data --out ../export
+                                         # gera os JSON consumidos pelo site (contêm a classificação)
+  python -m radar publicar --dir ../export
+                                         # envia o export para o Supabase (acesso só com login)
   python -m radar sample --days 3        # coleta real limitada, imprime as melhores oportunidades
 """
 from __future__ import annotations
@@ -39,7 +43,16 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--data-dir", type=Path, required=True)
     r.add_argument("--config-dir", type=Path, default=DEFAULT_CONFIG)
 
-    e = sub.add_parser("export", help="gera os arquivos públicos do site")
+    rp = sub.add_parser("reprocessar", help="reaplica a base de ofertas e imprime o relatório")
+    rp.add_argument("--data-dir", type=Path, required=True)
+    rp.add_argument("--config-dir", type=Path, default=DEFAULT_CONFIG)
+    rp.add_argument("--exemplos", type=int, default=10)
+    rp.add_argument("--nao-salvar", action="store_true")
+
+    pb = sub.add_parser("publicar", help="envia o export para o Supabase (SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY)")
+    pb.add_argument("--dir", type=Path, required=True)
+
+    e = sub.add_parser("export", help="gera os arquivos lidos pelo site")
     e.add_argument("--data-dir", type=Path, required=True)
     e.add_argument("--out", type=Path, required=True)
     e.add_argument("--config-dir", type=Path, default=DEFAULT_CONFIG)
@@ -65,6 +78,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "reclassify":
         from .pipeline import run_reclassify
         return run_reclassify(args.data_dir, args.config_dir)
+    if args.cmd == "reprocessar":
+        import json
+        from .pipeline import run_reprocess
+        print(json.dumps(run_reprocess(args.data_dir, args.config_dir, exemplos=args.exemplos,
+                                       salvar=not args.nao_salvar), ensure_ascii=False, indent=1))
+        return 0
+    if args.cmd == "publicar":
+        from .supa import publicar_export
+        print(publicar_export(args.dir))
+        return 0
     if args.cmd == "export":
         from .pipeline import export_site
         print(export_site(args.data_dir, args.out, args.config_dir))

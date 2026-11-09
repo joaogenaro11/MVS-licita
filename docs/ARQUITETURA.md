@@ -9,7 +9,7 @@ GitHub Actions (2x/dia + manual)
        ├─ PNCP API (leitura)   ──► itens e documentos oficiais (enriquecimento)
        ├─ classificador TLS (regras configuráveis em config/)
        └─ base JSON versionada ──► branch `data`  (items.json, atas.json, state.json, meta.json)
-  └─ export ──► web/public/data (somente dados públicos, score ≥ mínimo)
+  └─ export ──► Supabase (radar_export; leitura só com login) — registros que casaram oferta TLS e não venceram
   └─ web/ (React + Vite + Tailwind) ──► GitHub Pages (estático)
 
 Navegador
@@ -69,7 +69,7 @@ O job `source-probe` do CI consulta o PNCP a cada push e registra no log os camp
 | Snapshot de propostas abertas | Toda execução | — |
 | Varredura de atas vigentes | A cada 30 dias, em fatias | Página salva, com 10 páginas de sobreposição |
 | Carga histórica de contratações (12 meses) e de contratos (90 dias) | Fatias por execução | Dia salvo; retoma de onde parou |
-| Enriquecimento (itens e documentos) | Candidatos com score ≥ 30, até 1.500 requisições por execução | Por registro |
+| Enriquecimento (itens e documentos) | Primeiro os que casaram oferta; depois os que só citam uma marca; até 1.500 requisições por execução | Por registro |
 
 Garantias:
 - Os cursores só avançam depois que um dia inteiro é processado.
@@ -82,7 +82,7 @@ Garantias:
 
 - Repositório público: os minutos do GitHub Actions são gratuitos nos runners padrão.
 - A base completa fica no branch `data`, com um registro por linha para manter os diffs pequenos.
-- O site recebe apenas registros com score ≥ 35 (configurável em `config/fontes.yml`).
+- O site recebe apenas registros que casaram ao menos uma oferta da base de ofertas (privada, no Supabase); depois de publicados, só saem ao vencer.
 - A carga histórica inicial leva algumas execuções. Para acelerar, rode o workflow manualmente com `budget_min=300`.
 
 ## Limitações conhecidas

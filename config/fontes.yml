@@ -53,14 +53,14 @@ pncp:
     usar_atualizacao: false     # true = acompanha /v1/pca/atualizacao (alto volume)
 
 # Enriquecimento (itens e documentos oficiais) — apenas para candidatos relevantes.
+# Coleta de itens/documentos: primeiro os registros que casaram oferta TLS, depois os que
+# só citam uma marca (o casamento pode estar nos itens).
 enrichment:
-  min_score: 45
   max_requests_per_run: 1500
   max_itens_por_compra: 100
 
-storage:
-  min_score_to_store: 25     # (também em portfolio_tls.yml; este valor prevalece)
-  publish_min_score: 35      # entra no site ao atingir este score; depois só sai quando VENCER
+# Publicação: entra no site quando casa ao menos uma oferta da base de ofertas TLS
+# (regras_de_match do JSON privado); depois só sai quando VENCER.
 
 # Quando um registro VENCE e sai do site (continua guardado na base histórica, branch data):
 #   contratação -> no encerramento do prazo de propostas (+ tolerância abaixo);

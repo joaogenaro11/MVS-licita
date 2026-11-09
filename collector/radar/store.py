@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 SCHEMA_VERSION = 1
+PRIVATE_FIELDS = {"classificacao"}
 
 
 class StoreError(RuntimeError):
@@ -136,11 +137,17 @@ class Store:
         if n_items < prev_items or n_atas < prev_atas:
             raise StoreError(f"base encolheria ({prev_items}->{n_items} itens, {prev_atas}->{n_atas} atas); abortando")
         write_json_atomic(self.dir / "items.json", {"schema": SCHEMA_VERSION, "generated_at": generated_at,
-                                                     "items": sorted(self.items.values(), key=lambda x: x["id"])}, lines=True)
+                                                     "items": [self._public(x) for x in sorted(self.items.values(), key=lambda x: x["id"])]}, lines=True)
         write_json_atomic(self.dir / "atas.json", {"schema": SCHEMA_VERSION, "generated_at": generated_at,
-                                                    "items": sorted(self.atas.values(), key=lambda x: x["id"])}, lines=True)
+                                                    "items": [self._public(x) for x in sorted(self.atas.values(), key=lambda x: x["id"])]}, lines=True)
         self.save_state()
         write_json_atomic(self.dir / "meta.json", self.meta)
+
+    @staticmethod
+    def _public(rec: dict) -> dict:
+        """A base fica no branch `data` de um repositório PÚBLICO: a classificação TLS deriva da
+        base de ofertas privada e é recalculada a cada execução, então nunca é gravada aqui."""
+        return {k: v for k, v in rec.items() if k not in PRIVATE_FIELDS}
 
     def save_state(self) -> None:
         write_json_atomic(self.dir / "state.json", self.state)

@@ -8,9 +8,36 @@ Regras de honestidade:
 from __future__ import annotations
 
 import re
+import unicodedata
 from datetime import date, datetime, timedelta
 from typing import Any
 from urllib.parse import urlparse
+
+STAGE_LABELS = {
+    "planejamento": "Planejamento (PCA)",
+    "preparacao": "Preparação (ETP/pesquisa de preços)",
+    "publicada": "Edital/aviso publicado",
+    "propostas_abertas": "Propostas abertas",
+    "julgamento": "Julgamento/homologação",
+    "ata_vigente": "Ata vigente",
+    "concluida": "Contratação concluída",
+    "encerrada": "Encerrada/cancelada",
+}
+
+
+def normalize_text(text: str | None) -> str:
+    """Minúsculas, sem acento, só [a-z0-9-/.] e espaços simples (regex de adesão e afins)."""
+    out: list[str] = []
+    for ch in unicodedata.normalize("NFKD", text or ""):
+        if unicodedata.combining(ch):
+            continue
+        ch = ch.lower()
+        if not (ch.isalnum() or ch in "-/."):
+            ch = " "
+        if ch == " " and (not out or out[-1] == " "):
+            continue
+        out.append(ch)
+    return "".join(out).strip()
 
 PNCP_APP = "https://pncp.gov.br/app"
 
@@ -257,11 +284,10 @@ def vigencia_status(inicio: str | None, fim: str | None, cancelado: bool, today:
 def adesao_assessment(ata: dict, texts: list[str], contratos_adesao: int = 0) -> tuple[str, list[str]]:
     """Avalia a POSSIBILIDADE de adesão apenas com evidência pública disponível.
     Nunca afirma elegibilidade jurídica nem saldo."""
-    from .classifier import normalize
     motivos: list[str] = []
     if ata.get("vigencia_status") in ("encerrada", "cancelada"):
         return "encerrada", ["Ata encerrada, vencida ou cancelada segundo o PNCP."]
-    text = normalize(" ".join(t for t in texts if t))
+    text = normalize_text(" ".join(t for t in texts if t))
     neg = any(re.search(p, text) for p in ADESAO_NEG)
     pos = any(re.search(p, text) for p in ADESAO_POS)
     flag = ata.get("possibilidade_adesao_pncp")

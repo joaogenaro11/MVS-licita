@@ -10,3 +10,7 @@ web/public/data/
 *.local
 .DS_Store
 config/portfolio_private.yml
+# base de ofertas TLS: PRIVADA (fica no Supabase)
+config/ofertas_tls_radar.json
+ofertas_tls_radar.json
+ofertas_tls_mvs_consolidado.md

@@ -96,7 +96,8 @@ def test_pipeline_coleta_classifica_e_deduplica(tmp_path):
     ids = [i["id"] for i in items]
     assert ids == ["00394460000141-1-000123/2026"]           # só o relevante; sem duplicar (2 feeds)
     it = items[0]
-    assert it["classificacao"]["score"] >= 80
+    assert "classificacao" not in it                         # branch público: classificação nunca é gravada
+    assert it["publicado_em"]
     assert it["documentos"][0]["url"].startswith("https://pncp.gov.br/")
     assert it["itens"][0]["descricao"].startswith("Serviço de suporte")
     assert it["links"]["origem_portal"] == "Compras.gov.br"
@@ -168,6 +169,9 @@ def test_export_site_publica_somente_relevantes(tmp_path):
     assert n["oportunidades"] == 1
     pub = json.loads((out / "opportunities.json").read_text())
     assert "itens_texto" not in pub["items"][0]
+    c = pub["items"][0]["classificacao"]
+    assert c["tls"] and c["portfolio"] == ["mvs"] and c["ofertas_casadas"][0]["id"] == "sint_suporte_cisco"
+    assert "Cisco" in c["termos"] and c["pontuacao"] >= 3 and "sinais" not in c
     meta = json.loads((out / "meta.json").read_text())
     assert meta["lookups"]["estagios"]["propostas_abertas"] == "Propostas abertas"
 
@@ -187,11 +191,11 @@ def test_item_publicado_so_sai_do_site_quando_vence(tmp_path):
     make_runner(tmp_path, FakeClient(compras=[TI_COMPRA])).run()
     out = tmp_path / "site"
     assert export_site(tmp_path, out, CONFIG)["oportunidades"] == 1
-    # reclassificação derruba o score abaixo do mínimo: continua no site (ainda não venceu)
+    # reclassificação deixa de casar oferta (texto mudou na fonte): continua no site (ainda não venceu)
     s = Store(tmp_path).load()
     it = s.items["00394460000141-1-000123/2026"]
     assert it["publicado_em"]
-    it["classificacao"]["score"] = 5
+    it["objeto"], it["itens"] = "Aquisição de mobiliário", []
     s.save("t")
     assert export_site(tmp_path, out, CONFIG)["oportunidades"] == 1
     pub = json.loads((out / "opportunities.json").read_text())["items"][0]
@@ -204,3 +208,31 @@ def test_item_publicado_so_sai_do_site_quando_vence(tmp_path):
     assert n["oportunidades"] == 0
     assert "00394460000141-1-000123/2026" in Store(tmp_path).load().items
     assert json.loads((out / "meta.json").read_text())["publicado"]["vencidos_fora_do_site"] == 1
+
+
+def test_troca_de_classificador_redecide_publicacao_uma_vez(tmp_path):
+    """Migração para a base de ofertas JSON: o que foi publicado pela taxonomia antiga e não casa
+    nenhuma oferta sai; o que casa fica. Depois disso volta a valer "só sai quando vencer"."""
+    s = Store(tmp_path)
+    base = {"tipo": "contratacao", "estagio": "propostas_abertas", "orgao": {}, "unidade": {}, "links": {},
+            "publicado_em": "2026-11-01T00:00:00", "data_encerramento_proposta": "2099-01-01T00:00"}
+    s.upsert(s.items, {**base, "id": "casa", "objeto": "Suporte técnico Cisco Catalyst"}, "t")
+    s.upsert(s.items, {**base, "id": "nao-casa", "objeto": "Aquisição de cadeiras", "classificacao": {"score": 90}}, "t")
+    s.save("t")
+    r = make_runner(tmp_path, FakeClient())
+    r.reclassify_all()
+    assert r.store.items["casa"]["publicado_em"] and not r.store.items["nao-casa"]["publicado_em"]
+    assert r.store.state["migracao_ofertas"]["retirados"] == 1
+    # 2ª vez não mexe mais (idempotente; sticky volta a valer)
+    r.store.items["casa"]["objeto"] = "Aquisição de cadeiras"
+    r.reclassify_all()
+    assert r.store.items["casa"]["publicado_em"]
+
+
+def test_sem_base_de_ofertas_a_coleta_para_com_mensagem_clara(tmp_path, monkeypatch):
+    from radar.ofertas import OfertasError
+    monkeypatch.setenv("RADAR_OFERTAS_FILE", "")
+    monkeypatch.setattr("radar.ofertas.LOCAL_FILE", tmp_path / "nao-existe.json")
+    monkeypatch.delenv("SUPABASE_URL", raising=False)
+    with pytest.raises(OfertasError, match="não configurada"):
+        Runner(tmp_path, CONFIG, budget_min=1, backfill=False)
