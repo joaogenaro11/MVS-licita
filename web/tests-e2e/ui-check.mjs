@@ -225,14 +225,21 @@ await safe('Filtros avançados (UF, pontuação, valor, prazo, foco DF/federal)'
   check('Limpar filtros restaura a listagem', (await countText(page)) === total)
 })
 await safe('Atalho R$ 10 mil: cards com valor ≥ 10 mil (ou sem valor) e painel por família acompanha', async () => {
-  await page.locator('select[aria-label="Valor mínimo (atalhos)"]').first().selectOption('10000')
-  await page.waitForTimeout(250)
-  const n10 = await countText(page)
-  const valores = await page.locator('main ul > li').evaluateAll((els) => els.map((e) => {
+  const lerValores = () => page.locator('main ul > li').evaluateAll((els) => els.map((e) => {
     const m = e.innerText.match(/Valor (?:estimado|homologado): (R\$\s?[\d.,]+|não informado)/)
     return m ? m[1] : ''
   }))
-  const ok = valores.every((v) => v === 'não informado' || Number(v.replace(/[^\d,]/g, '').replace(',', '.')) >= 10000)
+  const num = (v) => Number(v.replace(/[^\d,]/g, '').replace(',', '.'))
+  // Esperado vem dos próprios dados exibidos: o atalho tira exatamente os cards com valor < 10 mil.
+  // (a lista pagina de 50 em 50: a conta exata só vale quando todos os cards estão na tela)
+  const antes = await lerValores()
+  const abaixo = antes.filter((v) => v && v !== 'não informado' && num(v) < 10000).length
+  const todosVisiveis = antes.length === total
+  await page.locator('select[aria-label="Valor mínimo (atalhos)"]').first().selectOption('10000')
+  await page.waitForTimeout(250)
+  const n10 = await countText(page)
+  const valores = await lerValores()
+  const ok = valores.every((v) => v === 'não informado' || num(v) >= 10000)
   await page.locator('nav[aria-label="Navegação principal"] button', { hasText: 'Dashboard' }).click()
   await page.waitForSelector('section[aria-label="Oportunidades por família"]')
   const nota = await page.locator('section[aria-label="Oportunidades por família"]').innerText()
@@ -242,7 +249,7 @@ await safe('Atalho R$ 10 mil: cards com valor ≥ 10 mil (ou sem valor) e painel
   await page.waitForSelector('text=/resultado\\(s\\) na base coletada/')
   const lista = await countText(page)
   check('Atalho R$ 10 mil: cards com valor ≥ 10 mil (ou sem valor) e painel por família acompanha',
-    ok && n10 < total && lista === qtd && /valor mínimo/.test(nota), `${n10} de ${total}; família: painel ${qtd} = lista ${lista}`)
+    ok && (todosVisiveis ? n10 === total - abaixo : (abaixo ? n10 < total : n10 <= total)) && lista === qtd && /valor mínimo/.test(nota), `${n10} de ${total} (${abaixo} abaixo de 10 mil); família: painel ${qtd} = lista ${lista}`)
   await page.locator('select[aria-label="Valor mínimo (atalhos)"]').first().selectOption('')
   await page.click('text=limpar filtros')
   await page.waitForTimeout(200)
