@@ -259,7 +259,20 @@ class Runner:
         """Fatia máxima do orçamento por fonte, para que uma fonte volumosa não deixe as
         demais sem tempo (o que não couber continua na próxima execução)."""
         share = float((self.cfg.get("time_shares") or {}).get(name, 1.0))
-        return time.monotonic() + max(300.0, share * self.budget_s)
+        limite = time.monotonic() + max(300.0, share * self.budget_s)
+        fatia = getattr(self, "_fatia_carga", {}).get(name)
+        return min(limite, fatia) if fatia else limite
+
+    BULK_FEEDS = ("atas_varredura", "backfill_contratacoes", "backfill_contratos")
+
+    def fatias_cargas_longas(self, restante_s: float) -> dict[str, float]:
+        """Divide o tempo que sobra para as cargas longas entre elas, na proporção de
+        time_shares. Antes, cada uma podia usar até sua fatia do orçamento TOTAL; como a
+        varredura de atas roda primeiro, as cargas históricas nunca recebiam tempo (0%)."""
+        shares = self.cfg.get("time_shares") or {}
+        pesos = {n: float(shares.get(n, 0.1)) for n in self.BULK_FEEDS}
+        total = sum(pesos.values()) or 1.0
+        return {n: max(0.0, restante_s) * w / total for n, w in pesos.items()}
 
     def _daily_cursor_feed(self, name: str, fetch, ingest, lookback_default: int = 1, max_lookback: int = 30) -> None:
         """Janelas diárias de atualização a partir do cursor (com 1 dia de sobreposição)."""
@@ -590,14 +603,25 @@ class Runner:
         # incrementais primeiro (baratos e essenciais); snapshot semanal de propostas e PCA depois
         steps = [self.feed_contratacoes_atualizacao, self.feed_atas_atualizacao, self.feed_contratos_atualizacao,
                  self.feed_propostas_abertas, self.feed_pca]
-        if self.backfill:
-            steps += [self.feed_atas_varredura, self.feed_backfill_contratacoes, self.feed_backfill_contratos]
         for step in steps:
             if self.time_left() < 120:
                 log.warning("orçamento de tempo esgotado antes de %s", step.__name__)
                 status = "parcial"
                 break
             step()
+        if self.backfill and self.time_left() >= 120:
+            # cargas longas: o tempo que sobra é repartido entre elas (todas avançam)
+            fatias = self.fatias_cargas_longas(self.time_left_for_bulk())
+            inicio = time.monotonic()
+            acumulado = 0.0
+            self._fatia_carga = {}
+            for nome, step in (("atas_varredura", self.feed_atas_varredura),
+                               ("backfill_contratacoes", self.feed_backfill_contratacoes),
+                               ("backfill_contratos", self.feed_backfill_contratos)):
+                acumulado += fatias[nome]
+                self._fatia_carga[nome] = inicio + acumulado   # sobra de uma passa para a próxima
+                step()
+            self._fatia_carga = {}
         self.reclassify_all()
         self.enrich()
         self.reclassify_all()

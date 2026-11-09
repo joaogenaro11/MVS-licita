@@ -236,3 +236,14 @@ def test_sem_base_de_ofertas_a_coleta_para_com_mensagem_clara(tmp_path, monkeypa
     monkeypatch.delenv("SUPABASE_URL", raising=False)
     with pytest.raises(OfertasError, match="não configurada"):
         Runner(tmp_path, CONFIG, budget_min=1, backfill=False)
+
+
+def test_cargas_longas_dividem_o_tempo_restante(tmp_path):
+    """Regressão: a varredura de atas rodava primeiro e usava todo o tempo; as cargas
+    históricas ficavam em 0% para sempre. O tempo restante agora é repartido."""
+    r = make_runner(tmp_path, FakeClient())
+    f = r.fatias_cargas_longas(3000)
+    assert set(f) == {"atas_varredura", "backfill_contratacoes", "backfill_contratos"}
+    assert abs(sum(f.values()) - 3000) < 1e-6
+    assert f["backfill_contratacoes"] > 0 and f["backfill_contratos"] > 0
+    assert r.fatias_cargas_longas(-5)["atas_varredura"] == 0
