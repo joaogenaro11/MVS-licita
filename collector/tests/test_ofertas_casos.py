@@ -90,3 +90,28 @@ def test_caso_familia(texto, familia, portfolio, faixa):
 def test_caso_nada(texto):
     r = BASE.classificar([texto])
     assert not r["tls"], (r["familias"], [o["id"] for o in r["ofertas_casadas"]])
+
+
+
+# rev. d: excluir avaliado no registro inteiro do PCA (ficha técnica + classe/descrição)
+from radar.pipeline import classificar_registro  # noqa: E402
+
+CASOS_REGISTRO = [
+    ({"tipo": "pca", "objeto": "QUANTIDADE PORTAS: 8, TIPO: NÃO GERENCIÁVEL",
+      "info_complementar": "SWITCH | Material | EQUIPAMENTOS DE REDE DE TIC - LOCAL E REMOTA | Aquisição de switch"}, None),
+    ({"tipo": "pca", "objeto": "TIPO: SERVER SWITCH, 2 CONSOLES",
+      "info_complementar": "CHAVEADORA | Material | EQUIPAMENTOS DE REDE DE TIC | Aquisição de Switch chaveador KVM"}, None),
+    ({"tipo": "pca", "objeto": "QUANTIDADE PORTAS: 48, TIPO PORTAS: 1000 BASE T, SLOTS SFP+",
+      "info_complementar": "SWITCH | Material | EQUIPAMENTOS DE REDE DE TIC | Aquisição de switches de rede"}, "networking"),
+    ({"tipo": "contratacao", "objeto": "Aquisição de equipamentos de informática",
+      "itens": [{"descricao": "Notebook"}, {"descricao": "Switch gerenciável 48 portas com garantia"}]}, "networking"),
+]
+
+
+@pytest.mark.parametrize("rec,familia", CASOS_REGISTRO, ids=["pca_nao_gerenciavel", "pca_kvm", "pca_switch_48", "contratacao_lotes_mistos"])
+def test_caso_registro(rec, familia):
+    r = classificar_registro(BASE, rec)
+    if familia is None:
+        assert not r["tls"], (r["familias"], [o["id"] for o in r["ofertas_casadas"]])
+    else:
+        assert r["tls"] and r["familia_principal"] == familia, (r["familias"], [o["id"] for o in r["ofertas_casadas"]])

@@ -177,3 +177,34 @@ def test_oferta_com_familia_inexistente_falha(tmp_path):
     d["ofertas"][0]["familia"] = "nao_existe"
     with pytest.raises(OfertasError, match="família inexistente"):
         BaseOfertas.from_dict(d)
+
+
+
+# ------------------------------------------------------- rev. d: excluir por registro no PCA
+from radar.pipeline import classificar_registro  # noqa: E402
+
+
+def _pca(objeto, info):
+    return {"tipo": "pca", "objeto": objeto, "info_complementar": info}
+
+
+def test_pca_avalia_ficha_e_classe_juntas_para_excluir(base):
+    r = classificar_registro(base, _pca("QUANTIDADE PORTAS: 8, TIPO: NÃO GERENCIÁVEL",
+                                        "SWITCH | Material | EQUIPAMENTOS DE REDE DE TIC - LOCAL E REMOTA | Aquisição de switch"))
+    assert not r["tls"]
+    r = classificar_registro(base, _pca("TIPO: SERVER SWITCH, 2 CONSOLES",
+                                        "CHAVEADORA | Material | EQUIPAMENTOS DE REDE DE TIC | Aquisição de Switch chaveador KVM"))
+    assert not r["tls"]
+
+
+def test_pca_switch_de_rede_continua_networking(base):
+    r = classificar_registro(base, _pca("QUANTIDADE PORTAS: 48, TIPO PORTAS: 1000 BASE T, SLOTS SFP+",
+                                        "SWITCH | Material | EQUIPAMENTOS DE REDE DE TIC | Aquisição de switches de rede"))
+    assert r["tls"] and r["familia_principal"] == "networking"
+
+
+def test_contratacao_com_lotes_mistos_continua_texto_a_texto(base):
+    rec = {"tipo": "contratacao", "objeto": "Aquisição de equipamentos de informática",
+           "itens": [{"descricao": "Notebook"}, {"descricao": "Switch gerenciável 48 portas com garantia"}]}
+    r = classificar_registro(base, rec)
+    assert r["tls"] and r["familia_principal"] == "networking"

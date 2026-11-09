@@ -647,7 +647,14 @@ def _compact(item: dict) -> dict:
 
 def classificar_registro(base: BaseOfertas, item: dict) -> dict:
     """Textos analisados: objeto/descrição, informação complementar, cada item (isolado),
-    descrição do item de PCA e, para atas, o objeto/informação da contratação de origem."""
+    descrição do item de PCA e, para atas, o objeto/informação da contratação de origem.
+
+    Item de PCA é UM item só: a ficha técnica (objeto) e a classe/nome/descrição
+    (info_complementar) viram um único texto, para que um "excluir" de um lado valha para o
+    outro (ex.: "SWITCH" na classe e "TIPO: NÃO GERENCIÁVEL" na ficha). Contratação, ata e
+    contrato continuam texto a texto: edital com lotes mistos não cai por causa de um lote."""
+    if item.get("tipo") == "pca":
+        return base.classificar([" | ".join(t for t in (item.get("objeto"), item.get("info_complementar")) if t)])
     compra = item.get("compra") or {}
     textos = [item.get("objeto"), item.get("info_complementar")]
     if item.get("tipo") == "ata":

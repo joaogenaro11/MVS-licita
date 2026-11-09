@@ -161,19 +161,25 @@
    "prioridade": "alta",
    "termos_categoria": [
     "equipamentos de rede",
+    "switch",
     "switches",
     "roteadores"
    ],
    "termos_servico": [
     "manutenção",
     "aquisição",
-    "reposição de peças"
+    "reposição de peças",
+    "garantia"
    ],
    "excluir": [
     "rede elétrica",
     "notebook",
     "notebooks",
-    "servidores públicos"
+    "servidores públicos",
+    "não gerenciável",
+    "chaveador",
+    "KVM",
+    "server switch"
    ]
   },
   {
