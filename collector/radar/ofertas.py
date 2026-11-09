@@ -7,17 +7,22 @@ A base de ofertas é PRIVADA: não fica no repositório público. Ela é lida, n
   4. Supabase (tabela public.radar_ofertas, id='atual'), quando SUPABASE_URL e
      SUPABASE_SERVICE_ROLE_KEY estão definidas (execução no GitHub Actions).
 
-O JSON é a ÚNICA fonte de palavras-chave. Este módulo implementa exatamente o bloco
-`regras_de_match` do arquivo:
+O JSON é a ÚNICA fonte de palavras-chave. Este módulo implementa o bloco `regras_de_match`:
   * normalização: minúsculas, sem acento, casamento por PALAVRA INTEIRA;
   * oferta casa se (a) aparece um termo de busca.termos_exatos, ou (b) aparece uma
     busca.marcas E um busca.termos_servico da oferta no MESMO texto (objeto, item, PCA).
     Ofertas sem termos_servico próprios só casam por (a). Termo de busca.excluir no mesmo
     texto impede o casamento da oferta naquele texto;
-  * pontuação: termo exato = 3; marca + serviço = 2; x1,5 se prioridade "alta";
-    soma das ofertas casadas;
+  * caminho_familia (c): se NENHUMA oferta casou, uma família casa quando aparecem um
+    termo_categoria E um termo_servico dela no mesmo texto, sem termo de excluir;
+  * aderencia: pontos = soma(exato 3; marca+serviço 2; família 2) × 1,5 se a oferta (ou
+    família) principal tiver prioridade alta; +1 se tocar 2 ou mais famílias; × 0,5 com
+    exclusão global. Aderência 0–100 = min(100, round(pontos / 6 × 100));
+    faixas Alta ≥ 70, Média 40–69, Baixa < 40;
+  * familia_principal: família da oferta de maior peso; empate → menor 'ordem' da família;
   * exclusoes_globais: não descartam; pontuação pela metade + selo "possível falso positivo";
-  * portfólio: logo / mvs (podem coexistir) / transversal;
+  * portfólio: logo / mvs (podem coexistir) / transversal; pelo caminho de família,
+    ibm_logo → logo e as demais → mvs; marcas no texto acrescentam logo/mvs;
   * disponibilidade: oferta com disponivel_brasil = "nao" gera o selo de oferta indisponível.
 """
 from __future__ import annotations
@@ -35,13 +40,18 @@ LOCAL_FILE = ROOT / "config" / "ofertas_tls_radar.json"
 
 PESO_EXATO = 3.0
 PESO_MARCA_SERVICO = 2.0
+PESO_FAMILIA = 2.0
 MULT_ALTA = 1.5
+BONUS_MULTIFAMILIA = 1.0
 FATOR_EXCLUSAO_GLOBAL = 0.5
+PONTOS_PARA_100 = 6.0
+FAIXAS = (("alta", 70), ("media", 40), ("baixa", 0))
 
 SELO_FALSO_POSITIVO = "possível falso positivo"
 SELO_INDISPONIVEL = "oferta indisponível no Brasil: ver alternativa"
 
 PORTFOLIO_KEY = {"Logo IBM": "logo", "MVS": "mvs", "Transversal": "transversal"}
+FAMILIA_LOGO = "ibm_logo"
 
 
 class OfertasError(RuntimeError):
@@ -90,7 +100,29 @@ def _achados(termos: list[Termo], texto_norm: str) -> list[str]:
     return [t.original for t in termos if t.em(texto_norm)]
 
 
+def aderencia_de(pontos: float) -> tuple[int, str]:
+    ader = int(min(100, round(pontos / PONTOS_PARA_100 * 100)))
+    faixa = next(nome for nome, minimo in FAIXAS if ader >= minimo)
+    return ader, faixa
+
+
 # --------------------------------------------------------------------------- base
+@dataclass
+class Familia:
+    id: str
+    nome: str
+    ordem: int
+    prioridade: str
+    descricao: str
+    categorias: list[Termo]
+    servicos: list[Termo]
+    excluir: list[Termo]
+
+    @property
+    def portfolio_key(self) -> str:
+        return "logo" if self.id == FAMILIA_LOGO else "mvs"
+
+
 @dataclass
 class Oferta:
     id: str
@@ -103,6 +135,8 @@ class Oferta:
     marcas: list[Termo]
     servicos: list[Termo]
     excluir: list[Termo]
+    familia: str | None = None
+    ordem_json: int = 0
 
     @property
     def portfolio_key(self) -> str:
@@ -122,11 +156,15 @@ class BaseOfertas:
     exclusoes_globais: list[Termo]
     marcas_logo: list[Termo]
     marcas_mvs: list[Termo]
+    familias: list[Familia] = field(default_factory=list)
     fonte: str = ""
     por_id: dict[str, Oferta] = field(default_factory=dict)
+    familia_por_id: dict[str, Familia] = field(default_factory=dict)
 
     def __post_init__(self):
         self.por_id = {o.id: o for o in self.ofertas}
+        self.familias = sorted(self.familias, key=lambda f: f.ordem)
+        self.familia_por_id = {f.id: f for f in self.familias}
 
     # ------------------------------------------------------------------ carga
     @classmethod
@@ -134,6 +172,17 @@ class BaseOfertas:
         faltando = [k for k in ("ofertas", "exclusoes_globais", "marcas_logo", "marcas_mvs") if k not in d]
         if faltando:
             raise OfertasError(f"base de ofertas sem as chaves: {', '.join(faltando)}")
+        familias = []
+        for i, f in enumerate(d.get("familias") or []):
+            if not f.get("id"):
+                raise OfertasError(f"família #{i} sem id")
+            familias.append(Familia(
+                id=f["id"], nome=f.get("nome") or f["id"], ordem=int(f.get("ordem") or 99),
+                prioridade=(f.get("prioridade") or "").lower(), descricao=f.get("descricao") or "",
+                categorias=_termos(f.get("termos_categoria")), servicos=_termos(f.get("termos_servico")),
+                excluir=_termos(f.get("excluir")),
+            ))
+        fam_ids = {f.id for f in familias}
         ofertas = []
         ids = set()
         for i, o in enumerate(d["ofertas"]):
@@ -142,6 +191,8 @@ class BaseOfertas:
             ids.add(o["id"])
             if o.get("portfolio") not in PORTFOLIO_KEY:
                 raise OfertasError(f"oferta {o['id']}: portfolio inválido {o.get('portfolio')!r}")
+            if familias and o.get("familia") not in fam_ids:
+                raise OfertasError(f"oferta {o['id']}: família inexistente {o.get('familia')!r}")
             b = o.get("busca") or {}
             ofertas.append(Oferta(
                 id=o["id"],
@@ -154,6 +205,8 @@ class BaseOfertas:
                 marcas=_termos(b.get("marcas")),
                 servicos=_termos(b.get("termos_servico")),
                 excluir=_termos(b.get("excluir")),
+                familia=o.get("familia"),
+                ordem_json=i,
             ))
         return cls(
             versao=str(d.get("versao") or ""),
@@ -161,6 +214,7 @@ class BaseOfertas:
             exclusoes_globais=_termos(d.get("exclusoes_globais")),
             marcas_logo=_termos(d.get("marcas_logo")),
             marcas_mvs=_termos(d.get("marcas_mvs")),
+            familias=familias,
             fonte=fonte,
         )
 
@@ -185,10 +239,11 @@ class BaseOfertas:
         return None
 
     def resumo_publico(self) -> dict[str, Any]:
-        """Metadados mínimos para o site (nomes das ofertas para chips/filtros)."""
+        """Metadados mínimos para o site (nomes das ofertas e das famílias)."""
         return {
             "versao": self.versao,
-            "ofertas": {o.id: {"nome_pt": o.nome_pt, "portfolio": o.portfolio_key} for o in self.ofertas},
+            "ofertas": {o.id: {"nome_pt": o.nome_pt, "portfolio": o.portfolio_key, "familia": o.familia} for o in self.ofertas},
+            "familias": [{"id": f.id, "nome": f.nome, "ordem": f.ordem, "prioridade": f.prioridade} for f in self.familias],
         }
 
     def todos_termos(self) -> list[Termo]:
@@ -196,6 +251,9 @@ class BaseOfertas:
         out: dict[str, Termo] = {}
         for o in self.ofertas:
             for t in o.exatos + o.marcas:
+                out.setdefault(t.n, t)
+        for f in self.familias:
+            for t in f.categorias:
                 out.setdefault(t.n, t)
         for t in self.marcas_logo + self.marcas_mvs:
             out.setdefault(t.n, t)
@@ -216,11 +274,12 @@ class BaseOfertas:
                 vistos[t.n] = t.original
         return list(vistos.values())
 
+    def _ordem_familia(self, fid: str | None) -> int:
+        f = self.familia_por_id.get(fid or "")
+        return f.ordem if f else 99
+
     # ------------------------------------------------------------------ casamento
-    def classificar(self, textos: Iterable[str | None]) -> dict[str, Any]:
-        """Aplica as regras_de_match a um conjunto de textos (cada um avaliado isoladamente
-        para marca + serviço). Retorna o resultado pronto para gravar no registro."""
-        normais = [n for n in (norm(t) for t in textos if t) if n]
+    def _casar_ofertas(self, normais: list[str]) -> dict[str, dict[str, Any]]:
         casadas: dict[str, dict[str, Any]] = {}
         for o in self.ofertas:
             melhor = 0.0
@@ -243,25 +302,88 @@ class BaseOfertas:
                             if melhor < PESO_MARCA_SERVICO:
                                 melhor, via = PESO_MARCA_SERVICO, "marca_servico"
             if melhor:
-                pontos = melhor * (MULT_ALTA if o.prioridade == "alta" else 1.0)
+                fam = self.familia_por_id.get(o.familia or "")
                 casadas[o.id] = {
                     "id": o.id,
                     "nome_pt": o.nome_pt,
                     "portfolio": o.portfolio_key,
+                    "familia": o.familia,
+                    "familia_nome": fam.nome if fam else None,
+                    "prioridade": o.prioridade,
                     "via": via,
-                    "pontos": round(pontos, 2),
+                    "pontos": melhor,
                     "termos": list(dict.fromkeys(termos)),
                 }
+        return casadas
 
+    def _casar_familias(self, normais: list[str]) -> dict[str, dict[str, Any]]:
+        casadas: dict[str, dict[str, Any]] = {}
+        for f in self.familias:
+            if not f.categorias or not f.servicos:
+                continue
+            termos: list[str] = []
+            for tx in normais:
+                if f.excluir and _achados(f.excluir, tx):
+                    continue
+                cat = _achados(f.categorias, tx)
+                if cat:
+                    sv = _achados(f.servicos, tx)
+                    if sv:
+                        termos += cat + sv
+            if termos:
+                casadas[f.id] = {"id": f.id, "nome": f.nome, "prioridade": f.prioridade, "pontos": PESO_FAMILIA,
+                                 "termos": list(dict.fromkeys(termos))}
+        return casadas
+
+    def classificar(self, textos: Iterable[str | None]) -> dict[str, Any]:
+        """Aplica as regras_de_match a um conjunto de textos (cada um avaliado isoladamente
+        para marca + serviço e categoria + serviço). Retorna o resultado para o registro."""
+        normais = [n for n in (norm(t) for t in textos if t) if n]
         tudo = " | ".join(normais)
-        if not casadas:
+        casadas = self._casar_ofertas(normais)
+        familias_casadas = {} if casadas else self._casar_familias(normais)
+
+        if not casadas and not familias_casadas:
             # "só marca" não classifica (regras_de_match): fica só como sinal interno, usado
             # para decidir quais registros merecem a coleta de itens/documentos.
-            return {"tls": False, "ofertas_casadas": [], "pontuacao": 0, "score": 0, "portfolio": [],
-                    "termos": [], "selos": [], "sinais": self.marcas_em(tudo), "versao_ofertas": self.versao}
+            return {"tls": False, "via": None, "ofertas_casadas": [], "familias_casadas": [], "familias": [],
+                    "familia_principal": None, "pontuacao": 0, "aderencia": 0, "faixa": None, "score": 0,
+                    "portfolio": [], "termos": [], "selos": [], "sinais": self.marcas_em(tudo),
+                    "versao_ofertas": self.versao}
+
+        if casadas:
+            via = "oferta"
+            peso = lambda c: c["pontos"] * (MULT_ALTA if c["prioridade"] == "alta" else 1.0)  # noqa: E731
+            ordem = sorted(casadas.values(), key=lambda c: (-peso(c), self._ordem_familia(c["familia"]),
+                                                            self.por_id[c["id"]].ordem_json))
+            principal = ordem[0]
+            familias = list(dict.fromkeys(c["familia"] for c in ordem if c["familia"]))
+            soma = sum(c["pontos"] for c in ordem)
+            alta = principal["prioridade"] == "alta"
+            kinds = {c["portfolio"] for c in ordem}
+            termos = list(dict.fromkeys(t for c in ordem for t in c["termos"]))
+            fam_lista: list[dict[str, Any]] = []
+        else:
+            via = "familia"
+            peso = lambda f: f["pontos"] * (MULT_ALTA if f["prioridade"] == "alta" else 1.0)  # noqa: E731
+            fam_lista = sorted(familias_casadas.values(), key=lambda f: (-peso(f), self._ordem_familia(f["id"])))
+            principal = fam_lista[0]
+            familias = [f["id"] for f in fam_lista]
+            soma = sum(f["pontos"] for f in fam_lista)
+            alta = principal["prioridade"] == "alta"
+            kinds = {self.familia_por_id[f].portfolio_key for f in familias}
+            termos = list(dict.fromkeys(t for f in fam_lista for t in f["termos"]))
+            ordem = []
+
+        pontos = soma * (MULT_ALTA if alta else 1.0)
+        if len(familias) >= 2:
+            pontos += BONUS_MULTIFAMILIA
+        excl = _achados(self.exclusoes_globais, tudo)
+        if excl:
+            pontos *= FATOR_EXCLUSAO_GLOBAL
+        aderencia, faixa = aderencia_de(pontos)
 
         portfolio: list[str] = []
-        kinds = {c["portfolio"] for c in casadas.values()}
         marcas_logo = _achados(self.marcas_logo, tudo)
         marcas_mvs = _achados(self.marcas_mvs, tudo)
         if "logo" in kinds or marcas_logo:
@@ -271,26 +393,28 @@ class BaseOfertas:
         if not portfolio:
             portfolio = ["transversal"]
 
-        pontuacao = sum(c["pontos"] for c in casadas.values())
         selos: list[dict[str, str]] = []
-        excl = _achados(self.exclusoes_globais, tudo)
         if excl:
-            pontuacao *= FATOR_EXCLUSAO_GLOBAL
             selos.append({"tipo": "falso_positivo", "texto": SELO_FALSO_POSITIVO,
                           "detalhe": "Termos de exclusão global: " + ", ".join(excl)})
-        indisp = [self.por_id[i] for i in casadas if self.por_id[i].disponivel_brasil == "nao"]
+        indisp = [self.por_id[c["id"]] for c in ordem if self.por_id[c["id"]].disponivel_brasil == "nao"]
         if indisp:
             selos.append({"tipo": "indisponivel_brasil", "texto": SELO_INDISPONIVEL,
                           "detalhe": " · ".join(f"{o.nome_pt}: {o.alternativa}" for o in indisp)})
 
-        ordem = sorted(casadas.values(), key=lambda c: (-c["pontos"], c["nome_pt"]))
-        termos = list(dict.fromkeys(t for c in ordem for t in c["termos"]))
+        fam_principal = familias[0] if familias else None
         return {
             "tls": True,
-            "ofertas_casadas": ordem,
+            "via": via,
+            "ofertas_casadas": [{k: v for k, v in c.items() if k != "prioridade"} for c in ordem],
             "ofertas": [c["nome_pt"] for c in ordem],
-            "pontuacao": round(pontuacao, 2),
-            "score": round(pontuacao, 2),
+            "familias_casadas": [{k: v for k, v in f.items() if k != "prioridade"} for f in fam_lista],
+            "familias": familias,
+            "familia_principal": fam_principal,
+            "pontuacao": round(pontos, 2),
+            "aderencia": aderencia,
+            "faixa": faixa,
+            "score": aderencia,
             "portfolio": portfolio,
             "termos": termos,
             "marcas_portfolio": {"logo": marcas_logo, "mvs": marcas_mvs},
