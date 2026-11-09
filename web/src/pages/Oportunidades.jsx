@@ -1,15 +1,14 @@
 import { useMemo, useState } from 'react'
-import { Badge, Casou, Empty, FAIXA_OPTS, FamiliaChips, Field, Highlight, inputCls, PortalLinks, PortfolioBadge, PortfolioSwitch, ScoreBadge, SEARCH_HINT, Select, Selos, Star, TIPO, ValorMinimo } from '../components/ui.jsx'
+import { Badge, Casou, Empty, FamiliaChips, Field, Highlight, inputCls, PortalLinks, PortfolioBadge, PortfolioSwitch, ScoreBadge, SCORE_MIN_OPTS, SEARCH_HINT, SEARCH_PLACEHOLDER, Select, Selos, Star, TIPO, ValorMinimo } from '../components/ui.jsx'
 import { daysUntil, fmtDate, money, relDays, UFS } from '../lib/format.js'
 import { bySearchThen, filterItems, matchesPriority, portfolioCounts, SORTS, uniqueSorted, valorCard } from '../lib/filters.js'
 
 export const EMPTY_FILTERS = {
   q: '', portfolio: 'tudo', orgao: '', uf: '', municipio: '', modalidade: '', estagio: '', oferta: '', selo: '', vmin: '', vmax: '',
-  pubDe: '', pubAte: '', prazoAte: '', faixa: '', familia: '', tipo: '', foco: '', prioritarios: false, favoritos: false, ocultarSemValor: false,
+  pubDe: '', pubAte: '', prazoAte: '', scoreMin: '', familia: '', tipo: '', foco: '', prioritarios: false, favoritos: false, ocultarSemValor: false,
 }
 export const familiaOpts = (meta) => (meta.lookups?.familias || []).map((f) => ({ value: f.id, label: f.nome }))
-export const SELO_OPTS = [
-  { value: 'falso_positivo', label: 'Possível falso positivo' }, { value: 'indisponivel_brasil', label: 'Oferta indisponível no Brasil' }]
+export const SELO_OPTS = [{ value: 'falso_positivo', label: 'Possível falso positivo' }]
 
 const PAGE = 50
 
@@ -38,48 +37,46 @@ export default function Oportunidades({ data, filters, setFilters, sort = 'score
     <div className="flex flex-col gap-4">
       <PortfolioSwitch value={filters.portfolio} onChange={set('portfolio')} counts={counts} />
       <div className="bg-white p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-start">
-          <div className="flex flex-1 flex-col gap-1">
-            <Field label="Palavra-chave (objeto, itens, órgão, oferta, nº PNCP)">
-              <input value={filters.q} onChange={(e) => set('q')(e.target.value)} placeholder='ex.: Cisco, Red Hat, "suporte técnico"'
-                className={`${inputCls} h-10 text-[14px]`} type="search" aria-describedby="dica-busca" />
-            </Field>
-            <p id="dica-busca" className="text-[11px] text-muted">{SEARCH_HINT}</p>
-            <BuscasSalvas filters={filters} setFilters={setFilters} ctx={ctx} />
-          </div>
+        <div className="flex flex-col gap-3 md:flex-row md:items-end">
+          <Field className="flex-1" label={<>Palavra-chave (objeto, itens, órgão, oferta, nº PNCP)
+            <span className="ml-1 inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full bg-field text-[10px] text-ink-2 ring-1 ring-line"
+              title={SEARCH_HINT} aria-label={SEARCH_HINT}>?</span></>}>
+            <input value={filters.q} onChange={(e) => set('q')(e.target.value)} placeholder={SEARCH_PLACEHOLDER} title={SEARCH_HINT}
+              className={`${inputCls} h-10 text-[14px]`} type="search" />
+          </Field>
           <Field label="Estágio" className="md:w-56">
             <Select value={filters.estagio} onChange={set('estagio')} options={Object.entries(L.estagios || {}).map(([value, label]) => ({ value, label }))} />
           </Field>
           <Field label="Família" className="md:w-56">
             <Select value={filters.familia} onChange={set('familia')} options={familiaOpts(meta)} />
           </Field>
-          <Field label="Aderência" className="md:w-40">
-            <Select value={filters.faixa} onChange={set('faixa')} placeholder="Todas" options={FAIXA_OPTS} />
-          </Field>
-          <Field as="div" label="Valor mínimo (R$)" className="md:w-56">
-            <ValorMinimo value={filters.vmin} onChange={set('vmin')} ocultar={filters.ocultarSemValor} onOcultar={set('ocultarSemValor')} />
-          </Field>
-          <button type="button" onClick={() => setMore(!more)} className="h-10 self-end px-3 text-[13px] text-brand hover:bg-brand-soft md:self-auto md:mt-4">
+          <button type="button" onClick={() => setMore(!more)} className="h-10 px-3 text-[13px] text-brand hover:bg-brand-soft">
             {more ? 'Menos filtros' : 'Mais filtros'}{active ? ` (${active})` : ''}
           </button>
         </div>
         {more && (
           <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
+            <Field label="Aderência mínima"><Select value={filters.scoreMin} onChange={set('scoreMin')} placeholder="Qualquer" options={SCORE_MIN_OPTS} /></Field>
+            <Field as="div" label="Valor mínimo (R$)"><ValorMinimo value={filters.vmin} onChange={set('vmin')} ocultar={filters.ocultarSemValor} onOcultar={set('ocultarSemValor')} /></Field>
+            <Field label="Valor máximo (R$)"><input type="number" min="0" value={filters.vmax} onChange={(e) => set('vmax')(e.target.value)} className={inputCls} /></Field>
             <Field label="Órgão / unidade"><input value={filters.orgao} onChange={(e) => set('orgao')(e.target.value)} className={inputCls} /></Field>
             <Field label="UF"><Select value={filters.uf} onChange={set('uf')} options={UFS} /></Field>
             <Field label="Município"><input value={filters.municipio} onChange={(e) => set('municipio')(e.target.value)} className={inputCls} /></Field>
             <Field label="Modalidade"><Select value={filters.modalidade} onChange={set('modalidade')} options={opts.modalidades} /></Field>
-            <Field label="Selo"><Select value={filters.selo} onChange={set('selo')} options={SELO_OPTS} /></Field>
+            <Field label="Oferta TLS"><Select value={filters.oferta} onChange={set('oferta')} options={opts.ofertas} /></Field>
             <Field label="Tipo de registro"><Select value={filters.tipo} onChange={set('tipo')} options={[
               { value: 'contratacao', label: 'Contratação (edital/aviso)' }, { value: 'pca', label: 'Item de PCA' }, { value: 'contrato', label: 'Contrato' }]} /></Field>
-            <Field label="Valor máximo (R$)"><input type="number" min="0" value={filters.vmax} onChange={(e) => set('vmax')(e.target.value)} className={inputCls} /></Field>
+            <Field label="Selo"><Select value={filters.selo} onChange={set('selo')} options={SELO_OPTS} /></Field>
             <Field label="Publicado a partir de"><input type="date" value={filters.pubDe} onChange={(e) => set('pubDe')(e.target.value)} className={inputCls} /></Field>
             <Field label="Publicado até"><input type="date" value={filters.pubAte} onChange={(e) => set('pubAte')(e.target.value)} className={inputCls} /></Field>
             <Field label="Prazo de propostas até"><input type="date" value={filters.prazoAte} onChange={(e) => set('prazoAte')(e.target.value)} className={inputCls} /></Field>
-            <Field label="Oferta TLS"><Select value={filters.oferta} onChange={set('oferta')} options={opts.ofertas} /></Field>
             <Field label="Foco"><Select value={filters.foco} onChange={set('foco')} placeholder="Nacional" options={[{ value: 'df_federal', label: 'DF + órgãos federais' }]} /></Field>
             <label className="flex items-end gap-2 pb-2 text-[13px]"><input type="checkbox" checked={filters.prioritarios} onChange={(e) => set('prioritarios')(e.target.checked)} /> Órgãos prioritários</label>
             <label className="flex items-end gap-2 pb-2 text-[13px]"><input type="checkbox" checked={filters.favoritos} onChange={(e) => set('favoritos')(e.target.checked)} /> Somente favoritos</label>
+            <div className="col-span-2 flex flex-col gap-1 md:col-span-4 lg:col-span-6">
+              <span className="text-[11px] text-ink-2">Buscas salvas</span>
+              <BuscasSalvas filters={filters} setFilters={setFilters} ctx={ctx} />
+            </div>
           </div>
         )}
       </div>
@@ -178,6 +175,7 @@ function BuscasSalvas({ filters, setFilters, ctx }) {
   if (!ctx.prefs) return null
   return (
     <div className="flex flex-wrap items-center gap-1.5 text-[12px]">
+      {!salvas.length && !filters.q?.trim() ? <span className="text-muted">Nenhuma. Digite uma palavra-chave para salvar a busca.</span> : null}
       {filters.q?.trim() ? <button type="button" onClick={salvar} className="text-brand hover:underline">Salvar esta busca</button> : null}
       {salvas.map((b) => (
         <span key={b.nome} className="inline-flex items-center bg-field ring-1 ring-line">

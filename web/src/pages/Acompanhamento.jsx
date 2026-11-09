@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Badge, Empty, inputCls, TIPO } from '../components/ui.jsx'
+import { Badge, Empty, FAIXA, inputCls, TIPO } from '../components/ui.jsx'
 import { fmtDate } from '../lib/format.js'
 import { configToText, parseConfigText } from '../lib/private.js'
 
@@ -39,7 +39,10 @@ export default function Acompanhamento({ data, ctx, onOpen }) {
                       {t.proximo_acompanhamento ? ` · Próximo acompanhamento: ${fmtDate(t.proximo_acompanhamento)}` : ''}</div>
                     {t.observacao ? <p className="mt-1 text-[12px] text-ink-2">{t.observacao}</p> : null}
                   </div>
-                  <span className="num text-[18px] font-semibold text-ink-2" title="Pontuação TLS">{r.classificacao?.pontuacao}</span>
+                  {r.classificacao?.score != null ? (
+                    <span className="num text-[18px] font-semibold" style={{ color: (FAIXA[r.classificacao.faixa] || FAIXA.baixa).bar }}
+                      title={`Aderência TLS ${r.classificacao.score}/100 — ${(FAIXA[r.classificacao.faixa] || FAIXA.baixa).label}`}>{r.classificacao.score}</span>
+                  ) : null}
                 </li>
               )
             })}

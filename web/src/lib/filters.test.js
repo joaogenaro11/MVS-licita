@@ -4,18 +4,18 @@ import { aggregateValue, bySearchThen, passaValor, valorCard, filterAtas, filter
 
 const mk = (o) => indexRecord({
   tipo: 'contratacao', orgao: { nome: 'ORGAO A', esfera: 'F', cnpj: '00394460000141' },
-  unidade: { uf: 'DF', municipio: 'Brasília', nome: 'UNIDADE' }, classificacao: { pontuacao: 3, ofertas: [], portfolio: ['transversal'] },
+  unidade: { uf: 'DF', municipio: 'Brasília', nome: 'UNIDADE' }, classificacao: { score: 30, faixa: 'baixa', ofertas: [], portfolio: ['transversal'] },
   ...o,
 })
 
 const items = [
   mk({ id: '1', objeto: 'Manutenção de switches Cisco', valor_estimado: 100, estagio: 'propostas_abertas',
-    classificacao: { pontuacao: 9, aderencia: 100, faixa: 'alta', ofertas: ['Suporte multivendor Cisco'], portfolio: ['mvs'], termos: ['Cisco'] },
+    classificacao: { score: 88, faixa: 'alta', ofertas: ['Suporte multivendor Cisco'], portfolio: ['mvs'], termos: ['Cisco'] },
     data_publicacao: '2026-10-01T10:00', data_encerramento_proposta: '2026-11-20T10:00' }),
   mk({ id: '2', objeto: 'Aquisição de storage', valor_estimado: null, estagio: 'publicada',
     orgao: { nome: 'MUNICIPIO X', esfera: 'M', cnpj: '1' }, unidade: { uf: 'SP', municipio: 'Campinas' } }),
   mk({ id: '3', tipo: 'pca', objeto: 'Suporte a firewall', valor_estimado: 50, estagio: 'planejamento',
-    classificacao: { pontuacao: 4.5, aderencia: 75, faixa: 'alta', ofertas: [], portfolio: ['logo', 'mvs'] } }),
+    classificacao: { score: 62, faixa: 'analisar', ofertas: [], portfolio: ['logo', 'mvs'] } }),
   mk({ id: '3', tipo: 'pca', objeto: 'duplicado', valor_estimado: 50 }),
 ]
 
@@ -44,7 +44,7 @@ test('filtro de portfólio Tudo / Logo / MVS e contadores', () => {
 
 test('filtros combinados', () => {
   assert.deepEqual(filterItems(items, { uf: 'DF', estagio: 'propostas_abertas' }).map((r) => r.id), ['1'])
-  assert.deepEqual(filterItems(items, { oferta: 'Suporte multivendor Cisco', faixa: 'alta' }).map((r) => r.id), ['1'])
+  assert.deepEqual(filterItems(items, { oferta: 'Suporte multivendor Cisco', scoreMin: '80' }).map((r) => r.id), ['1'])
   assert.deepEqual(filterItems(items, { vmin: 60 }).map((r) => r.id), ['1', '2'])   // '2' não tem valor: continua
   assert.deepEqual(filterItems(items, { vmin: 60, ocultarSemValor: true }).map((r) => r.id), ['1'])
   assert.deepEqual(filterItems(items, { prazoAte: '2026-11-30' }).map((r) => r.id), ['1'])
@@ -69,15 +69,20 @@ test('valor agregado: PCA repetido (2026 e 2027) e edital republicado contam uma
   assert.deepEqual(v, { total: 1100, n: 3, duplicado: 600 })
 })
 
-test('filtro por faixa de aderência e por família; ordenação por aderência', () => {
+test('aderência mínima (80+/60+/40+), família e ordenação pela nota', () => {
   const rs = [
-    mk({ id: 'a', objeto: 'x', classificacao: { aderencia: 50, faixa: 'media', pontuacao: 3, familias: ['seguranca'], portfolio: ['mvs'] } }),
-    mk({ id: 'b', objeto: 'y', classificacao: { aderencia: 100, faixa: 'alta', pontuacao: 10, familias: ['networking', 'seguranca'], portfolio: ['mvs'] } }),
-    mk({ id: 'c', objeto: 'z', classificacao: { aderencia: 33, faixa: 'baixa', pontuacao: 2, familias: ['ibm_logo'], portfolio: ['logo'] } }),
+    mk({ id: 'a', objeto: 'x', classificacao: { score: 58, faixa: 'indireto', familias: ['seguranca'], portfolio: ['mvs'] } }),
+    mk({ id: 'b', objeto: 'y', classificacao: { score: 91, faixa: 'alta', familias: ['networking', 'seguranca'], portfolio: ['mvs'] } }),
+    mk({ id: 'c', objeto: 'z', classificacao: { score: 38, faixa: 'baixa', familias: ['ibm_logo'], portfolio: ['logo'] } }),
+    mk({ id: 'd', objeto: 'w', classificacao: { score: 60, faixa: 'analisar', familias: ['networking'], portfolio: ['mvs'] } }),
+    mk({ id: 'e', objeto: 'v', classificacao: { tls: false, score: null, faixa: null, portfolio: [] } }),
   ]
-  assert.deepEqual(filterItems(rs, { faixa: 'alta' }).map((r) => r.id), ['b'])
+  assert.deepEqual(filterItems(rs, { scoreMin: '80' }).map((r) => r.id), ['b'])
+  assert.deepEqual(filterItems(rs, { scoreMin: '60' }).map((r) => r.id), ['b', 'd'])
+  assert.deepEqual(filterItems(rs, { scoreMin: '40' }).map((r) => r.id), ['a', 'b', 'd'])   // sem nota não entra
   assert.deepEqual(filterItems(rs, { familia: 'seguranca' }).map((r) => r.id), ['a', 'b'])
-  assert.deepEqual([...rs].sort(SORTS.score).map((r) => r.id), ['b', 'a', 'c'])
+  assert.deepEqual([...rs].sort(SORTS.score).map((r) => r.id), ['b', 'd', 'a', 'c', 'e'])
+  assert.deepEqual(filterAtas(rs.map((r) => ({ ...r, tipo: 'ata', vigencia_status: 'vigente' })), { scoreMin: '60' }).map((r) => r.id), ['b', 'd'])
 })
 
 test('órgãos prioritários por nome ou CNPJ', () => {

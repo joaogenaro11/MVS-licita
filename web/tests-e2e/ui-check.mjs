@@ -41,7 +41,7 @@ await page.goto(BASE, { waitUntil: 'networkidle' })
 // 1. Dashboard
 await safe('Dashboard carrega com KPIs e data da última coleta', async () => {
   await page.waitForSelector('text=Radar de Demanda Pública', { timeout: 15000 })
-  const kpis = ['Oportunidades encontradas', 'Propostas abertas', 'Demandas em planejamento (PCA)', 'Logo IBM / MVS',
+  const kpis = ['Oportunidades encontradas', 'Propostas abertas', 'Demandas em planejamento (PCA)', 'Alta aderência (80+)',
     'Atas vigentes relevantes', 'Atas com potencial de adesão a avaliar', 'Valor estimado agregado']
   const missing = []
   for (const k of kpis) if (!(await page.locator(`text=${k}`).count())) missing.push(k)
@@ -85,6 +85,20 @@ await safe('Aba "Análise de Compras" visível, com "Em breve" e não clicável'
   await item.click({ force: true })
   check('Aba "Análise de Compras" visível, com "Em breve" e não clicável', visible && badge > 0 && page.url() === before)
 })
+await safe('Dashboard: destaques só com nota 60+ e KPI "Alta aderência (80+)" abre a lista filtrada', async () => {
+  const notas = (await page.locator('main ul > li .num.text-2xl').allInnerTexts()).map(Number)
+  const kpiTxt = (await page.locator('button:has-text("Alta aderência (80+)")').first().innerText()).replace('Alta aderência (80+)', '')
+  const kpi = Number((kpiTxt.match(/[\d.]+/) || ['0'])[0].replace(/\./g, ''))
+  await page.locator('button:has-text("Alta aderência (80+)")').first().click()
+  await page.waitForSelector('text=/resultado\\(s\\) na base coletada/')
+  const n = await countText(page)
+  const cards = (await page.locator('main ul > li .num.text-2xl').allInnerTexts()).map(Number)
+  check('Dashboard: destaques só com nota 60+ e KPI "Alta aderência (80+)" abre a lista filtrada',
+    notas.every((x) => x >= 60) && n === kpi && cards.every((x) => x >= 80), `destaques ${notas.join(',')} · KPI ${kpi} = lista ${n}`)
+  await page.click('text=limpar filtros')
+  await page.locator('nav[aria-label="Navegação principal"] button', { hasText: 'Dashboard' }).click()
+  await page.waitForSelector('text=Radar de Demanda Pública')
+})
 await shot(page, '01-dashboard')
 
 // 2. Oportunidades: busca e filtros
@@ -100,34 +114,44 @@ await safe('Card limpo: aderência, família, portfólio e alertas (sem nome de 
   const txt = await card.innerText()
   const ofertaChips = await page.locator('main ul > li span.rounded-full').count()
   const termosLinha = /Termos:/.test(txt)
-  const faixa = /(Alta|Média|Baixa) aderência/.test(txt)
+  const faixa = /(Alta prioridade|Analisar|Potencial indireto|Baixa aderência)/.test(txt)
   const portfolio = /(Logo IBM \+ MVS|Logo IBM|MVS|Transversal)/.test(txt)
   const familia = await card.locator('[title="Família principal"]').count()
   check('Card limpo: aderência, família, portfólio e alertas (sem nome de oferta)',
     /Valor estimado:/.test(txt) && faixa && portfolio && familia === 1 && ofertaChips === 0 && !termosLinha,
     `faixa ${faixa}, família ${familia}, portfólio ${portfolio}, chips de oferta ${ofertaChips}`)
 })
+await safe('Sem o selo "oferta indisponível no Brasil" (card e filtro de selos)', async () => {
+  const cards = await page.locator('main').innerText()
+  await page.click('text=Mais filtros')
+  const opcoes = await page.locator('label:has-text("Selo") select option').allInnerTexts()
+  await page.click('text=Menos filtros')
+  check('Sem o selo "oferta indisponível no Brasil" (card e filtro de selos)',
+    !/indispon[ií]vel no Brasil/i.test(cards) && !opcoes.some((o) => /indispon/i.test(o)) && opcoes.some((o) => /falso positivo/i.test(o)),
+    opcoes.join(' | '))
+})
 await safe('Ordenação padrão por aderência (maior primeiro)', async () => {
   const v = (await page.locator('main ul > li .num.text-2xl').allInnerTexts()).map(Number)
   check('Ordenação padrão por aderência (maior primeiro)', v.length > 0 && v.every((x, i) => i === 0 || v[i - 1] >= x), v.slice(0, 8).join(' ≥ '))
 })
-await safe('Filtro de aderência (Alta/Média/Baixa) e por família', async () => {
-  const sel = page.locator('label:has-text("Aderência") select').first()
-  const cont = {}
-  for (const f of ['alta', 'media', 'baixa']) {
-    await sel.selectOption(f); await page.waitForTimeout(200)
-    cont[f] = await countText(page)
-    const labels = await page.locator('main ul > li .num.text-2xl + div span').allInnerTexts()
-    const nome = { alta: 'Alta', media: 'Média', baixa: 'Baixa' }[f]
-    if (labels.some((l) => !l.startsWith(nome))) cont[f + '_erro'] = true
-  }
-  await sel.selectOption('')
-  await page.waitForTimeout(200)
-  const fam = page.locator('label:has-text("Família") select').first()
-  const opcoes = await fam.locator('option').count()
-  check('Filtro de aderência (Alta/Média/Baixa) e por família',
-    cont.alta + cont.media + cont.baixa <= total && !cont.alta_erro && !cont.media_erro && !cont.baixa_erro && opcoes >= 2,
-    `alta ${cont.alta} · média ${cont.media} · baixa ${cont.baixa} · famílias ${opcoes - 1}`)
+await safe('Barra de busca: campo largo + Estágio + Família + "Mais filtros" na 1ª linha; dica no campo', async () => {
+  const busca = page.locator('input[type="search"]').first()
+  const bb = await busca.boundingBox()
+  const linha = await page.locator('main > div > div.bg-white').first().boundingBox()
+  const est = await page.locator('label:has-text("Estágio") select').first().boundingBox()
+  const fam = await page.locator('label:has-text("Família") select').first().boundingBox()
+  const mais = await page.locator('button:has-text("Mais filtros")').first().boundingBox()
+  const mesmaLinha = [est, fam, mais].every((x) => x && Math.abs((x.y + x.height) - (bb.y + bb.height)) < 6)
+  const aderVisivel = await page.locator('label:has-text("Aderência mínima")').count()
+  const valorVisivel = await page.locator('select[aria-label="Valor mínimo (atalhos)"]').count()
+  const placeholder = (await busca.getAttribute('placeholder')) || ''
+  const title = (await busca.getAttribute('title')) || ''
+  const dicaSolta = await page.locator('main p', { hasText: 'Separe termos por vírgula' }).count()
+  const fopts = await page.locator('label:has-text("Família") select option').count()
+  check('Barra de busca: campo largo + Estágio + Família + "Mais filtros" na 1ª linha; dica no campo',
+    bb.width >= linha.width * 0.4 && bb.height >= 39 && mesmaLinha && !aderVisivel && !valorVisivel &&
+      /vírgula/.test(placeholder) && /aspas/.test(title) && !dicaSolta && fopts >= 3,
+    `busca ${Math.round(bb.width)}px de ${Math.round(linha.width)}px · mesma linha ${mesmaLinha} · famílias ${fopts - 1}`)
 })
 await safe('Filtro de portfólio Tudo / Logo / MVS com contadores', async () => {
   const radios = page.locator('[role="radiogroup"][aria-label="Portfólio"] [role="radio"]')
@@ -163,7 +187,7 @@ await safe('Links oficiais: abrem em nova aba, https/http válidos, sem link gen
 })
 await safe('Busca: dica, vírgula = qualquer termo, aspas = frase exata, "casou:" no card', async () => {
   // termos tirados dos próprios dados exibidos (o teste não depende de quais licitações foram coletadas)
-  const dica = await page.locator('text=Separe termos por vírgula para buscar qualquer um deles. Use aspas para frase exata.').count()
+  const dica = /vírgula/.test((await page.locator('input[type="search"]').first().getAttribute('title')) || '') ? 1 : 0
   const objetos = await page.locator('main ul > li button.text-left').allInnerTexts()
   const palavrasDe = (t) => (t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').match(/[A-Za-z]{5,}/g) || [])
   const p1 = palavrasDe(objetos[0] || '')
@@ -200,16 +224,27 @@ await safe('Busca por palavra-chave filtra resultados', async () => {
 })
 await safe('Filtros avançados (UF, pontuação, valor, prazo, foco DF/federal)', async () => {
   await page.click('text=Mais filtros')
-  const labels = ['Órgão / unidade', 'UF', 'Município', 'Modalidade', 'Selo', 'Valor mínimo (R$)', 'Valor máximo (R$)',
-    'Publicado a partir de', 'Prazo de propostas até', 'Oferta TLS', 'Foco']
+  const labels = ['Aderência mínima', 'Órgão / unidade', 'UF', 'Município', 'Modalidade', 'Selo', 'Valor mínimo (R$)', 'Valor máximo (R$)',
+    'Publicado a partir de', 'Prazo de propostas até', 'Oferta TLS', 'Foco', 'Tipo de registro', 'Buscas salvas']
   const missing = []
   for (const l of labels) if (!(await page.locator(`label:has-text("${l}"), div:has(> span:text-is("${l}"))`).count())) missing.push(l)
   check('Filtros avançados presentes', missing.length === 0, missing.join(', '))
-  await page.locator('label:has-text("Aderência") select').first().selectOption('alta')
-  await page.waitForTimeout(200)
-  const scores = await page.locator('main ul > li .num.text-2xl').allInnerTexts()
-  const allOk = scores.every((s) => Number(s) >= 70)
-  check('Filtro de aderência alta respeitado em todos os cards (≥ 70)', allOk, `${scores.length} cards`)
+  const ader = page.locator('label:has-text("Aderência mínima") select').first()
+  const opcoes = await ader.locator('option').allInnerTexts()
+  const cont = {}
+  let todosOk = true
+  for (const v of ['80', '60', '40']) {
+    await ader.selectOption(v); await page.waitForTimeout(200)
+    cont[v] = await countText(page)
+    const notas = (await page.locator('main ul > li .num.text-2xl').allInnerTexts()).map(Number)
+    if (!notas.every((x) => x >= Number(v))) todosOk = false
+  }
+  await ader.selectOption('80'); await page.waitForTimeout(200)
+  const rotulos = await page.locator('main ul > li .num.text-2xl + div span').allInnerTexts()
+  check('Filtro "Aderência mínima" (80+/60+/40+) respeitado em todos os cards',
+    todosOk && cont['80'] <= cont['60'] && cont['60'] <= cont['40'] && cont['40'] <= total &&
+      opcoes.join('|') === 'Qualquer|80+ alta prioridade|60+ analisar|40+ potencial indireto' && rotulos.every((r) => r === 'Alta prioridade'),
+    `80+ ${cont['80']} · 60+ ${cont['60']} · 40+ ${cont['40']} de ${total}`)
   // valor mínimo digitado ("Outro valor…"): só sobram registros sem valor; "Ocultar sem valor" zera
   await page.locator('select[aria-label="Valor mínimo (atalhos)"]').first().selectOption('outro')
   await page.locator('input[aria-label="Valor mínimo (R$)"]').first().fill('999999999999')
@@ -248,6 +283,7 @@ await safe('Atalho R$ 10 mil: cards com valor ≥ 10 mil (ou sem valor) e painel
   await fam.click()
   await page.waitForSelector('text=/resultado\\(s\\) na base coletada/')
   const lista = await countText(page)
+  if (!(await page.locator('button:has-text("Menos filtros")').count())) await page.click('text=Mais filtros')
   check('Atalho R$ 10 mil: cards com valor ≥ 10 mil (ou sem valor) e painel por família acompanha',
     ok && (todosVisiveis ? n10 === total - abaixo : (abaixo ? n10 < total : n10 <= total)) && lista === qtd && /valor mínimo/.test(nota), `${n10} de ${total} (${abaixo} abaixo de 10 mil); família: painel ${qtd} = lista ${lista}`)
   await page.locator('select[aria-label="Valor mínimo (atalhos)"]').first().selectOption('')
@@ -267,7 +303,9 @@ await safe('Detalhe com "Por que apareceu": ofertas (nome) ou família e termos'
   const t = await page.locator('[role="dialog"]').innerText()
   const marks = await page.locator('[role="dialog"] section mark').count()
   const ok = /Por que apareceu/.test(t) && /(termo exato|marca \+ serviço|pela família)/.test(t) && marks > 0 &&
-    /aderência/i.test(t) && /Coletado pelo Radar em/.test(t) && /PDFs não são lidos/.test(t)
+    /aderência/i.test(t) && /Coletado pelo Radar em/.test(t) && /PDFs não são lidos/.test(t) &&
+    /Aderência técnica \/ urgência comercial\s*\d+\/100 · \d+\/100/.test(t) && /Relação com TLS/.test(t) && /Possível aderência a /.test(t) &&
+    !/indispon[ií]vel no Brasil/i.test(t)
   check('Detalhe com "Por que apareceu": ofertas (nome) ou família e termos', ok, `${marks} termos destacados`)
   const access = await page.locator('[role="dialog"] a', { hasText: /Abrir no (Portal de Compras|PNCP)/ }).count()
   check('Botão de acesso direto também na tela de detalhes', access > 0)
@@ -318,7 +356,7 @@ await safe('Radar de Atas: aviso de adesão indicativa e filtros', async () => {
   await nav(page, 'Radar de Atas')
   await page.waitForSelector('text=Radar de Atas.')
   const t = await page.locator('main').innerText()
-  const filters = ['Vigência', 'Adesão', 'Órgão gerenciador', 'Aderência', 'Família', 'Selo', 'Valor mínimo (R$)']
+  const filters = ['Vigência', 'Adesão', 'Órgão gerenciador', 'Aderência mínima', 'Família', 'Selo', 'Valor mínimo (R$)']
   const missing = filters.filter((f) => !t.includes(f))
   check('Radar de Atas: aviso de adesão indicativa e filtros', /indicativo/.test(t) && missing.length === 0, missing.join(', '))
   await page.locator('label:has-text("Vigência") select').selectOption('')

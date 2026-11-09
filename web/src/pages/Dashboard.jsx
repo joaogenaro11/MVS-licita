@@ -36,15 +36,14 @@ export default function Dashboard({ data, ctx, go, onOpen, filtroValor = {} }) {
       total: items.length,
       abertas: abertas.length,
       planejamento: items.filter((i) => i.estagio === 'planejamento').length,
-      logo: items.filter((i) => (i.classificacao?.portfolio || []).includes('logo')).length,
-      mvs: items.filter((i) => (i.classificacao?.portfolio || []).includes('mvs')).length,
+      alta: items.filter((i) => (i.classificacao?.score ?? 0) >= 80).length,
       atasVig: atasVig.length,
       adesao: atasVig.filter((a) => a.adesao_status === 'potencial_verificar').length,
       vencendo: atasVig.filter((a) => a.vigencia_status === 'vence_em_breve').length,
       valor: aggregateValue(items),
       dfFed: items.filter((i) => i.orgao?.esfera === 'F' || i.unidade?.uf === 'DF').length,
-      topAbertas: [...abertas].sort(SORTS.score).slice(0, 6),
-      topAtas: [...atasVig].sort(SORTS.score).slice(0, 4),
+      topAbertas: abertas.filter((i) => (i.classificacao?.score ?? 0) >= 60).sort(SORTS.score).slice(0, 6),
+      topAtas: atasVig.filter((a) => (a.classificacao?.score ?? 0) >= 60).sort(SORTS.score).slice(0, 4),
       porFamilia: (meta.lookups?.familias || []).map((f) => {
         const rs = items.filter((i) => (i.classificacao?.familias || []).includes(f.id) && passaValor(i, filtroValor))
         const top = Object.entries(rs.reduce((acc, i) => {
@@ -64,7 +63,7 @@ export default function Dashboard({ data, ctx, go, onOpen, filtroValor = {} }) {
         <Kpi label="Oportunidades encontradas" value={k.total.toLocaleString('pt-BR')} hint="casaram oferta ou família TLS" onClick={() => go('oportunidades', {})} />
         <Kpi label="Propostas abertas" value={k.abertas.toLocaleString('pt-BR')} accent="#0f62fe" onClick={() => go('oportunidades', { estagio: 'propostas_abertas' })} />
         <Kpi label="Demandas em planejamento (PCA)" value={k.planejamento.toLocaleString('pt-BR')} onClick={() => go('oportunidades', { estagio: 'planejamento' })} />
-        <Kpi label="Logo IBM / MVS" value={`${k.logo.toLocaleString('pt-BR')} / ${k.mvs.toLocaleString('pt-BR')}`} accent="#0f62fe" hint="Logo IBM + MVS conta nos dois" onClick={() => go('oportunidades', { portfolio: 'mvs' })} />
+        <Kpi label="Alta aderência (80+)" value={k.alta.toLocaleString('pt-BR')} accent="#198038" onClick={() => go('oportunidades', { scoreMin: '80' })} />
         <Kpi label="Atas vigentes relevantes" value={k.atasVig.toLocaleString('pt-BR')} hint={`${k.vencendo} vencem em até 90 dias`} onClick={() => go('atas', { vigencia: 'vigentes' })} />
         <Kpi label="Atas com potencial de adesão a avaliar" value={k.adesao.toLocaleString('pt-BR')} accent="#6929c4" onClick={() => go('atas', { vigencia: 'vigentes', adesao: 'potencial_verificar' })} />
         <Kpi label="Valor estimado agregado" value={moneyCompact(k.valor.total)} hint={`contratações + PCA, sem duplicidade (${k.valor.n.toLocaleString('pt-BR')} registros com valor)`} />
@@ -74,12 +73,12 @@ export default function Dashboard({ data, ctx, go, onOpen, filtroValor = {} }) {
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="flex flex-col gap-2 lg:col-span-2">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-[16px] font-semibold">Propostas abertas com maior aderência</h2>
-            <button className="text-[13px] text-brand hover:underline" onClick={() => go('oportunidades', { estagio: 'propostas_abertas' })}>ver todas</button>
+            <h2 className="text-[16px] font-semibold">Propostas abertas com aderência 60+</h2>
+            <button className="text-[13px] text-brand hover:underline" onClick={() => go('oportunidades', { estagio: 'propostas_abertas', scoreMin: '60' })}>ver todas</button>
           </div>
           {k.topAbertas.length ? (
             <ul className="flex flex-col gap-px bg-line">{k.topAbertas.map((r) => <OppCard key={r.id} r={r} L={meta.lookups || {}} ctx={ctx} onOpen={onOpen} />)}</ul>
-          ) : <p className="bg-white p-4 text-[13px] text-muted">Nenhuma proposta aberta na base atual.</p>}
+          ) : <p className="bg-white p-4 text-[13px] text-muted">Nenhuma proposta aberta com aderência 60+ na base atual.</p>}
         </section>
         <aside className="flex flex-col gap-6">
           <section className="bg-white p-4" aria-label="Atualização dos dados">
@@ -117,11 +116,11 @@ export default function Dashboard({ data, ctx, go, onOpen, filtroValor = {} }) {
 
       <section className="flex flex-col gap-2">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-[16px] font-semibold">Atas vigentes com maior aderência</h2>
-          <button className="text-[13px] text-brand hover:underline" onClick={() => go('atas', { vigencia: 'vigentes' })}>ver todas</button>
+          <h2 className="text-[16px] font-semibold">Atas vigentes com aderência 60+</h2>
+          <button className="text-[13px] text-brand hover:underline" onClick={() => go('atas', { vigencia: 'vigentes', scoreMin: '60' })}>ver todas</button>
         </div>
         {k.topAtas.length ? <ul className="flex flex-col gap-px bg-line">{k.topAtas.map((a) => <AtaCard key={a.id} a={a} ctx={ctx} onOpen={onOpen} />)}</ul>
-          : <p className="bg-white p-4 text-[13px] text-muted">Nenhuma ata vigente na base atual.</p>}
+          : <p className="bg-white p-4 text-[13px] text-muted">Nenhuma ata vigente com aderência 60+ na base atual.</p>}
       </section>
 
       <details className="bg-white p-4 text-[12px] text-ink-2">

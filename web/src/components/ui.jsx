@@ -29,7 +29,9 @@ const PORTFOLIO_CLS = {
 }
 export const SELO_CLS = {
   falso_positivo: 'bg-[#fcf4d6] text-[#8e6a00] ring-[#f1c21b]',
-  indisponivel_brasil: 'bg-[#fff1f1] text-[#a2191f] ring-[#ffb3b8]',
+}
+export const RELACAO = {
+  direta: 'Oportunidade direta', indireta: 'Oportunidade indireta (via parceiro)', a_validar: 'Relação a validar', sem: 'Sem relação',
 }
 
 export function Badge({ children, className = '', title }) {
@@ -46,25 +48,24 @@ export function PortfolioBadge({ c }) {
   return <Badge className={PORTFOLIO_CLS[label]}>{label}</Badge>
 }
 
-/** Faixas de aderência (regra `aderencia` da base de ofertas): Alta ≥ 70, Média 40–69, Baixa < 40.
- *  Mesmo visual da versão anterior: número, barra e rótulo da faixa. */
+/** Nota de aderência 0–100 e faixas — iguais à versão anterior do Radar (b524406). */
 export const FAIXA = {
-  alta: { label: 'Alta aderência', bar: '#198038' },
-  media: { label: 'Média aderência', bar: '#0f62fe' },
-  baixa: { label: 'Baixa aderência', bar: '#8d8d8d' },
+  alta: { label: 'Alta prioridade', cls: 'bg-[#defbe6] text-[#0e6027] ring-[#a7f0ba]', bar: '#198038' },
+  analisar: { label: 'Analisar', cls: 'bg-brand-soft text-brand-dark ring-[#a6c8ff]', bar: '#0f62fe' },
+  indireto: { label: 'Potencial indireto', cls: 'bg-[#fcf4d6] text-[#8e6a00] ring-[#f1c21b]', bar: '#b28600' },
+  baixa: { label: 'Baixa aderência', cls: 'bg-field text-muted ring-line', bar: '#8d8d8d' },
 }
-export const FAIXA_OPTS = [
-  { value: 'alta', label: 'Alta (70+)' }, { value: 'media', label: 'Média (40–69)' }, { value: 'baixa', label: 'Baixa (< 40)' }]
+export const SCORE_MIN_OPTS = [
+  { value: '80', label: '80+ alta prioridade' }, { value: '60', label: '60+ analisar' }, { value: '40', label: '40+ potencial indireto' }]
 
 export function ScoreBadge({ c }) {
-  if (!c || !c.faixa) return null
+  if (!c || c.score == null) return null
   const f = FAIXA[c.faixa] || FAIXA.baixa
-  const v = c.aderencia ?? 0
   return (
-    <div className="flex items-center gap-2" title={`Aderência TLS ${v}/100 — ${f.label}`}>
-      <div className="num text-2xl font-semibold leading-none" style={{ color: f.bar }}>{v}</div>
+    <div className="flex items-center gap-2" title={`Aderência TLS ${c.score}/100 — ${f.label}`}>
+      <div className="num text-2xl font-semibold leading-none" style={{ color: f.bar }}>{c.score}</div>
       <div className="flex flex-col gap-1">
-        <div className="h-1.5 w-16 bg-line"><div className="h-1.5" style={{ width: `${v}%`, background: f.bar }} /></div>
+        <div className="h-1.5 w-16 bg-line"><div className="h-1.5" style={{ width: `${c.score}%`, background: f.bar }} /></div>
         <span className="text-[11px] font-medium text-ink-2">{f.label}</span>
       </div>
     </div>
@@ -82,7 +83,8 @@ export function FamiliaChips({ c, familias }) {
 }
 
 export function Selos({ c, detalhe = false }) {
-  const selos = c?.selos || []
+  // só selos conhecidos (o de "oferta indisponível no Brasil" saiu; dados antigos ainda podem trazê-lo)
+  const selos = (c?.selos || []).filter((s) => SELO_CLS[s.tipo])
   if (!selos.length) return null
   return (
     <div className="flex flex-col gap-1">
@@ -125,6 +127,7 @@ export function PortfolioSwitch({ value, onChange, counts }) {
 }
 
 export const SEARCH_HINT = 'Separe termos por vírgula para buscar qualquer um deles. Use aspas para frase exata.'
+export const SEARCH_PLACEHOLDER = 'ex.: switch cisco · vírgula = qualquer termo · "aspas" = frase exata'
 
 export function isSafeUrl(u) {
   return typeof u === 'string' && /^https?:\/\/[^\s"<>]+\.[^\s"<>]+$/i.test(u)

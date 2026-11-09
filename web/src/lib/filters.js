@@ -120,7 +120,7 @@ export function filterItems(items, f, ctx = {}) {
     if (f.oferta && !(c.ofertas || []).includes(f.oferta)) return false
     if (f.selo && !(c.selos || []).some((x) => x.tipo === f.selo)) return false
     if (!passaValor(r, f)) return false
-    if (f.faixa && c.faixa !== f.faixa) return false
+    if (f.scoreMin && !((c.score ?? -1) >= Number(f.scoreMin))) return false
     if (f.familia && !(c.familias || []).includes(f.familia)) return false
     if (f.pubDe && !((r.data_publicacao || '') >= f.pubDe)) return false
     if (f.pubAte && !((r.data_publicacao || '').slice(0, 10) <= f.pubAte)) return false
@@ -149,7 +149,7 @@ export function filterAtas(atas, f, ctx = {}) {
     if (f.oferta && !(c.ofertas || []).includes(f.oferta)) return false
     if (f.selo && !(c.selos || []).some((x) => x.tipo === f.selo)) return false
     if (!passaValor(a, f)) return false
-    if (f.faixa && c.faixa !== f.faixa) return false
+    if (f.scoreMin && !((c.score ?? -1) >= Number(f.scoreMin))) return false
     if (f.familia && !(c.familias || []).includes(f.familia)) return false
     if (f.uf && a.unidade?.uf !== f.uf) return false
     if (f.prioritarios && !matchesPriority(a, ctx.priorityOrgs)) return false
@@ -159,9 +159,8 @@ export function filterAtas(atas, f, ctx = {}) {
 }
 
 export const SORTS = {
-  // aderência (maior primeiro); empate: pontos brutos; depois publicação mais recente
-  score: (a, b) => ((b.classificacao?.aderencia || 0) - (a.classificacao?.aderencia || 0))
-    || ((b.classificacao?.pontuacao || 0) - (a.classificacao?.pontuacao || 0))
+  // nota de aderência (maior primeiro); empate: publicação mais recente
+  score: (a, b) => ((b.classificacao?.score ?? -1) - (a.classificacao?.score ?? -1))
     || (b.data_publicacao || '').localeCompare(a.data_publicacao || ''),
   valor: (a, b) => (b.valor_estimado ?? b.compra?.valor ?? 0) - (a.valor_estimado ?? a.compra?.valor ?? 0),
   publicacao: (a, b) => (b.data_publicacao || '').localeCompare(a.data_publicacao || ''),

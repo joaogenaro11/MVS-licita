@@ -78,8 +78,10 @@ function Radar({ auth }) {
   useEffect(() => {
     if (!prefs.loaded) return
     const p = prefs.prefs
-    setFiltersState({ ...EMPTY_FILTERS, ...(p.filtros_oportunidades || {}), ...(p.portfolio ? { portfolio: p.portfolio } : {}) })
-    setAtaFiltersState({ ...EMPTY_ATA_FILTERS, ...(p.filtros_atas || {}), ...(p.portfolio ? { portfolio: p.portfolio } : {}) })
+    // só filtros que ainda existem (ex.: o antigo "Aderência Alta/Média/Baixa" virou "Aderência mínima")
+    const conhecidos = (base, salvo) => Object.fromEntries(Object.entries(salvo || {}).filter(([k]) => k in base))
+    setFiltersState({ ...EMPTY_FILTERS, ...conhecidos(EMPTY_FILTERS, p.filtros_oportunidades), ...(p.portfolio ? { portfolio: p.portfolio } : {}) })
+    setAtaFiltersState({ ...EMPTY_ATA_FILTERS, ...conhecidos(EMPTY_ATA_FILTERS, p.filtros_atas), ...(p.portfolio ? { portfolio: p.portfolio } : {}) })
     if (p.ordenacao) setSortState(p.ordenacao)
   }, [prefs.loaded]) // eslint-disable-line react-hooks/exhaustive-deps
 

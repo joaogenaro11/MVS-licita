@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { ESFERAS, fmtDate, money } from '../lib/format.js'
 import { matchesPartner, matchesPriority } from '../lib/filters.js'
 import { STATUS_COMERCIAL } from '../lib/private.js'
-import { ADESAO, Badge, dateOrNA, ExtLink, FamiliaChips, Highlight, inputCls, KV, PortalLinks, PortfolioBadge, ScoreBadge, Selos, Star, TIPO, valueOrNA, VIGENCIA } from './ui.jsx'
+import { ADESAO, Badge, dateOrNA, ExtLink, FAIXA, FamiliaChips, Highlight, inputCls, KV, PortalLinks, PortfolioBadge, RELACAO, ScoreBadge, Selos, Star, TIPO, valueOrNA, VIGENCIA } from './ui.jsx'
 
 function Section({ title, children, right }) {
   return (
@@ -66,6 +66,15 @@ export default function Detail({ r, meta, ctx, onClose }) {
         </div>
 
         <Section title="Por que apareceu" right={<ScoreBadge c={c} />}>
+          {c.justificativa ? <p className="mb-3 text-[13px]">{c.justificativa}</p> : null}
+          {c.score != null ? (
+            <div className="mb-3 grid grid-cols-1 gap-x-6 sm:grid-cols-2">
+              <KV k="Aderência técnica / urgência comercial" v={`${c.score_tecnico}/100 · ${c.score_comercial}/100`} />
+              <KV k="Faixa" v={FAIXA[c.faixa]?.label} />
+              <KV k="Relação com TLS" v={RELACAO[c.relacao]} />
+              <KV k="Tipo de serviço identificado" v={c.tipo_servico_label} />
+            </div>
+          ) : null}
           <div className="flex flex-wrap items-center gap-1.5">
             <FamiliaChips c={c} familias={ctx.familias} />
             <PortfolioBadge c={c} />
@@ -99,9 +108,10 @@ export default function Detail({ r, meta, ctx, onClose }) {
             </ul>
           ) : null}
           <p className="mt-3 text-[11px] text-muted">
-            Aderência = pontos ÷ 6 × 100 (máx. 100): termo exato 3, marca + serviço 2, família 2; ×1,5 se a oferta principal
-            for prioritária; +1 se tocar duas famílias; metade com termo de exclusão. Analisados: objeto, informação
-            complementar{r.itens?.length ? ' e itens' : ''} publicados no PNCP (PDFs não são lidos). Validação humana necessária.
+            Nota 0–100 = aderência técnica (portfólio, suporte, fabricante, evidências) + urgência comercial (valor e
+            estágio), esta reduzida quando a aderência técnica é baixa. Faixas: 80+ alta prioridade · 60+ analisar ·
+            40+ potencial indireto. Analisados: objeto, informação complementar{r.itens?.length ? ' e itens' : ''} publicados
+            no PNCP (PDFs não são lidos). Validação humana necessária.
           </p>
         </Section>
 
