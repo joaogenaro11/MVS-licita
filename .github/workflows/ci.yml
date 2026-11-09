@@ -29,7 +29,13 @@ jobs:
           cache: pip
           cache-dependency-path: collector/requirements.txt
       - run: pip install -r requirements.txt
-      - run: python -m pytest -q
+      # Regras de casamento: base sintética. Os 12 casos de aceite usam a base REAL (privada),
+      # lida do Supabase com o secret; sem o secret, eles aparecem como "skipped" (com o motivo).
+      # Só o resultado (passou/falhou) vai para o log: nada da base é impresso.
+      - run: python -m pytest -q -rs
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://wbhhfybpflqnnelwttdv.supabase.co' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
   web:
     runs-on: ubuntu-latest
@@ -48,13 +54,15 @@ jobs:
       - run: npm run build
 
   # Validação com dados REAIS do PNCP. Não bloqueia o CI (a fonte pode estar instável),
-  # mas o log documenta o contrato real da API e o desempenho do classificador.
+  # mas o log documenta o contrato real da API. Logs de repositório público são públicos:
+  # a amostra classificada usa a base SINTÉTICA de ofertas (a real nunca aparece aqui).
   source-probe:
     runs-on: ubuntu-latest
     continue-on-error: true
     timeout-minutes: 60
     env:
       PYTHONUNBUFFERED: "1"
+      RADAR_OFERTAS_FILE: ${{ github.workspace }}/collector/tests/fixtures/ofertas_sinteticas.json
     defaults:
       run:
         working-directory: collector
@@ -72,13 +80,14 @@ jobs:
         continue-on-error: true
         timeout-minutes: 25
         run: python -m radar probe --pca
-      - name: Classificação de licitações reais (amostra)
+      - name: Classificação de licitações reais (amostra, base sintética)
         continue-on-error: true
         timeout-minutes: 20
         run: python -m radar sample --days 4 --max-pages 30 --top 60
 
-  # Ponta a ponta com dados reais: update (orçamento curto) -> export -> build do site.
-  # Gera um artefato com o site pronto para inspeção. Não bloqueia o CI.
+  # Ponta a ponta com dados reais do PNCP: update (orçamento curto) -> export -> build do site.
+  # Artefatos de repositório público são públicos: usa a base SINTÉTICA de ofertas e o site é
+  # construído sem Supabase (modo local, sem login). Não bloqueia o CI.
   pipeline-e2e:
     # ubuntu-24.04: o Playwright ainda não instala o Chromium no ubuntu-latest (26.04)
     runs-on: ubuntu-24.04
@@ -86,6 +95,7 @@ jobs:
     timeout-minutes: 40
     env:
       PYTHONUNBUFFERED: "1"
+      RADAR_OFERTAS_FILE: ${{ github.workspace }}/collector/tests/fixtures/ofertas_sinteticas.json
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -98,8 +108,9 @@ jobs:
       - name: Coleta real curta (sem carga histórica)
         working-directory: collector
         run: python -m radar update --data-dir ../e2e-data --budget-min 25 --no-backfill
-      - name: Resumo
+      - name: Export (base sintética) e resumo
         run: |
+          cd collector && python -m radar export --data-dir ../e2e-data --out ../web/public/data && cd ..
           python - <<'EOF'
           import json
           m = json.load(open("e2e-data/meta.json"))
@@ -107,13 +118,11 @@ jobs:
           for k, v in m["fontes"].items():
               print(f"  {k:28s} {v.get('status'):10s} vistos={v.get('registros_vistos')} novos={v.get('novos')} erro={(v.get('erro') or '')[:150]}")
           print("base:", m["totais_base"], "| http:", m["cliente_http"])
-          items = json.load(open("e2e-data/items.json"))["items"]
-          atas = json.load(open("e2e-data/atas.json"))["items"]
-          for x in sorted(items + atas, key=lambda x: -x["classificacao"]["score"])[:25]:
+          pub = json.load(open("web/public/data/opportunities.json"))["items"] + json.load(open("web/public/data/atas.json"))["items"]
+          print("publicados (base sintética):", len(pub))
+          for x in sorted(pub, key=lambda x: -x["classificacao"]["pontuacao"])[:15]:
               c = x["classificacao"]
-              print(f"[{c['score']:3d}] {x['tipo']:11s} {x['estagio']:18s} {x['id']} | {(x['orgao'].get('nome') or '')[:40]} | {x['objeto'][:110]}")
-              print(f"      origem={x['links'].get('origem')} pncp={x['links'].get('pncp')} docs={len(x.get('documentos') or [])}")
-              print(f"      {c['justificativa'][:220]} | alertas={c.get('alertas')}")
+              print(f"[{c['pontuacao']:5.1f} {'+'.join(c['portfolio'])}] {x['tipo']:11s} {x['estagio']:18s} {x['id']} | {x['objeto'][:100]}")
           EOF
       - name: Teste dos links oficiais coletados (amostra)
         run: |
@@ -140,10 +149,9 @@ jobs:
           print(f"\n{n_ok}/{n} links responderam HTTP 200")
           EOF
 
-      - name: Export e build do site
-        run: |
-          cd collector && python -m radar export --data-dir ../e2e-data --out ../web/public/data && cd ../web
-          npm ci && npm run build
+      - name: Build do site (modo local, sem Supabase)
+        working-directory: web
+        run: npm ci && npm run build
       - name: Teste funcional da interface com dados reais (Playwright)
         working-directory: web
         run: |

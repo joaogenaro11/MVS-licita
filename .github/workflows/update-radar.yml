@@ -1,7 +1,11 @@
 name: Atualizar Radar TLS
 
-# Coleta PNCP -> classifica -> grava base no branch `data` -> publica site no GitHub Pages.
-# Falhas de fonte NUNCA substituem dados válidos: o site é publicado com a última base válida.
+# Coleta PNCP -> classifica (base de ofertas privada, no Supabase) -> grava a base PÚBLICA no
+# branch `data` (sem a classificação) -> envia os dados classificados ao Supabase (lidos só com
+# login) -> publica o site (só a aplicação, sem dados) no GitHub Pages.
+# Falhas de fonte NUNCA substituem dados válidos: o Supabase mantém a última publicação válida.
+#
+# Requer o secret SUPABASE_SERVICE_ROLE_KEY (Settings > Secrets and variables > Actions).
 on:
   schedule:
     - cron: "23 9 * * *"    # 06:23 (Brasília) — fora do minuto 0 para evitar fila
@@ -57,8 +61,13 @@ jobs:
         continue-on-error: true
         working-directory: collector
         env:
-          RADAR_PRIVATE_CONFIG: ${{ secrets.RADAR_PRIVATE_CONFIG }}
+          SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://wbhhfybpflqnnelwttdv.supabase.co' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::Secret SUPABASE_SERVICE_ROLE_KEY não configurado: sem ele não há base de ofertas nem publicação (ver README)."
+            exit 1
+          fi
           BUDGET="${{ github.event.inputs.budget_min || '150' }}"
           BACKFILL_FLAG=""
           if [ "${{ github.event.inputs.backfill }}" = "false" ]; then BACKFILL_FLAG="--no-backfill"; fi
@@ -87,10 +96,18 @@ jobs:
           git commit -q -m "Dados $(date -u +%Y-%m-%dT%H:%MZ) [${{ steps.collect.outcome }}]"
           for i in 1 2 3; do git push origin data && break || sleep $((i*5)); done
 
-      - name: Exportar dados públicos para o site
-        if: steps.validate.outcome == 'success'
+      - name: Exportar e publicar no Supabase (dados classificados; acesso só com login)
+        id: publish
+        if: steps.validate.outcome == 'success' && steps.collect.outcome == 'success'
+        continue-on-error: true   # o site (aplicação) é publicado mesmo assim; o job falha no fim
         working-directory: collector
-        run: python -m radar export --data-dir ../data --out ../web/public/data
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://wbhhfybpflqnnelwttdv.supabase.co' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          python -m radar export --data-dir ../data --out ../export
+          python -m radar publicar --dir ../export
+          rm -rf ../export
 
       - uses: actions/setup-node@v4
         if: steps.validate.outcome == 'success'
@@ -103,15 +120,15 @@ jobs:
         if: steps.validate.outcome == 'success'
         working-directory: web
         env:
-          # Opcional (acompanhamento compartilhado). URL e chave "anon" do Supabase são
-          # públicas por definição; a proteção é feita pelas políticas RLS.
           # Projeto Supabase "radar-tls". URL e chave publicável são públicas por definição
           # (vão para o navegador); a proteção dos dados é o login + RLS (docs/supabase.sql).
+          # O site publicado não contém dados: tudo é lido do Supabase depois do login.
           # Variáveis do repositório (Settings > Variables) sobrescrevem estes valores.
           VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://wbhhfybpflqnnelwttdv.supabase.co' }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY || 'sb_publishable_2uxgq5l6nHGsGSdf5XFaGg_feNyTEof' }}
           VITE_GITHUB_REPO: ${{ github.repository }}   # botão "Nova busca" no site
         run: |
+          rm -rf public/data   # garantia: nenhum dado vai para o GitHub Pages
           npm ci
           npm test
           npm run build
@@ -137,8 +154,8 @@ jobs:
           print(f"\nBase: {m.get('totais_base')}\n\nHTTP: {m.get('cliente_http')}")
           EOF
 
-      - name: Falhar se a coleta falhou (após publicar a última base válida)
-        if: steps.collect.outcome == 'failure'
+      - name: Falhar se a coleta ou a publicação falhou (dados anteriores mantidos)
+        if: steps.collect.outcome == 'failure' || steps.publish.outcome == 'failure'
         run: exit 1
 
   deploy:
