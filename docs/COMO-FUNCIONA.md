@@ -57,15 +57,21 @@ Regras do bloco `regras_de_match` da base de ofertas (rev. c):
 - **Família (caminho sem marca):** se nenhuma oferta casou, uma das 8 famílias casa quando aparecem um **termo de
   categoria + um termo de serviço** dela no mesmo texto (ex.: "manutenção de switches e roteadores" → Networking).
   A oportunidade entra com a família, sem oferta específica.
-- **Aderência (0–100):** pontos = termo exato 3; marca + serviço 2; família 2; ×1,5 se a oferta (ou família) principal
-  for prioritária; +1 se tocar 2 ou mais famílias; metade se houver termo de exclusão global. Aderência = pontos ÷ 6 × 100
-  (máx. 100). **Alta ≥ 70 · Média 40–69 · Baixa < 40.** É a ordenação padrão das listas.
+- **Nota de aderência (0–100), modelo da versão anterior do Radar** (parâmetros no bloco `pontuacao` da base privada):
+  - **aderência técnica:** portfólio (35) = força do casamento (termo exato 1,0 · marca + serviço 0,9 · só família 0,6)
+    × prioridade da oferta principal (alta 1,0 · média 0,9 · baixa 0,75); suporte (25) por termos de suporte/manutenção
+    (só aquisição vale 0,3); fabricante (15) se cita marca da aliança (outra marca vale 0,8); evidências (5);
+  - **urgência comercial:** valor (10) e estágio (10), reduzidos quando a aderência técnica é baixa;
+  - **tetos:** só família ≤ 69; com termo de exclusão global ≤ 45.
+  - **Faixas:** 80+ **Alta prioridade** · 60–79 **Analisar** · 40–59 **Potencial indireto** · < 40 **Baixa aderência**.
+    É a ordenação padrão das listas; filtro "Aderência mínima" (80+/60+/40+).
+  - No detalhe: aderência técnica / urgência comercial, relação com o TLS (direta = suporte/manutenção/subscrição;
+    indireta = só aquisição, via parceiro) e uma frase de justificativa feita só com os termos encontrados.
 - **Família principal:** a da oferta de maior peso; empate → a família de menor ordem.
-- **Exclusões globais** (notebook, Power BI, impressora…) não descartam: cortam a pontuação pela metade e geram o selo
+- **Exclusões globais** (notebook, Power BI, impressora…) não descartam: limitam a nota a 45 e geram o selo
   **"possível falso positivo"** (um edital pode ter lote de notebook e lote de switch).
 - **Portfólio:** Logo IBM, MVS, **Logo IBM + MVS** (aparece nos dois filtros) ou Transversal (só em "Tudo"). Pelo caminho
   de família: Suporte IBM → Logo; as demais → MVS; marca citada no texto acrescenta o portfólio da marca.
-- Oferta marcada como indisponível no Brasil gera o selo **"oferta indisponível no Brasil: ver alternativa"**.
 - **No card:** aderência, família principal (até 2), portfólio e selos de alerta. **No detalhe ("Por que apareceu"):** as
   ofertas casadas pelo nome e os termos que deram match (ou a família e seus termos).
 - **Painel "Oportunidades por família"** no Dashboard: quantidade e valor por família; clique filtra a lista; passe o mouse

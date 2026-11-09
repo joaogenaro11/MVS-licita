@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
-import { ADESAO, Badge, Casou, Empty, FAIXA_OPTS, FamiliaChips, Field, Highlight, inputCls, PortalLinks, PortfolioBadge, PortfolioSwitch, ScoreBadge, SEARCH_HINT, Select, Selos, Star, ValorMinimo, VIGENCIA } from '../components/ui.jsx'
+import { ADESAO, Badge, Casou, Empty, FamiliaChips, Field, Highlight, inputCls, PortalLinks, PortfolioBadge, PortfolioSwitch, ScoreBadge, SCORE_MIN_OPTS, SEARCH_HINT, Select, Selos, Star, ValorMinimo, VIGENCIA } from '../components/ui.jsx'
 import { fmtDate, money, UFS } from '../lib/format.js'
 import { bySearchThen, filterAtas, matchesPartner, matchesPriority, portfolioCounts, SORTS, uniqueSorted } from '../lib/filters.js'
 import { familiaOpts, SELO_OPTS } from './Oportunidades.jsx'
 
 export const EMPTY_ATA_FILTERS = {
-  q: '', portfolio: 'tudo', orgao: '', vigencia: 'vigentes', adesao: '', oferta: '', selo: '', vmin: '', vmax: '', faixa: '', familia: '', uf: '', ocultarSemValor: false,
+  q: '', portfolio: 'tudo', orgao: '', vigencia: 'vigentes', adesao: '', oferta: '', selo: '', vmin: '', vmax: '', scoreMin: '', familia: '', uf: '', ocultarSemValor: false,
   prioritarios: false, favoritos: false,
 }
 
@@ -47,7 +47,7 @@ export default function Atas({ data, filters, setFilters, ctx, onOpen }) {
         <Field label="Selo"><Select value={filters.selo} onChange={set('selo')} options={SELO_OPTS} /></Field>
         <Field as="div" label="Valor mínimo (R$)"><ValorMinimo value={filters.vmin} onChange={set('vmin')} ocultar={filters.ocultarSemValor} onOcultar={set('ocultarSemValor')} /></Field>
         <Field label="Valor máximo (R$)"><input type="number" min="0" value={filters.vmax} onChange={(e) => set('vmax')(e.target.value)} className={inputCls} /></Field>
-        <Field label="Aderência"><Select value={filters.faixa} onChange={set('faixa')} placeholder="Todas" options={FAIXA_OPTS} /></Field>
+        <Field label="Aderência mínima"><Select value={filters.scoreMin} onChange={set('scoreMin')} placeholder="Qualquer" options={SCORE_MIN_OPTS} /></Field>
         <Field label="Família"><Select value={filters.familia} onChange={set('familia')} options={familiaOpts(data.meta)} /></Field>
         <div className="flex flex-col justify-end gap-1 text-[13px]">
           <label className="flex items-center gap-2"><input type="checkbox" checked={filters.prioritarios} onChange={(e) => set('prioritarios')(e.target.checked)} /> Órgãos prioritários</label>

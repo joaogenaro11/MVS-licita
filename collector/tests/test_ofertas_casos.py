@@ -47,14 +47,14 @@ CASOS = [
     ("Contratação de serviços de sanitização de dados e descarte seguro de discos", ["transversal"], {"data_erasure"}),
 ]
 
-# rev. c: famílias (texto, família principal esperada, portfólio esperado ou None, faixa esperada ou None)
+# rev. c: famílias (texto, família principal esperada, portfólio esperado ou None)
 CASOS_FAMILIA = [
     ("Contratação de serviços de manutenção preventiva e corretiva de equipamentos de rede (switches e roteadores) com "
-     "reposição de peças", "networking", None, None),
-    ("Aquisição de solução de firewall com garantia de 60 meses", "seguranca", None, "media"),
-    ("Renovação de garantia dos servidores de rede do datacenter", "servidores_storage", None, "media"),
-    ("Aquisição de servidores rack e storage para modernização do data center", "refresh", None, None),
-    ("Contratação de suporte técnico para a plataforma alta (computador de grande porte)", "ibm_logo", ["logo"], None),
+     "reposição de peças", "networking", None),
+    ("Aquisição de solução de firewall com garantia de 60 meses", "seguranca", None),
+    ("Renovação de garantia dos servidores de rede do datacenter", "servidores_storage", None),
+    ("Aquisição de servidores rack e storage para modernização do data center", "refresh", None),
+    ("Contratação de suporte técnico para a plataforma alta (computador de grande porte)", "ibm_logo", ["logo"]),
 ]
 NADA = [
     "Capacitação de servidores públicos em gestão de redes",
@@ -76,20 +76,20 @@ def test_caso_de_aceite(texto, portfolio, ofertas):
 
 
 @pytest.mark.skipif(BASE is None or not getattr(BASE, "familias", None), reason="base real sem famílias (rev. c)")
-@pytest.mark.parametrize("texto,familia,portfolio,faixa", CASOS_FAMILIA, ids=[c[0][:50] for c in CASOS_FAMILIA])
-def test_caso_familia(texto, familia, portfolio, faixa):
+@pytest.mark.parametrize("texto,familia,portfolio", CASOS_FAMILIA, ids=[c[0][:50] for c in CASOS_FAMILIA])
+def test_caso_familia(texto, familia, portfolio):
     r = BASE.classificar([texto])
     assert r["tls"] and r["familia_principal"] == familia, (r["familias"], [o["id"] for o in r["ofertas_casadas"]])
     if portfolio:
         assert r["portfolio"] == portfolio
-    if faixa:
-        assert r["faixa"] == faixa, r["aderencia"]
+    assert 0 < r["score"] <= 100 and r["faixa"]
 
 
 @pytest.mark.parametrize("texto", NADA)
 def test_caso_nada(texto):
     r = BASE.classificar([texto])
     assert not r["tls"], (r["familias"], [o["id"] for o in r["ofertas_casadas"]])
+    assert r["score"] is None and r["faixa"] is None          # nenhuma oferta: sem nota
 
 
 
@@ -115,3 +115,49 @@ def test_caso_registro(rec, familia):
         assert not r["tls"], (r["familias"], [o["id"] for o in r["ofertas_casadas"]])
     else:
         assert r["tls"] and r["familia_principal"] == familia, (r["familias"], [o["id"] for o in r["ofertas_casadas"]])
+
+
+# rev. e: nota de aderência no modelo anterior (bloco pontuacao do JSON)
+CASOS_NOTA = [
+    ("suporte_cisco_propostas_abertas",
+     {"tipo": "contratacao", "estagio": "propostas_abertas",
+      "objeto": "Contratação de serviços de suporte técnico e manutenção corretiva on-site de switches Cisco"}, 80, 100),
+    ("pca_switch_48_aquisicao_20mil",
+     {"tipo": "pca", "estagio": "planejamento", "valor_estimado": 20000,
+      "objeto": "QUANTIDADE PORTAS: 48, TIPO PORTAS: 1000 BASE T, SLOTS SFP+",
+      "info_complementar": "SWITCH | Material | EQUIPAMENTOS DE REDE DE TIC | Aquisição de switches de rede"}, 40, 59),
+    ("vmware_vcf_24mi",
+     {"tipo": "contratacao", "estagio": "propostas_abertas", "valor_estimado": 24_000_000,
+      "objeto": "Renovação de subscrição VMware Cloud Foundation"}, 90, 100),
+]
+
+
+@pytest.mark.skipif(BASE is None or getattr(BASE, "pontuacao", None) is None, reason="base real sem bloco pontuacao (rev. e)")
+@pytest.mark.parametrize("nome,rec,minimo,maximo", CASOS_NOTA, ids=[c[0] for c in CASOS_NOTA])
+def test_caso_nota(nome, rec, minimo, maximo):
+    r = classificar_registro(BASE, rec)
+    assert r["tls"] and minimo <= r["score"] <= maximo, (r["score"], r["componentes"])
+    assert {"score_tecnico", "score_comercial", "justificativa", "relacao"} <= set(r)
+
+
+def _dados_reais():
+    d = os.environ.get("RADAR_DADOS_REAIS")
+    return Path(d) if d and (Path(d) / "items.json").exists() else None
+
+
+@pytest.mark.skipif(BASE is None or _dados_reais() is None,
+                    reason="dados reais da branch data indisponíveis (defina RADAR_DADOS_REAIS)")
+def test_nota_diferencia_os_dados_reais():
+    """Com os dados reais (branch data, pública) e a base real, a nota precisa ser contínua:
+    pelo menos 40 valores distintos e as quatro faixas presentes. Só contagens vão para o log."""
+    from radar.store import Store
+    st = Store(_dados_reais()).load()
+    notas, faixas = [], set()
+    for rec in list(st.items.values()) + list(st.atas.values()):
+        c = classificar_registro(BASE, rec)
+        if c["tls"]:
+            notas.append(c["score"])
+            faixas.add(c["faixa"])
+    assert len(notas) > 500, len(notas)
+    assert len(set(notas)) >= 40, len(set(notas))
+    assert faixas == {"alta", "analisar", "indireto", "baixa"}, sorted(faixas)

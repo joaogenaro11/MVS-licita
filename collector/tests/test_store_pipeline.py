@@ -171,7 +171,7 @@ def test_export_site_publica_somente_relevantes(tmp_path):
     assert "itens_texto" not in pub["items"][0]
     c = pub["items"][0]["classificacao"]
     assert c["tls"] and c["portfolio"] == ["mvs"] and c["ofertas_casadas"][0]["id"] == "sint_suporte_cisco"
-    assert "Cisco" in c["termos"] and c["pontuacao"] >= 3 and "sinais" not in c
+    assert "Cisco" in c["termos"] and 0 < c["score"] <= 100 and c["faixa"] and "sinais" not in c
     meta = json.loads((out / "meta.json").read_text())
     assert meta["lookups"]["estagios"]["propostas_abertas"] == "Propostas abertas"
 

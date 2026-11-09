@@ -15,15 +15,15 @@ O JSON é a ÚNICA fonte de palavras-chave. Este módulo implementa o bloco `reg
     texto impede o casamento da oferta naquele texto;
   * caminho_familia (c): se NENHUMA oferta casou, uma família casa quando aparecem um
     termo_categoria E um termo_servico dela no mesmo texto, sem termo de excluir;
-  * aderencia: pontos = soma(exato 3; marca+serviço 2; família 2) × 1,5 se a oferta (ou
-    família) principal tiver prioridade alta; +1 se tocar 2 ou mais famílias; × 0,5 com
-    exclusão global. Aderência 0–100 = min(100, round(pontos / 6 × 100));
-    faixas Alta ≥ 70, Média 40–69, Baixa < 40;
+  * nota de aderência 0–100 (bloco `pontuacao` do JSON, mesmo modelo da versão anterior do
+    Radar): aderência técnica (portfólio, suporte, fabricante, evidências) + urgência comercial
+    (valor, estágio) multiplicada pelo fator técnico; tetos para "só família" e exclusão global;
+    faixas Alta prioridade ≥ 80, Analisar 60–79, Potencial indireto 40–59, Baixa < 40;
   * familia_principal: família da oferta de maior peso; empate → menor 'ordem' da família;
-  * exclusoes_globais: não descartam; pontuação pela metade + selo "possível falso positivo";
+  * exclusoes_globais: não descartam; nota limitada ao teto + selo "possível falso positivo";
   * portfólio: logo / mvs (podem coexistir) / transversal; pelo caminho de família,
-    ibm_logo → logo e as demais → mvs; marcas no texto acrescentam logo/mvs;
-  * disponibilidade: oferta com disponivel_brasil = "nao" gera o selo de oferta indisponível.
+    ibm_logo → logo e as demais → mvs; marcas no texto acrescentam logo/mvs.
+  * disponivel_brasil fica no JSON só como informação: não gera selo nem aparece na interface.
 """
 from __future__ import annotations
 
@@ -38,17 +38,21 @@ from typing import Any, Iterable
 ROOT = Path(__file__).resolve().parents[2]
 LOCAL_FILE = ROOT / "config" / "ofertas_tls_radar.json"
 
+# Peso de cada caminho só para ESCOLHER a oferta/família principal (a nota vem do bloco pontuacao)
 PESO_EXATO = 3.0
 PESO_MARCA_SERVICO = 2.0
 PESO_FAMILIA = 2.0
-MULT_ALTA = 1.5
-BONUS_MULTIFAMILIA = 1.0
-FATOR_EXCLUSAO_GLOBAL = 0.5
-PONTOS_PARA_100 = 6.0
-FAIXAS = (("alta", 70), ("media", 40), ("baixa", 0))
+FORCA_KEY = {"termo_exato": "exato", "marca_servico": "marca_servico", "familia": "familia"}
 
 SELO_FALSO_POSITIVO = "possível falso positivo"
-SELO_INDISPONIVEL = "oferta indisponível no Brasil: ver alternativa"
+
+TIPO_SERVICO = {
+    "suporte_manutencao": "Serviço de suporte/manutenção de infraestrutura",
+    "software_suporte": "Suporte/subscrição de software de terceiros",
+    "aquisicao_com_garantia": "Aquisição de hardware com garantia/suporte embutido",
+    "aquisicao_hardware": "Aquisição de hardware (potencial de suporte futuro)",
+    "infraestrutura_geral": "Contratação de infraestrutura de TIC (escopo a detalhar)",
+}
 
 PORTFOLIO_KEY = {"Logo IBM": "logo", "MVS": "mvs", "Transversal": "transversal"}
 FAMILIA_LOGO = "ibm_logo"
@@ -100,10 +104,91 @@ def _achados(termos: list[Termo], texto_norm: str) -> list[str]:
     return [t.original for t in termos if t.em(texto_norm)]
 
 
-def aderencia_de(pontos: float) -> tuple[int, str]:
-    ader = int(min(100, round(pontos / PONTOS_PARA_100 * 100)))
-    faixa = next(nome for nome, minimo in FAIXAS if ader >= minimo)
-    return ader, faixa
+def _num(d: dict, k: str, ctx: str) -> float:
+    try:
+        return float(d[k])
+    except (KeyError, TypeError, ValueError):
+        raise OfertasError(f"pontuacao.{ctx}{k} ausente ou não numérico") from None
+
+
+@dataclass
+class Pontuacao:
+    """Parâmetros da nota (bloco `pontuacao` do JSON). Nenhum número da nota fica no código."""
+    pesos: dict[str, float]
+    forca: dict[str, float]
+    fator_prioridade: dict[str, float]
+    sup_fortes: list[Termo]
+    sup_medios: list[Termo]
+    sup_aquisicao: list[Termo]
+    saturacao: float
+    so_aquisicao: float
+    alianca: list[Termo]
+    fator_outras: float
+    faixas_valor: list[tuple[float, float]]
+    valor_desconhecido: float
+    estagio: dict[str, float]
+    fator_tecnico_pleno: float
+    teto_so_familia: float
+    teto_exclusao: float
+    faixas: dict[str, float]
+    rotulos: dict[str, str]
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any] | None) -> "Pontuacao":
+        if not isinstance(d, dict):
+            raise OfertasError("base de ofertas sem o bloco 'pontuacao' (parâmetros da nota de aderência)")
+        pesos = {k: _num(d.get("pesos") or {}, k, "pesos.") for k in
+                 ("portfolio", "suporte", "fabricante", "valor", "estagio", "evidencias")}
+        forca = {k: _num(d.get("forca_portfolio") or {}, k, "forca_portfolio.") for k in ("exato", "marca_servico", "familia")}
+        fp = {k: _num(d.get("fator_prioridade") or {}, k, "fator_prioridade.") for k in ("alta", "media", "baixa")}
+        sup = d.get("suporte") or {}
+        fab = d.get("fabricante") or {}
+        tetos = d.get("tetos") or {}
+        faixas = {k: _num(d.get("faixas") or {}, k, "faixas.") for k in ("alta", "analisar", "indireto")}
+        bandas = sorted(((_num(b, "min", "faixas_valor[]."), _num(b, "fator", "faixas_valor[].")) for b in d.get("faixas_valor") or []),
+                        reverse=True)
+        if not bandas:
+            raise OfertasError("pontuacao.faixas_valor vazio")
+        return cls(
+            pesos=pesos, forca=forca, fator_prioridade=fp,
+            sup_fortes=_termos(sup.get("fortes")), sup_medios=_termos(sup.get("medios")),
+            sup_aquisicao=_termos(sup.get("aquisicao")),
+            saturacao=_num(sup, "saturacao", "suporte."), so_aquisicao=_num(sup, "so_aquisicao", "suporte."),
+            alianca=_termos(fab.get("alianca")), fator_outras=_num(fab, "outras", "fabricante."),
+            faixas_valor=bandas, valor_desconhecido=_num(d, "valor_desconhecido", ""),
+            estagio={k: float(v) for k, v in (d.get("estagio") or {}).items()},
+            fator_tecnico_pleno=_num(d, "fator_tecnico_pleno", ""),
+            teto_so_familia=_num(tetos, "so_familia", "tetos."), teto_exclusao=_num(tetos, "exclusao_global", "tetos."),
+            faixas=faixas,
+            rotulos={k: str(v) for k, v in (d.get("rotulos") or {}).items()},
+        )
+
+    def faixa(self, nota: int) -> str:
+        for k in ("alta", "analisar", "indireto"):
+            if nota >= self.faixas[k]:
+                return k
+        return "baixa"
+
+    def suporte(self, texto_norm: str) -> tuple[float, list[str], bool]:
+        """Força de suporte (termos distintos; um termo mais longo consome o trecho dos
+        mais curtos contidos nele: "manutenção corretiva" não conta também "manutenção")."""
+        termos = sorted([(t, 1.0) for t in self.sup_fortes] + [(t, 0.5) for t in self.sup_medios],
+                        key=lambda x: len(x[0].n), reverse=True)
+        usado = bytearray(len(texto_norm))
+        forca, achados = 0.0, []
+        for t, w in termos:
+            conta = False
+            for m in t.rx.finditer(texto_norm):
+                a, b = m.span()
+                if any(usado[a:b]):
+                    continue
+                usado[a:b] = b"\x01" * (b - a)
+                conta = True
+            if conta:
+                forca += w
+                achados.append(t.original)
+        aquisicao = bool(_achados(self.sup_aquisicao, texto_norm))
+        return forca, achados, aquisicao
 
 
 # --------------------------------------------------------------------------- base
@@ -142,12 +227,6 @@ class Oferta:
     def portfolio_key(self) -> str:
         return PORTFOLIO_KEY.get(self.portfolio, "transversal")
 
-    @property
-    def alternativa(self) -> str:
-        """Texto da alternativa (regras da oferta), para o selo de indisponibilidade."""
-        alt = [r for r in self.regras if re.search(r"alternativ|em vez|no lugar|substitu|usar ", r, re.I)]
-        return " ".join(alt or self.regras)
-
 
 @dataclass
 class BaseOfertas:
@@ -158,6 +237,7 @@ class BaseOfertas:
     marcas_mvs: list[Termo]
     familias: list[Familia] = field(default_factory=list)
     fonte: str = ""
+    pontuacao: Pontuacao | None = None
     por_id: dict[str, Oferta] = field(default_factory=dict)
     familia_por_id: dict[str, Familia] = field(default_factory=dict)
 
@@ -216,6 +296,7 @@ class BaseOfertas:
             marcas_mvs=_termos(d.get("marcas_mvs")),
             familias=familias,
             fonte=fonte,
+            pontuacao=Pontuacao.from_dict(d.get("pontuacao")),
         )
 
     @classmethod
@@ -335,9 +416,11 @@ class BaseOfertas:
                                  "termos": list(dict.fromkeys(termos))}
         return casadas
 
-    def classificar(self, textos: Iterable[str | None]) -> dict[str, Any]:
+    def classificar(self, textos: Iterable[str | None], estagio: str | None = None, valor: float | None = None,
+                    tem_itens: bool = False) -> dict[str, Any]:
         """Aplica as regras_de_match a um conjunto de textos (cada um avaliado isoladamente
-        para marca + serviço e categoria + serviço). Retorna o resultado para o registro."""
+        para marca + serviço e categoria + serviço) e calcula a nota de aderência 0–100 com o
+        bloco `pontuacao` (estágio e valor entram na urgência comercial)."""
         normais = [n for n in (norm(t) for t in textos if t) if n]
         tudo = " | ".join(normais)
         casadas = self._casar_ofertas(normais)
@@ -347,45 +430,76 @@ class BaseOfertas:
             # "só marca" não classifica (regras_de_match): fica só como sinal interno, usado
             # para decidir quais registros merecem a coleta de itens/documentos.
             return {"tls": False, "via": None, "ofertas_casadas": [], "familias_casadas": [], "familias": [],
-                    "familia_principal": None, "pontuacao": 0, "aderencia": 0, "faixa": None, "score": 0,
+                    "familia_principal": None, "score": None, "aderencia": None, "faixa": None,
                     "portfolio": [], "termos": [], "selos": [], "sinais": self.marcas_em(tudo),
                     "versao_ofertas": self.versao}
 
+        P = self.pontuacao
+        fprio = lambda prio: P.fator_prioridade.get(prio, P.fator_prioridade["baixa"])  # noqa: E731
         if casadas:
             via = "oferta"
-            peso = lambda c: c["pontos"] * (MULT_ALTA if c["prioridade"] == "alta" else 1.0)  # noqa: E731
-            ordem = sorted(casadas.values(), key=lambda c: (-peso(c), self._ordem_familia(c["familia"]),
+            forca = lambda c: P.forca[FORCA_KEY[c["via"]]] * fprio(c["prioridade"])  # noqa: E731
+            ordem = sorted(casadas.values(), key=lambda c: (-forca(c), -c["pontos"], self._ordem_familia(c["familia"]),
                                                             self.por_id[c["id"]].ordem_json))
             principal = ordem[0]
             familias = list(dict.fromkeys(c["familia"] for c in ordem if c["familia"]))
-            soma = sum(c["pontos"] for c in ordem)
-            alta = principal["prioridade"] == "alta"
             kinds = {c["portfolio"] for c in ordem}
             termos = list(dict.fromkeys(t for c in ordem for t in c["termos"]))
             fam_lista: list[dict[str, Any]] = []
         else:
             via = "familia"
-            peso = lambda f: f["pontos"] * (MULT_ALTA if f["prioridade"] == "alta" else 1.0)  # noqa: E731
-            fam_lista = sorted(familias_casadas.values(), key=lambda f: (-peso(f), self._ordem_familia(f["id"])))
+            forca = lambda f: P.forca["familia"] * fprio(f["prioridade"])  # noqa: E731
+            fam_lista = sorted(familias_casadas.values(), key=lambda f: (-forca(f), self._ordem_familia(f["id"])))
             principal = fam_lista[0]
             familias = [f["id"] for f in fam_lista]
-            soma = sum(f["pontos"] for f in fam_lista)
-            alta = principal["prioridade"] == "alta"
             kinds = {self.familia_por_id[f].portfolio_key for f in familias}
             termos = list(dict.fromkeys(t for f in fam_lista for t in f["termos"]))
             ordem = []
 
-        pontos = soma * (MULT_ALTA if alta else 1.0)
-        if len(familias) >= 2:
-            pontos += BONUS_MULTIFAMILIA
         excl = _achados(self.exclusoes_globais, tudo)
-        if excl:
-            pontos *= FATOR_EXCLUSAO_GLOBAL
-        aderencia, faixa = aderencia_de(pontos)
-
-        portfolio: list[str] = []
         marcas_logo = _achados(self.marcas_logo, tudo)
         marcas_mvs = _achados(self.marcas_mvs, tudo)
+        alianca = _achados(P.alianca, tudo)
+        fab_nomes = list(dict.fromkeys(alianca + marcas_logo + marcas_mvs))
+
+        # ---- nota (modelo da versão anterior do Radar, parâmetros do JSON)
+        W = P.pesos
+        c_portfolio = W["portfolio"] * forca(principal)
+        s_forca, s_termos, aquisicao = P.suporte(tudo)
+        if s_forca > 0:
+            c_suporte = W["suporte"] * min(1.0, s_forca / P.saturacao)
+        else:
+            c_suporte = W["suporte"] * (P.so_aquisicao if aquisicao else 0.0)
+        f_fab = 1.0 if alianca else (P.fator_outras if (marcas_logo or marcas_mvs) else 0.0)
+        c_fabricante = W["fabricante"] * f_fab
+        tec_max = W["portfolio"] + W["suporte"] + W["fabricante"]
+        fator_tecnico = min(1.0, (c_portfolio + c_suporte + c_fabricante) / tec_max / P.fator_tecnico_pleno)
+        tem_valor = bool(valor and valor > 0)
+        f_valor = next((f for m, f in P.faixas_valor if valor >= m), 0.0) if tem_valor else P.valor_desconhecido
+        c_valor = W["valor"] * f_valor * fator_tecnico
+        c_estagio = W["estagio"] * P.estagio.get(estagio or "", 0.5) * fator_tecnico
+        evid = sum([via == "oferta", s_forca >= 0.5, bool(fab_nomes), bool(tem_itens), tem_valor])
+        c_evid = W["evidencias"] * evid / 5
+        total = c_portfolio + c_suporte + c_fabricante + c_valor + c_estagio + c_evid
+        if via == "familia":
+            total = min(total, P.teto_so_familia)
+        if excl:
+            total = min(total, P.teto_exclusao)
+        nota = int(round(max(0.0, min(100.0, total))))
+        faixa = P.faixa(nota)
+
+        # ---- tipo de serviço e relação com o TLS (direta = suporte/manutenção/subscrição;
+        # indireta = só aquisição, possível atuação via parceiro licitante)
+        if s_forca >= 0.5:
+            tipo = "software_suporte" if familias and familias[0] == "software_terceiros" else (
+                "aquisicao_com_garantia" if aquisicao else "suporte_manutencao")
+            relacao = "direta"
+        elif aquisicao:
+            tipo, relacao = "aquisicao_hardware", "indireta"
+        else:
+            tipo, relacao = "infraestrutura_geral", "a_validar"
+
+        portfolio: list[str] = []
         if "logo" in kinds or marcas_logo:
             portfolio.append("logo")
         if "mvs" in kinds or marcas_mvs:
@@ -397,31 +511,60 @@ class BaseOfertas:
         if excl:
             selos.append({"tipo": "falso_positivo", "texto": SELO_FALSO_POSITIVO,
                           "detalhe": "Termos de exclusão global: " + ", ".join(excl)})
-        indisp = [self.por_id[c["id"]] for c in ordem if self.por_id[c["id"]].disponivel_brasil == "nao"]
-        if indisp:
-            selos.append({"tipo": "indisponivel_brasil", "texto": SELO_INDISPONIVEL,
-                          "detalhe": " · ".join(f"{o.nome_pt}: {o.alternativa}" for o in indisp)})
 
         fam_principal = familias[0] if familias else None
+        nomes = [c["nome_pt"] for c in ordem]
         return {
             "tls": True,
             "via": via,
-            "ofertas_casadas": [{k: v for k, v in c.items() if k != "prioridade"} for c in ordem],
-            "ofertas": [c["nome_pt"] for c in ordem],
-            "familias_casadas": [{k: v for k, v in f.items() if k != "prioridade"} for f in fam_lista],
+            "ofertas_casadas": [{k: v for k, v in c.items() if k not in ("prioridade", "pontos")} for c in ordem],
+            "ofertas": nomes,
+            "familias_casadas": [{k: v for k, v in f.items() if k not in ("prioridade", "pontos")} for f in fam_lista],
             "familias": familias,
             "familia_principal": fam_principal,
-            "pontuacao": round(pontos, 2),
-            "aderencia": aderencia,
+            "score": nota,
+            "aderencia": nota,
             "faixa": faixa,
-            "score": aderencia,
+            "score_tecnico": int(round(100 * (c_portfolio + c_suporte + c_fabricante + c_evid) / (tec_max + W["evidencias"]))),
+            "score_comercial": int(round(100 * (c_valor + c_estagio) / (W["valor"] + W["estagio"]))),
+            "componentes": {k: round(v, 1) for k, v in (
+                ("portfolio", c_portfolio), ("suporte", c_suporte), ("fabricante", c_fabricante),
+                ("valor", c_valor), ("estagio", c_estagio), ("evidencias", c_evid))},
+            "tipo_servico": tipo,
+            "tipo_servico_label": TIPO_SERVICO[tipo],
+            "relacao": relacao,
+            "via_parceiro": relacao == "indireta",
+            "justificativa": self._justificativa(via, nomes, fam_lista, termos, s_termos, fab_nomes, tipo, relacao, excl),
+            "fabricantes": [{"nome": n, "alianca": n in alianca} for n in fab_nomes],
             "portfolio": portfolio,
             "termos": termos,
+            "termos_suporte": s_termos,
             "marcas_portfolio": {"logo": marcas_logo, "mvs": marcas_mvs},
             "exclusoes_globais": excl,
             "selos": selos,
             "versao_ofertas": self.versao,
         }
+
+    @staticmethod
+    def _justificativa(via, nomes, fam_lista, termos, s_termos, fabricantes, tipo, relacao, excl) -> str:
+        """Uma frase gerada SOMENTE com os termos encontrados no texto público."""
+        marcas = {m.lower() for m in fabricantes}
+        citados = [t for t in dict.fromkeys(list(termos) + list(s_termos)) if t.lower() not in marcas][:6]
+        if via == "oferta":
+            alvo = "/".join(nomes[:3])
+        else:
+            alvo = "família " + "/".join(f["nome"] for f in fam_lista[:2]) + " (sem oferta específica)"
+        frase = f"Possível aderência a {alvo}"
+        if citados:
+            frase += ": objeto menciona " + ", ".join(f"“{t}”" for t in citados)
+        if fabricantes:
+            frase += "; fabricante(s): " + ", ".join(fabricantes[:4])
+        partes = [frase + ".", TIPO_SERVICO[tipo] + "."]
+        if relacao == "indireta":
+            partes.append("Oportunidade indireta — possível atuação via parceiro licitante.")
+        if excl:
+            partes.append("O texto também cita itens fora do escopo TLS: " + ", ".join(excl[:5]) + ".")
+        return " ".join(partes)
 
 
 def portfolio_label(portfolio: list[str]) -> str:
