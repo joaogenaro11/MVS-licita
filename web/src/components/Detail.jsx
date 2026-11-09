@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { ESFERAS, fmtDate, money } from '../lib/format.js'
 import { matchesPartner, matchesPriority } from '../lib/filters.js'
 import { STATUS_COMERCIAL } from '../lib/private.js'
-import { ADESAO, Badge, dateOrNA, ExtLink, Highlight, inputCls, KV, PortalLinks, PortfolioBadge, ScoreBadge, Selos, Star, TIPO, valueOrNA, VIGENCIA } from './ui.jsx'
+import { ADESAO, Badge, dateOrNA, ExtLink, FamiliaChips, Highlight, inputCls, KV, PortalLinks, PortfolioBadge, ScoreBadge, Selos, Star, TIPO, valueOrNA, VIGENCIA } from './ui.jsx'
 
 function Section({ title, children, right }) {
   return (
@@ -65,27 +65,33 @@ export default function Detail({ r, meta, ctx, onClose }) {
           </div>
         </div>
 
-        <Section title="Classificação TLS" right={<ScoreBadge c={c} />}>
-          <div className="flex flex-wrap items-center gap-2 text-[13px]">
-            <span className="text-muted">Portfólio:</span><PortfolioBadge c={c} />
-            {c.versao_ofertas ? <span className="text-[11px] text-muted">base de ofertas {c.versao_ofertas}</span> : null}
+        <Section title="Por que apareceu" right={<ScoreBadge c={c} />}>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <FamiliaChips c={c} familias={ctx.familias} />
+            <PortfolioBadge c={c} />
           </div>
           {(c.ofertas_casadas || []).length ? (
-            <table className="mt-3 w-full text-left text-[12px]">
-              <thead className="text-muted"><tr><th className="py-1 pr-2">Oferta</th><th className="pr-2">Como casou</th><th className="pr-2">Termos</th><th className="text-right">Pontos</th></tr></thead>
-              <tbody>
-                {c.ofertas_casadas.map((o) => (
-                  <tr key={o.id} className="border-t border-line align-top">
-                    <td className="py-1.5 pr-2"><span className="rounded-full bg-brand-soft px-2 py-0.5 font-medium text-brand-dark">{o.nome_pt}</span></td>
-                    <td className="pr-2">{o.via === 'termo_exato' ? 'Termo exato' : 'Marca + serviço'}</td>
-                    <td className="pr-2">{o.termos.map((t) => <mark key={t} className="mr-1 bg-[#fcf4d6] px-0.5">{t}</mark>)}</td>
-                    <td className="num text-right">{o.pontos}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : <p className="mt-2 text-[13px] text-muted">Nenhuma oferta da base casou com o texto deste registro.</p>}
-          <div className="mt-3"><Selos c={c} detalhe /></div>
+            <ul className="mt-3 flex flex-col gap-1.5 text-[13px]">
+              {c.ofertas_casadas.map((o) => (
+                <li key={o.id}><strong>{o.nome_pt}</strong>
+                  <span className="text-[12px] text-ink-2"> — {o.via === 'termo_exato' ? 'termo exato' : 'marca + serviço'}: </span>
+                  {o.termos.map((t) => <mark key={t} className="mr-1 bg-[#fcf4d6] px-0.5 text-[12px]">{t}</mark>)}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {(c.familias_casadas || []).length ? (
+            <ul className="mt-3 flex flex-col gap-1.5 text-[13px]">
+              {c.familias_casadas.map((f) => (
+                <li key={f.id}><strong>{f.nome}</strong>
+                  <span className="text-[12px] text-ink-2"> — pela família (sem oferta específica): </span>
+                  {f.termos.map((t) => <mark key={t} className="mr-1 bg-[#fcf4d6] px-0.5 text-[12px]">{t}</mark>)}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {!c.tls ? <p className="mt-2 text-[13px] text-muted">Nenhuma oferta nem família da base casou com o texto atual deste registro (mantido no Radar até vencer).</p> : null}
+          {(c.selos || []).length ? <div className="mt-3"><Selos c={c} detalhe /></div> : null}
           {notes.length ? (
             <ul className="mt-3 border-l-2 border-purple bg-[#f6f2ff] px-3 py-2 text-[12px]">
               {notes.map(([n, t]) => <li key={n}><strong>{n}:</strong> {t}</li>)}
@@ -93,9 +99,9 @@ export default function Detail({ r, meta, ctx, onClose }) {
             </ul>
           ) : null}
           <p className="mt-3 text-[11px] text-muted">
-            Pontuação: termo exato = 3; marca + serviço no mesmo texto = 2; x1,5 para oferta de prioridade alta; soma das ofertas.
-            Termos de exclusão global reduzem a pontuação pela metade. Analisados: objeto, informação complementar{r.itens?.length ? ' e itens' : ''} publicados no PNCP
-            (PDFs não são lidos). Aderência tecnológica não confirma elegibilidade comercial — validação humana necessária.
+            Aderência = pontos ÷ 6 × 100 (máx. 100): termo exato 3, marca + serviço 2, família 2; ×1,5 se a oferta principal
+            for prioritária; +1 se tocar duas famílias; metade com termo de exclusão. Analisados: objeto, informação
+            complementar{r.itens?.length ? ' e itens' : ''} publicados no PNCP (PDFs não são lidos). Validação humana necessária.
           </p>
         </Section>
 

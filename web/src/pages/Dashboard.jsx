@@ -45,31 +45,36 @@ export default function Dashboard({ data, ctx, go, onOpen }) {
       dfFed: items.filter((i) => i.orgao?.esfera === 'F' || i.unidade?.uf === 'DF').length,
       topAbertas: [...abertas].sort(SORTS.score).slice(0, 6),
       topAtas: [...atasVig].sort(SORTS.score).slice(0, 4),
-      porOferta: Object.entries(items.reduce((acc, i) => {
-        for (const o of (i.classificacao?.ofertas || []).slice(0, 1)) acc[o] = (acc[o] || 0) + 1
-        return acc
-      }, {})).sort((a, b) => b[1] - a[1]),
+      porFamilia: (meta.lookups?.familias || []).map((f) => {
+        const rs = items.filter((i) => (i.classificacao?.familias || []).includes(f.id))
+        const top = Object.entries(rs.reduce((acc, i) => {
+          for (const o of i.classificacao?.ofertas_casadas || []) if (o.familia === f.id) acc[o.nome_pt] = (acc[o.nome_pt] || 0) + 1
+          return acc
+        }, {})).sort((a, b) => b[1] - a[1]).slice(0, 3)
+        const soFamilia = rs.filter((i) => i.classificacao?.via === 'familia').length
+        return { ...f, n: rs.length, valor: aggregateValue(rs).total, top, soFamilia }
+      }),
     }
-  }, [items, atas])
-  const maxOferta = Math.max(1, ...k.porOferta.map(([, n]) => n))
+  }, [items, atas, meta])
+  const maxFamilia = Math.max(1, ...k.porFamilia.map((f) => f.n))
 
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-px bg-line sm:grid-cols-4">
-        <Kpi label="Oportunidades encontradas" value={k.total.toLocaleString('pt-BR')} hint="casaram ao menos uma oferta TLS" onClick={() => go('oportunidades', {})} />
+        <Kpi label="Oportunidades encontradas" value={k.total.toLocaleString('pt-BR')} hint="casaram oferta ou família TLS" onClick={() => go('oportunidades', {})} />
         <Kpi label="Propostas abertas" value={k.abertas.toLocaleString('pt-BR')} accent="#0f62fe" onClick={() => go('oportunidades', { estagio: 'propostas_abertas' })} />
         <Kpi label="Demandas em planejamento (PCA)" value={k.planejamento.toLocaleString('pt-BR')} onClick={() => go('oportunidades', { estagio: 'planejamento' })} />
         <Kpi label="Logo IBM / MVS" value={`${k.logo.toLocaleString('pt-BR')} / ${k.mvs.toLocaleString('pt-BR')}`} accent="#0f62fe" hint="Logo IBM + MVS conta nos dois" onClick={() => go('oportunidades', { portfolio: 'mvs' })} />
         <Kpi label="Atas vigentes relevantes" value={k.atasVig.toLocaleString('pt-BR')} hint={`${k.vencendo} vencem em até 90 dias`} onClick={() => go('atas', { vigencia: 'vigentes' })} />
         <Kpi label="Atas com potencial de adesão a avaliar" value={k.adesao.toLocaleString('pt-BR')} accent="#6929c4" onClick={() => go('atas', { vigencia: 'vigentes', adesao: 'potencial_verificar' })} />
-        <Kpi label="Valor estimado agregado" value={moneyCompact(k.valor.total)} hint={`${k.valor.n.toLocaleString('pt-BR')} registros únicos com valor; sigilosos/ausentes excluídos`} />
+        <Kpi label="Valor estimado agregado" value={moneyCompact(k.valor.total)} hint={`contratações + PCA, sem duplicidade (${k.valor.n.toLocaleString('pt-BR')} registros com valor)`} />
         <Kpi label="Foco DF + órgãos federais" value={k.dfFed.toLocaleString('pt-BR')} onClick={() => go('oportunidades', { foco: 'df_federal' })} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="flex flex-col gap-2 lg:col-span-2">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-[16px] font-semibold">Propostas abertas com maior pontuação</h2>
+            <h2 className="text-[16px] font-semibold">Propostas abertas com maior aderência</h2>
             <button className="text-[13px] text-brand hover:underline" onClick={() => go('oportunidades', { estagio: 'propostas_abertas' })}>ver todas</button>
           </div>
           {k.topAbertas.length ? (
@@ -83,26 +88,32 @@ export default function Dashboard({ data, ctx, go, onOpen }) {
             <p className="text-[13px]">Status geral: <strong style={{ color: (STATUS[meta.status] || STATUS.falha)[1] }}>{(STATUS[meta.status] || ['Desconhecido'])[0]}</strong></p>
           </section>
           <NovaBusca className="bg-white p-4" />
-          <section className="bg-white p-4">
-            <h2 className="mb-2 text-[14px] font-semibold">Oportunidades por oferta principal</h2>
+          <section className="bg-white p-4" aria-label="Oportunidades por família">
+            <h2 className="mb-2 text-[14px] font-semibold">Oportunidades por família</h2>
             <ul className="flex flex-col gap-2">
-              {k.porOferta.map(([o, n]) => (
-                <li key={o}>
-                  <button className="w-full text-left" onClick={() => go('oportunidades', { oferta: o })}>
-                    <div className="flex justify-between text-[12px]"><span>{o}</span><span className="num text-muted">{n.toLocaleString('pt-BR')}</span></div>
-                    <div className="mt-0.5 h-1.5 bg-field"><div className="h-1.5 bg-brand" style={{ width: `${(n / maxOferta) * 100}%` }} /></div>
+              {k.porFamilia.map((f) => (
+                <li key={f.id}>
+                  <button className="w-full text-left disabled:cursor-default" disabled={!f.n} onClick={() => go('oportunidades', { familia: f.id })}
+                    title={f.top.length ? `Ofertas mais frequentes: ${f.top.map(([o, n]) => `${o} (${n})`).join(' · ')}${f.soFamilia ? ` · ${f.soFamilia} só pela família` : ''}`
+                      : f.soFamilia ? `${f.soFamilia} pela família, sem oferta específica` : 'Sem oportunidades'}>
+                    <div className="flex justify-between gap-2 text-[12px]">
+                      <span className={f.n ? '' : 'text-muted'}>{f.nome}</span>
+                      <span className="num shrink-0 text-muted">{f.n.toLocaleString('pt-BR')}{f.valor ? ` · ${moneyCompact(f.valor)}` : ''}</span>
+                    </div>
+                    <div className="mt-0.5 h-1.5 bg-field"><div className="h-1.5 bg-brand" style={{ width: `${(f.n / maxFamilia) * 100}%` }} /></div>
                   </button>
                 </li>
               ))}
-              {!k.porOferta.length ? <li className="text-[12px] text-muted">Sem dados.</li> : null}
+              {!k.porFamilia.length ? <li className="text-[12px] text-muted">Sem dados.</li> : null}
             </ul>
+            <p className="mt-2 text-[11px] text-muted">Uma oportunidade pode estar em duas famílias. Passe o mouse para ver as ofertas mais frequentes.</p>
           </section>
         </aside>
       </div>
 
       <section className="flex flex-col gap-2">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-[16px] font-semibold">Atas vigentes com maior pontuação</h2>
+          <h2 className="text-[16px] font-semibold">Atas vigentes com maior aderência</h2>
           <button className="text-[13px] text-brand hover:underline" onClick={() => go('atas', { vigencia: 'vigentes' })}>ver todas</button>
         </div>
         {k.topAtas.length ? <ul className="flex flex-col gap-px bg-line">{k.topAtas.map((a) => <AtaCard key={a.id} a={a} ctx={ctx} onOpen={onOpen} />)}</ul>

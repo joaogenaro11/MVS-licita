@@ -45,30 +45,39 @@ export function PortfolioBadge({ c }) {
   return <Badge className={PORTFOLIO_CLS[label]}>{label}</Badge>
 }
 
-/** Pontuação da base de ofertas: termo exato = 3; marca + serviço = 2; x1,5 prioridade alta; soma. */
+/** Faixas de aderência (regra `aderencia` da base de ofertas): Alta ≥ 70, Média 40–69, Baixa < 40.
+ *  Mesmo visual da versão anterior: número, barra e rótulo da faixa. */
+export const FAIXA = {
+  alta: { label: 'Alta aderência', bar: '#198038' },
+  media: { label: 'Média aderência', bar: '#0f62fe' },
+  baixa: { label: 'Baixa aderência', bar: '#8d8d8d' },
+}
+export const FAIXA_OPTS = [
+  { value: 'alta', label: 'Alta (70+)' }, { value: 'media', label: 'Média (40–69)' }, { value: 'baixa', label: 'Baixa (< 40)' }]
+
 export function ScoreBadge({ c }) {
-  if (!c) return null
+  if (!c || !c.faixa) return null
+  const f = FAIXA[c.faixa] || FAIXA.baixa
+  const v = c.aderencia ?? 0
   return (
-    <div className="flex flex-col items-end gap-1" title="Pontuação TLS: termo exato = 3, marca + serviço = 2, x1,5 se prioridade alta; soma das ofertas que casaram">
-      <div className="num text-2xl font-semibold leading-none text-ink">{(c.pontuacao ?? 0).toLocaleString('pt-BR')}</div>
-      <span className="text-[11px] text-muted">pontuação</span>
-      <PortfolioBadge c={c} />
+    <div className="flex items-center gap-2" title={`Aderência TLS ${v}/100 — ${f.label}`}>
+      <div className="num text-2xl font-semibold leading-none" style={{ color: f.bar }}>{v}</div>
+      <div className="flex flex-col gap-1">
+        <div className="h-1.5 w-16 bg-line"><div className="h-1.5" style={{ width: `${v}%`, background: f.bar }} /></div>
+        <span className="text-[11px] font-medium text-ink-2">{f.label}</span>
+      </div>
     </div>
   )
 }
 
-export function OfertaChips({ c, max = 99 }) {
-  const list = c?.ofertas_casadas || []
-  if (!list.length) return null
-  return (
-    <div className="flex flex-wrap gap-1">
-      {list.slice(0, max).map((o) => (
-        <span key={o.id} title={`${o.via === 'termo_exato' ? 'Termo exato' : 'Marca + serviço'} · ${o.pontos} pts · ${o.termos.join(', ')}`}
-          className="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-medium text-brand-dark">{o.nome_pt}</span>
-      ))}
-      {list.length > max ? <span className="px-1 text-[11px] text-muted">+{list.length - max}</span> : null}
-    </div>
-  )
+/** Família principal (e a segunda, se casou duas ou mais). */
+export function FamiliaChips({ c, familias }) {
+  const ids = (c?.familias || []).slice(0, 2)
+  if (!ids.length) return null
+  return ids.map((id, i) => (
+    <Badge key={id} className={i === 0 ? 'bg-brand-soft text-brand-dark ring-[#a6c8ff]' : 'bg-white text-brand-dark ring-[#a6c8ff]'}
+      title={i === 0 ? 'Família principal' : 'Também casou esta família'}>{familias?.[id]?.nome || id}</Badge>
+  ))
 }
 
 export function Selos({ c, detalhe = false }) {

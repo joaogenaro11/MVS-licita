@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
-import { ADESAO, Badge, Casou, Empty, Field, Highlight, inputCls, OfertaChips, PortalLinks, PortfolioSwitch, ScoreBadge, SEARCH_HINT, Select, Selos, Star, VIGENCIA } from '../components/ui.jsx'
+import { ADESAO, Badge, Casou, Empty, FAIXA_OPTS, FamiliaChips, Field, Highlight, inputCls, PortalLinks, PortfolioBadge, PortfolioSwitch, ScoreBadge, SEARCH_HINT, Select, Selos, Star, VIGENCIA } from '../components/ui.jsx'
 import { fmtDate, money, UFS } from '../lib/format.js'
 import { bySearchThen, filterAtas, matchesPartner, matchesPriority, portfolioCounts, SORTS, uniqueSorted } from '../lib/filters.js'
-import { SCORE_OPTS, SELO_OPTS } from './Oportunidades.jsx'
+import { familiaOpts, SELO_OPTS } from './Oportunidades.jsx'
 
 export const EMPTY_ATA_FILTERS = {
-  q: '', portfolio: 'tudo', orgao: '', vigencia: 'vigentes', adesao: '', oferta: '', selo: '', vmin: '', vmax: '', scoreMin: '', uf: '',
+  q: '', portfolio: 'tudo', orgao: '', vigencia: 'vigentes', adesao: '', oferta: '', selo: '', vmin: '', vmax: '', faixa: '', familia: '', uf: '',
   prioritarios: false, favoritos: false,
 }
 
@@ -47,7 +47,8 @@ export default function Atas({ data, filters, setFilters, ctx, onOpen }) {
         <Field label="Selo"><Select value={filters.selo} onChange={set('selo')} options={SELO_OPTS} /></Field>
         <Field label="Valor mínimo (R$)"><input type="number" min="0" value={filters.vmin} onChange={(e) => set('vmin')(e.target.value)} className={inputCls} /></Field>
         <Field label="Valor máximo (R$)"><input type="number" min="0" value={filters.vmax} onChange={(e) => set('vmax')(e.target.value)} className={inputCls} /></Field>
-        <Field label="Pontuação mínima"><Select value={filters.scoreMin} onChange={set('scoreMin')} placeholder="Qualquer" options={SCORE_OPTS} /></Field>
+        <Field label="Aderência"><Select value={filters.faixa} onChange={set('faixa')} placeholder="Todas" options={FAIXA_OPTS} /></Field>
+        <Field label="Família"><Select value={filters.familia} onChange={set('familia')} options={familiaOpts(data.meta)} /></Field>
         <div className="flex flex-col justify-end gap-1 text-[13px]">
           <label className="flex items-center gap-2"><input type="checkbox" checked={filters.prioritarios} onChange={(e) => set('prioritarios')(e.target.checked)} /> Órgãos prioritários</label>
           <label className="flex items-center gap-2"><input type="checkbox" checked={filters.favoritos} onChange={(e) => set('favoritos')(e.target.checked)} /> Favoritas</label>
@@ -58,7 +59,7 @@ export default function Atas({ data, filters, setFilters, ctx, onOpen }) {
           <button className="ml-3 text-brand hover:underline" onClick={() => setFilters({ ...EMPTY_ATA_FILTERS, portfolio: filters.portfolio })}>restaurar filtros</button></div>
         <label className="flex items-center gap-2 text-ink-2">Ordenar por
           <select value={sort} onChange={(e) => setSort(e.target.value)} className="h-8 bg-white px-2 ring-1 ring-line">
-            <option value="score">Pontuação TLS</option><option value="vencimento">Vencimento mais próximo</option><option value="publicacao">Publicação</option>
+            <option value="score">Aderência</option><option value="vencimento">Vencimento mais próximo</option><option value="publicacao">Publicação</option>
           </select></label>
       </div>
       {result.length === 0 ? <Empty>Nenhuma ata com esses filtros na base coletada.</Empty> : (
@@ -87,6 +88,8 @@ export function AtaCard({ a, ctx, onOpen }) {
             <Badge className="bg-ink text-white ring-ink">Ata {a.numero || ''}</Badge>
             <Badge className={vig.cls}>{vig.label}{a.dias_para_vencer != null && a.dias_para_vencer >= 0 ? ` · ${a.dias_para_vencer} dias` : ''}</Badge>
             <Badge className={ad.cls}>{ad.label}</Badge>
+            <FamiliaChips c={c} familias={ctx.familias} />
+            <PortfolioBadge c={c} />
             {matchesPriority(a, ctx.priorityOrgs) ? <Badge className="bg-[#f6f2ff] text-[#6929c4] ring-[#d4bbff]">Órgão prioritário</Badge> : null}
             {partners.length ? <Badge className="bg-[#f6f2ff] text-[#6929c4] ring-[#d4bbff]">Parceiro: {partners.join(', ')}</Badge> : null}
           </div>
@@ -99,7 +102,7 @@ export function AtaCard({ a, ctx, onOpen }) {
             <div><dt className="inline text-muted">Fornecedor: </dt><dd className="inline">{(a.fornecedores || []).map((f) => f.nome).join('; ') || 'não identificado'}</dd></div>
             <div><dt className="inline text-muted">Valor da contratação: </dt><dd className="num inline">{money(a.compra?.valor) || 'não informado'}</dd></div>
           </dl>
-          <div className="mt-2 flex flex-col gap-1.5"><OfertaChips c={c} max={4} /><Selos c={c} /></div>
+          {(c.selos || []).length ? <div className="mt-2"><Selos c={c} /></div> : null}
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <PortalLinks links={a.links} compact />
             <button type="button" onClick={() => onOpen(a)} className="text-[13px] text-brand hover:underline">Detalhes e documentos</button>

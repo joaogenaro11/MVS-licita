@@ -95,10 +95,11 @@ function Radar({ auth }) {
   }, [prefs])
   const setSort = useCallback((s) => { setSortState(s); prefs.update({ ordenacao: s }) }, [prefs])
 
+  const familias = useMemo(() => Object.fromEntries((data?.meta?.lookups?.familias || []).map((f) => [f.id, f])), [data])
   const ctx = useMemo(() => ({
-    isFav: favoritos.isFav, toggleFav: favoritos.toggle, favoritos, tracking, auth, commercial, prefs,
+    isFav: favoritos.isFav, toggleFav: favoritos.toggle, favoritos, tracking, auth, commercial, prefs, familias,
     config: commercial.config, priorityOrgs: commercial.config.priority_orgs,
-  }), [favoritos, tracking, auth, commercial, prefs])
+  }), [favoritos, tracking, auth, commercial, prefs, familias])
 
   const go = useCallback((r, f) => {
     if (r === 'oportunidades') setFilters({ ...EMPTY_FILTERS, portfolio: filters.portfolio, ...f })
