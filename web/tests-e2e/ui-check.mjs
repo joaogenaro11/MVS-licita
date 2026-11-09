@@ -41,7 +41,7 @@ await page.goto(BASE, { waitUntil: 'networkidle' })
 // 1. Dashboard
 await safe('Dashboard carrega com KPIs e data da última coleta', async () => {
   await page.waitForSelector('text=Radar de Demanda Pública', { timeout: 15000 })
-  const kpis = ['Oportunidades encontradas', 'Propostas abertas', 'Demandas em planejamento (PCA)', 'Alta aderência (80+)',
+  const kpis = ['Oportunidades encontradas', 'Propostas abertas', 'Demandas em planejamento (PCA)', 'Logo IBM / MVS',
     'Atas vigentes relevantes', 'Atas com potencial de adesão a avaliar', 'Valor estimado agregado']
   const missing = []
   for (const k of kpis) if (!(await page.locator(`text=${k}`).count())) missing.push(k)
@@ -49,9 +49,15 @@ await safe('Dashboard carrega com KPIs e data da última coleta', async () => {
   check('Dashboard carrega com KPIs e data da última coleta', missing.length === 0 && ultima > 0,
     missing.length ? `faltando: ${missing.join(', ')}` : '')
 })
-await safe('Status das fontes exibido (inclui falhas, se houver)', async () => {
-  const n = await page.locator('text=Atualização dos dados').count()
-  check('Status das fontes exibido (inclui falhas, se houver)', n > 0)
+await safe('Card "Atualização dos dados" só com título, última coleta e status geral', async () => {
+  const card = page.locator('section[aria-label="Atualização dos dados"]')
+  const t = await card.innerText()
+  const linhas = t.split('\n').map((x) => x.trim()).filter(Boolean)
+  const proibidos = ['Contratações (atualizações diárias)', 'Carga histórica', 'Varredura de atas', 'Itens e documentos oficiais', 'PCA']
+  const sobra = proibidos.filter((x) => t.includes(x))
+  check('Card "Atualização dos dados" só com título, última coleta e status geral',
+    linhas.length === 3 && /^Atualização dos dados$/.test(linhas[0]) && /^Última coleta: /.test(linhas[1]) && /^Status geral: /.test(linhas[2]) && !sobra.length,
+    linhas.join(' | '))
 })
 await safe('Aba "Análise de Compras" visível, com "Em breve" e não clicável', async () => {
   const item = page.locator('nav[aria-label="Navegação principal"] [aria-disabled="true"]', { hasText: 'Análise de Compras' })
@@ -71,12 +77,32 @@ await safe('Listagem de oportunidades com dados coletados', async () => {
   total = await countText(page)
   check('Listagem de oportunidades com dados coletados', total > 0, `${total} oportunidades`)
 })
-await safe('Cada card mostra órgão, objeto, valor, estágio, score e justificativa', async () => {
+await safe('Card: valor, pontuação, selo de portfólio, ofertas casadas (chips) e termos destacados', async () => {
   const card = page.locator('main ul > li').first()
   const txt = await card.innerText()
-  const ok = /Valor estimado:/.test(txt) && /(Alta prioridade|Analisar|Potencial indireto|Baixa aderência)/.test(txt) &&
-    /(Possível aderência|Sem evidência|Serviço de TI)/.test(txt)
-  check('Cada card mostra órgão, objeto, valor, estágio, score e justificativa', ok)
+  const chips = await card.locator('span.rounded-full').count()
+  const marks = await page.locator('main ul > li mark').count()
+  const ok = /Valor estimado:/.test(txt) && /pontuação/.test(txt) && /(Logo IBM \+ MVS|Logo IBM|MVS|Transversal)/.test(txt) &&
+    /Termos:/.test(txt) && chips > 0 && marks > 0
+  check('Card: valor, pontuação, selo de portfólio, ofertas casadas (chips) e termos destacados', ok, `${chips} chips, ${marks} destaques na página`)
+})
+await safe('Filtro de portfólio Tudo / Logo / MVS com contadores', async () => {
+  const radios = page.locator('[role="radiogroup"][aria-label="Portfólio"] [role="radio"]')
+  const labels = await radios.allInnerTexts()
+  const num = (i) => Number((labels[i].match(/\(([\d.]+)\)/) || [0, '0'])[1].replace(/\./g, ''))
+  const [tudo, logo, mvs] = [num(0), num(1), num(2)]
+  await radios.nth(2).click(); await page.waitForTimeout(200)
+  const nMvs = await countText(page)
+  const badges = await page.locator('main ul > li').evaluateAll((els) => els.slice(0, 30).map((e) => e.innerText))
+  const soMvs = badges.every((t) => /MVS/.test(t))
+  await radios.nth(1).click(); await page.waitForTimeout(200)
+  const nLogo = await countText(page)
+  const badgesL = await page.locator('main ul > li').evaluateAll((els) => els.slice(0, 30).map((e) => e.innerText))
+  const soLogo = badgesL.every((t) => /Logo IBM/.test(t))
+  await radios.nth(0).click(); await page.waitForTimeout(200)
+  check('Filtro de portfólio Tudo / Logo / MVS com contadores',
+    tudo === total && nMvs === mvs && nLogo === logo && soMvs && soLogo && (await countText(page)) === total,
+    `Tudo ${tudo} · Logo ${logo} · MVS ${mvs}`)
 })
 await safe('Links oficiais: abrem em nova aba, https/http válidos, sem link genérico', async () => {
   const links = page.locator('main ul > li a[target="_blank"]')
@@ -92,6 +118,19 @@ await safe('Links oficiais: abrem em nova aba, https/http válidos, sem link gen
   check('Links oficiais: abrem em nova aba, https/http válidos, sem link genérico', n > 0 && bad === 0 && portal > 0,
     `${n} links, ${bad} inválidos, ${portal} botões de acesso direto`)
 })
+await safe('Busca: dica, vírgula = qualquer termo, aspas = frase exata, "casou:" no card', async () => {
+  const dica = await page.locator('text=Separe termos por vírgula para buscar qualquer um deles. Use aspas para frase exata.').count()
+  const cnt = async (q) => { await page.fill('input[type="search"]', q); await page.waitForTimeout(250); return countText(page) }
+  const a = await cnt('cisco'); const b = await cnt('firewall')
+  const ou = await cnt('cisco, firewall')
+  const casou = await page.locator('main ul > li >> text=casou:').count()
+  const frase = await cnt('"suporte tecnico"')
+  const palavras = await cnt('suporte tecnico')
+  await page.fill('input[type="search"]', '')
+  check('Busca: dica, vírgula = qualquer termo, aspas = frase exata, "casou:" no card',
+    dica > 0 && ou >= Math.max(a, b) && ou <= a + b && casou > 0 && frase <= palavras,
+    `cisco ${a} · firewall ${b} · "cisco, firewall" ${ou} · frase ${frase} ≤ palavras ${palavras}`)
+})
 await safe('Busca por palavra-chave filtra resultados', async () => {
   const first = await page.locator('main ul > li button.text-left').first().innerText()
   const word = (first.normalize('NFD').replace(/[̀-ͯ]/g, '').match(/[A-Za-z]{6,}/g) || ['suporte'])[0]
@@ -105,18 +144,18 @@ await safe('Busca por palavra-chave filtra resultados', async () => {
   check('Busca sem resultado mostra mensagem (sem inventar resultados)', none > 0)
   await page.fill('input[type="search"]', '')
 })
-await safe('Filtros avançados (UF, aderência, valor, prazo, foco DF/federal)', async () => {
+await safe('Filtros avançados (UF, pontuação, valor, prazo, foco DF/federal)', async () => {
   await page.click('text=Mais filtros')
-  const labels = ['Órgão / unidade', 'UF', 'Município', 'Modalidade', 'Fabricante', 'Valor mínimo (R$)', 'Valor máximo (R$)',
-    'Publicado a partir de', 'Prazo de propostas até', 'Aderência mínima', 'Foco']
+  const labels = ['Órgão / unidade', 'UF', 'Município', 'Modalidade', 'Selo', 'Valor mínimo (R$)', 'Valor máximo (R$)',
+    'Publicado a partir de', 'Prazo de propostas até', 'Pontuação mínima', 'Foco']
   const missing = []
   for (const l of labels) if (!(await page.locator(`label:has-text("${l}")`).count())) missing.push(l)
   check('Filtros avançados presentes', missing.length === 0, missing.join(', '))
-  await page.locator('label:has-text("Aderência mínima") select').selectOption('40')
+  await page.locator('label:has-text("Pontuação mínima") select').selectOption('4.5')
   await page.waitForTimeout(200)
   const scores = await page.locator('main ul > li .num.text-2xl').allInnerTexts()
-  const allOk = scores.every((s) => Number(s) >= 40)
-  check('Filtro de aderência mínima respeitado em todos os cards', allOk, `${scores.length} cards`)
+  const allOk = scores.every((s) => Number(s.replace(',', '.')) >= 4.5)
+  check('Filtro de pontuação mínima respeitado em todos os cards', allOk, `${scores.length} cards`)
   await page.locator('label:has-text("Valor mínimo (R$)") input').fill('999999999999')
   await page.waitForTimeout(200)
   const n = await countText(page)
@@ -132,13 +171,13 @@ await safe('Ordenação por prazo/valor/publicação', async () => {
 await shot(page, '02-oportunidades')
 
 // 3. Detalhes
-await safe('Tela de detalhes com classificação, componentes do score e coleta', async () => {
+await safe('Tela de detalhes: ofertas casadas, como casou, termos, pontuação e coleta', async () => {
   await page.locator('main ul > li button:has-text("Detalhes")').first().click()
   await page.waitForSelector('[role="dialog"]')
   const t = await page.locator('[role="dialog"]').innerText()
-  const ok = /Classificação TLS/.test(t) && /Aderência ao portfólio/.test(t) && /Evidência de suporte/.test(t) &&
-    /Coleta/.test(t) && /Coletado pelo Radar em/.test(t) && /não são lidos pelo sistema/.test(t)
-  check('Tela de detalhes com classificação, componentes do score e coleta', ok)
+  const ok = /Classificação TLS/.test(t) && /Portfólio:/.test(t) && /Como casou/.test(t) && /(Termo exato|Marca \+ serviço)/.test(t) &&
+    /Coletado pelo Radar em/.test(t) && /PDFs não são lidos/.test(t)
+  check('Tela de detalhes: ofertas casadas, como casou, termos, pontuação e coleta', ok)
   const access = await page.locator('[role="dialog"] a', { hasText: /Abrir no (Portal de Compras|PNCP)/ }).count()
   check('Botão de acesso direto também na tela de detalhes', access > 0)
   await shot(page, '03-detalhe')
@@ -162,7 +201,7 @@ await safe('Favorito/acompanhamento aparece e persiste após recarregar (local)'
   await page.reload({ waitUntil: 'networkidle' })
   await nav(page, 'Acompanhamento')
   const t = await page.locator('main').innerText()
-  check('Favorito/acompanhamento aparece e persiste após recarregar (local)', /Em análise/.test(t) && /Teste automatizado/.test(t))
+  check('Favorito/acompanhamento aparece e persiste após recarregar (local)', /Em análise/.test(t) && /Teste automatizado/.test(t) && /meu favorito/.test(t))
   check('Aviso explícito de que favoritos locais não são compartilhados', /somente neste navegador/.test(t))
 })
 await safe('Configuração comercial privada: órgão prioritário marca e filtra', async () => {
@@ -188,7 +227,7 @@ await safe('Radar de Atas: aviso de adesão indicativa e filtros', async () => {
   await nav(page, 'Radar de Atas')
   await page.waitForSelector('text=Radar de Atas.')
   const t = await page.locator('main').innerText()
-  const filters = ['Vigência', 'Adesão', 'Órgão gerenciador', 'Oferta TLS', 'Fabricante', 'Valor mínimo (R$)']
+  const filters = ['Vigência', 'Adesão', 'Órgão gerenciador', 'Oferta TLS', 'Selo', 'Valor mínimo (R$)']
   const missing = filters.filter((f) => !t.includes(f))
   check('Radar de Atas: aviso de adesão indicativa e filtros', /indicativo/.test(t) && missing.length === 0, missing.join(', '))
   await page.locator('label:has-text("Vigência") select').selectOption('')
@@ -228,7 +267,7 @@ await safe('Sem dados publicados: mensagem clara em vez de tela vazia', async ()
   const e = await newPage({}, false) // erro 404 aqui é proposital
   await e.route('**/data/meta.json', (r) => r.fulfill({ status: 404, body: 'not found' }))
   await e.goto(BASE, { waitUntil: 'networkidle' })
-  const ok = await e.locator('text=Não foi possível carregar os dados publicados').count()
+  const ok = await e.locator('text=Não foi possível carregar os dados').count()
   check('Sem dados publicados: mensagem clara em vez de tela vazia', ok > 0)
 })
 
