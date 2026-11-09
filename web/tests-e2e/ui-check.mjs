@@ -203,20 +203,49 @@ await safe('Filtros avançados (UF, pontuação, valor, prazo, foco DF/federal)'
   const labels = ['Órgão / unidade', 'UF', 'Município', 'Modalidade', 'Selo', 'Valor mínimo (R$)', 'Valor máximo (R$)',
     'Publicado a partir de', 'Prazo de propostas até', 'Oferta TLS', 'Foco']
   const missing = []
-  for (const l of labels) if (!(await page.locator(`label:has-text("${l}")`).count())) missing.push(l)
+  for (const l of labels) if (!(await page.locator(`label:has-text("${l}"), div:has(> span:text-is("${l}"))`).count())) missing.push(l)
   check('Filtros avançados presentes', missing.length === 0, missing.join(', '))
   await page.locator('label:has-text("Aderência") select').first().selectOption('alta')
   await page.waitForTimeout(200)
   const scores = await page.locator('main ul > li .num.text-2xl').allInnerTexts()
   const allOk = scores.every((s) => Number(s) >= 70)
   check('Filtro de aderência alta respeitado em todos os cards (≥ 70)', allOk, `${scores.length} cards`)
-  await page.locator('label:has-text("Valor mínimo (R$)") input').fill('999999999999')
+  // valor mínimo digitado ("Outro valor…"): só sobram registros sem valor; "Ocultar sem valor" zera
+  await page.locator('select[aria-label="Valor mínimo (atalhos)"]').first().selectOption('outro')
+  await page.locator('input[aria-label="Valor mínimo (R$)"]').first().fill('999999999999')
+  await page.waitForTimeout(250)
+  const sobra = await page.locator('main ul > li').evaluateAll((els) => els.map((e) => e.innerText))
+  const soSemValor = sobra.every((t) => /Valor (estimado|homologado): não informado/.test(t))
+  await page.locator('input[aria-label="Ocultar sem valor"]').first().check()
   await page.waitForTimeout(200)
-  const n = await countText(page)
-  check('Filtro de valor mínimo exclui registros', n === 0)
+  check('Filtro de valor mínimo: sem valor continua; "Ocultar sem valor" remove', soSemValor && (await countText(page)) === 0,
+    `${sobra.length} sem valor antes de ocultar`)
   await page.click('text=limpar filtros')
   await page.waitForTimeout(200)
   check('Limpar filtros restaura a listagem', (await countText(page)) === total)
+})
+await safe('Atalho R$ 10 mil: cards com valor ≥ 10 mil (ou sem valor) e painel por família acompanha', async () => {
+  await page.locator('select[aria-label="Valor mínimo (atalhos)"]').first().selectOption('10000')
+  await page.waitForTimeout(250)
+  const n10 = await countText(page)
+  const valores = await page.locator('main ul > li').evaluateAll((els) => els.map((e) => {
+    const m = e.innerText.match(/Valor (?:estimado|homologado): (R\$\s?[\d.,]+|não informado)/)
+    return m ? m[1] : ''
+  }))
+  const ok = valores.every((v) => v === 'não informado' || Number(v.replace(/[^\d,]/g, '').replace(',', '.')) >= 10000)
+  await page.locator('nav[aria-label="Navegação principal"] button', { hasText: 'Dashboard' }).click()
+  await page.waitForSelector('section[aria-label="Oportunidades por família"]')
+  const nota = await page.locator('section[aria-label="Oportunidades por família"]').innerText()
+  const fam = page.locator('section[aria-label="Oportunidades por família"] li button:not([disabled])').first()
+  const qtd = Number(((await fam.locator('span').nth(1).innerText()).split('·')[0]).replace(/\D/g, ''))
+  await fam.click()
+  await page.waitForSelector('text=/resultado\\(s\\) na base coletada/')
+  const lista = await countText(page)
+  check('Atalho R$ 10 mil: cards com valor ≥ 10 mil (ou sem valor) e painel por família acompanha',
+    ok && n10 < total && lista === qtd && /valor mínimo/.test(nota), `${n10} de ${total}; família: painel ${qtd} = lista ${lista}`)
+  await page.locator('select[aria-label="Valor mínimo (atalhos)"]').first().selectOption('')
+  await page.click('text=limpar filtros')
+  await page.waitForTimeout(200)
 })
 await safe('Ordenação por prazo/valor/publicação', async () => {
   for (const v of ['prazo', 'valor', 'publicacao', 'score']) await page.locator('select:near(:text("Ordenar por"))').first().selectOption(v)

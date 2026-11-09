@@ -70,6 +70,12 @@ Regras do bloco `regras_de_match` da base de ofertas (rev. c):
   ofertas casadas pelo nome e os termos que deram match (ou a família e seus termos).
 - **Painel "Oportunidades por família"** no Dashboard: quantidade e valor por família; clique filtra a lista; passe o mouse
   para ver as 3 ofertas mais frequentes.
+- **Item de PCA é avaliado como um texto só** (ficha técnica + classe/descrição): um "excluir" de um lado vale para o outro
+  (ex.: classe "SWITCH" com ficha "TIPO: NÃO GERENCIÁVEL" não entra). Contratação, ata e contrato continuam item a item,
+  para que um lote de notebook não derrube o lote de switch do mesmo edital.
+- **Valor mínimo (filtro pessoal):** atalhos de R$ 10 mil a R$ 1 mi ou valor digitado; usa o valor do card (estimado, ou
+  homologado sem estimado; na ata, o valor da contratação). Registro sem valor continua aparecendo, a menos que você
+  marque "Ocultar sem valor". Vale para a lista, os contadores Tudo/Logo/MVS e o painel por família.
 - **Valor estimado agregado:** contratações + itens de PCA, **sem duplicidade** (o mesmo item nos planos de 2026 e 2027 e
   o edital republicado contam uma vez). Atas e contratos não entram (são a mesma demanda já contada).
 
