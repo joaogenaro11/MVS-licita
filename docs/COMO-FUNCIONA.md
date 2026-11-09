@@ -49,17 +49,29 @@ Site (GitHub Pages): https://joaogenaro11.github.io/MVS-licita/  → pede login;
 
 ## Como um registro é classificado
 
-Regras do bloco `regras_de_match` da base de ofertas:
+Regras do bloco `regras_de_match` da base de ofertas (rev. c):
 
 - Comparação sem acento e sem maiúsculas, por **palavra inteira** ("Cisco" não casa com "Francisco"; "HP" não casa com "HPC").
-- Uma oferta casa se aparece um **termo exato** dela, ou uma **marca + um termo de serviço** dela no mesmo texto (objeto, item ou PCA).
-  Termo de "excluir" da oferta impede o casamento.
-- **Pontuação:** termo exato = 3; marca + serviço = 2; ×1,5 para oferta de prioridade alta; soma das ofertas casadas.
+- **Oferta:** casa se aparece um **termo exato** dela, ou uma **marca + um termo de serviço** dela no mesmo texto
+  (objeto, item ou PCA). Termo de "excluir" da oferta impede o casamento.
+- **Família (caminho sem marca):** se nenhuma oferta casou, uma das 8 famílias casa quando aparecem um **termo de
+  categoria + um termo de serviço** dela no mesmo texto (ex.: "manutenção de switches e roteadores" → Networking).
+  A oportunidade entra com a família, sem oferta específica.
+- **Aderência (0–100):** pontos = termo exato 3; marca + serviço 2; família 2; ×1,5 se a oferta (ou família) principal
+  for prioritária; +1 se tocar 2 ou mais famílias; metade se houver termo de exclusão global. Aderência = pontos ÷ 6 × 100
+  (máx. 100). **Alta ≥ 70 · Média 40–69 · Baixa < 40.** É a ordenação padrão das listas.
+- **Família principal:** a da oferta de maior peso; empate → a família de menor ordem.
 - **Exclusões globais** (notebook, Power BI, impressora…) não descartam: cortam a pontuação pela metade e geram o selo
   **"possível falso positivo"** (um edital pode ter lote de notebook e lote de switch).
-- **Portfólio:** Logo IBM, MVS, **Logo IBM + MVS** (aparece nos dois filtros) ou Transversal (aparece só em "Tudo").
+- **Portfólio:** Logo IBM, MVS, **Logo IBM + MVS** (aparece nos dois filtros) ou Transversal (só em "Tudo"). Pelo caminho
+  de família: Suporte IBM → Logo; as demais → MVS; marca citada no texto acrescenta o portfólio da marca.
 - Oferta marcada como indisponível no Brasil gera o selo **"oferta indisponível no Brasil: ver alternativa"**.
-- No card: ofertas casadas (chips), termos destacados em amarelo no texto e selos. No detalhe: como cada oferta casou.
+- **No card:** aderência, família principal (até 2), portfólio e selos de alerta. **No detalhe ("Por que apareceu"):** as
+  ofertas casadas pelo nome e os termos que deram match (ou a família e seus termos).
+- **Painel "Oportunidades por família"** no Dashboard: quantidade e valor por família; clique filtra a lista; passe o mouse
+  para ver as 3 ofertas mais frequentes.
+- **Valor estimado agregado:** contratações + itens de PCA, **sem duplicidade** (o mesmo item nos planos de 2026 e 2027 e
+  o edital republicado contam uma vez). Atas e contratos não entram (são a mesma demanda já contada).
 
 ## Busca
 
@@ -76,7 +88,7 @@ para guardar (fica só para você).
 
 ## Quando um registro aparece e quando some do site
 
-**Aparece** quando casa ao menos uma oferta da base de ofertas e não está vencido.
+**Aparece** quando casa ao menos uma oferta ou família da base de ofertas e não está vencido.
 
 **Depois que aparece, só sai do site quando VENCE.** Mudanças de pontuação não tiram ninguém do site.
 

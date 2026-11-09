@@ -6,8 +6,9 @@ Networking, Security, MVS (multivendor), Data Center, Hardware Refresh e suporte
 
 - **Coleta real e automática:** GitHub Actions, duas vezes por dia, com custo zero.
 - **Estágios cobertos:** PCA (planejamento), edital/aviso publicado, propostas abertas, julgamento, atas vigentes e contratos.
-- **Classificação pela base de ofertas TLS (61 ofertas, privada):** ofertas casadas, portfólio (Logo IBM, MVS, Logo IBM + MVS ou
-  Transversal), pontuação, termos que deram match destacados no texto e selos (possível falso positivo, oferta indisponível no Brasil).
+- **Classificação pela base de ofertas TLS (privada; 61 ofertas em 8 famílias):** aderência 0–100 (Alta/Média/Baixa), família,
+  portfólio (Logo IBM, MVS, Logo IBM + MVS ou Transversal), termos destacados e selos de alerta; o caminho por família pega
+  editais sem marca ("manutenção de switches e roteadores").
 - **Link direto** para a disputa no portal de origem (`linkSistemaOrigem` oficial), para o PNCP e para os documentos publicados.
 - **Radar de Atas:** vigência, vencimento e potencial de adesão (indicativo, nunca afirmado sem evidência).
 - **Site estático no GitHub Pages**, sem servidor ligado o tempo todo.
