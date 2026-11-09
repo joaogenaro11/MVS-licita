@@ -119,17 +119,28 @@ await safe('Links oficiais: abrem em nova aba, https/http válidos, sem link gen
     `${n} links, ${bad} inválidos, ${portal} botões de acesso direto`)
 })
 await safe('Busca: dica, vírgula = qualquer termo, aspas = frase exata, "casou:" no card', async () => {
+  // termos tirados dos próprios dados exibidos (o teste não depende de quais licitações foram coletadas)
   const dica = await page.locator('text=Separe termos por vírgula para buscar qualquer um deles. Use aspas para frase exata.').count()
+  const objetos = await page.locator('main ul > li button.text-left').allInnerTexts()
+  const palavrasDe = (t) => (t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').match(/[A-Za-z]{5,}/g) || [])
+  const p1 = palavrasDe(objetos[0] || '')
+  const p2 = palavrasDe(objetos[objetos.length - 1] || '')
+  const a1 = p1[0] || 'servico'
+  const b1 = p2.find((w) => w.toLowerCase() !== a1.toLowerCase()) || 'zzzinexistente'
   const cnt = async (q) => { await page.fill('input[type="search"]', q); await page.waitForTimeout(250); return countText(page) }
-  const a = await cnt('cisco'); const b = await cnt('firewall')
-  const ou = await cnt('cisco, firewall')
+  const a = await cnt(a1); const b = await cnt(b1)
+  const ou = await cnt(`${a1}, ${b1}`)
   const casou = await page.locator('main ul > li >> text=casou:').count()
-  const frase = await cnt('"suporte tecnico"')
-  const palavras = await cnt('suporte tecnico')
+  const toks = (objetos[0] || '').split(/\s+/)
+  const ok = (w) => /^[\p{L}]{3,}$/u.test(w || '')
+  const i = toks.findIndex((w, k) => ok(w) && ok(toks[k + 1]))
+  const par = i >= 0 ? [toks[i], toks[i + 1]] : []   // duas palavras VIZINHAS no texto
+  const frase = par.length === 2 ? await cnt(`"${par.join(' ')}"`) : 1
+  const soltas = par.length === 2 ? await cnt(`${par[1]} ${par[0]}`) : 1
   await page.fill('input[type="search"]', '')
   check('Busca: dica, vírgula = qualquer termo, aspas = frase exata, "casou:" no card',
-    dica > 0 && ou >= Math.max(a, b) && ou <= a + b && casou > 0 && frase <= palavras,
-    `cisco ${a} · firewall ${b} · "cisco, firewall" ${ou} · frase ${frase} ≤ palavras ${palavras}`)
+    dica > 0 && a > 0 && ou >= Math.max(a, b) && ou <= a + b && casou > 0 && frase >= 1 && frase <= soltas,
+    `${a1} ${a} · ${b1} ${b} · "${a1}, ${b1}" ${ou} · frase "${par.join(' ')}" ${frase} ≤ palavras ${soltas}`)
 })
 await safe('Busca por palavra-chave filtra resultados', async () => {
   const first = await page.locator('main ul > li button.text-left').first().innerText()
