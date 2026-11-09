@@ -82,6 +82,22 @@ export function matchesPartner(r, partners) {
   })
 }
 
+/** Valor exibido no card: ata → valor da contratação de origem; demais → estimado, ou
+ *  homologado quando não houver estimado. null = sem valor informado (ou sigiloso). */
+export function valorCard(r) {
+  const n = (x) => (Number(x) > 0 ? Number(x) : null)
+  if (r.tipo === 'ata') return n(r.compra?.valor)
+  return n(r.valor_estimado) ?? n(r.valor_homologado)
+}
+
+/** Filtro de valor (mínimo/máximo) sobre o valor do card. Registro sem valor continua
+ *  aparecendo, a menos que "Ocultar sem valor" esteja marcado. */
+export function passaValor(r, f) {
+  const v = valorCard(r)
+  if (v == null) return !f.ocultarSemValor
+  return inRange(v, f.vmin, f.vmax)
+}
+
 const inRange = (v, min, max) => {
   if (min !== '' && min != null && !(v >= Number(min))) return false
   if (max !== '' && max != null && !(v <= Number(max))) return false
@@ -103,7 +119,7 @@ export function filterItems(items, f, ctx = {}) {
     if (f.estagio && r.estagio !== f.estagio) return false
     if (f.oferta && !(c.ofertas || []).includes(f.oferta)) return false
     if (f.selo && !(c.selos || []).some((x) => x.tipo === f.selo)) return false
-    if ((f.vmin || f.vmax) && !inRange(r.valor_estimado ?? -1, f.vmin, f.vmax)) return false
+    if (!passaValor(r, f)) return false
     if (f.faixa && c.faixa !== f.faixa) return false
     if (f.familia && !(c.familias || []).includes(f.familia)) return false
     if (f.pubDe && !((r.data_publicacao || '') >= f.pubDe)) return false
@@ -132,7 +148,7 @@ export function filterAtas(atas, f, ctx = {}) {
     if (f.adesao && a.adesao_status !== f.adesao) return false
     if (f.oferta && !(c.ofertas || []).includes(f.oferta)) return false
     if (f.selo && !(c.selos || []).some((x) => x.tipo === f.selo)) return false
-    if ((f.vmin || f.vmax) && !inRange(a.compra?.valor ?? -1, f.vmin, f.vmax)) return false
+    if (!passaValor(a, f)) return false
     if (f.faixa && c.faixa !== f.faixa) return false
     if (f.familia && !(c.familias || []).includes(f.familia)) return false
     if (f.uf && a.unidade?.uf !== f.uf) return false

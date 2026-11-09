@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { fmtDate, money } from '../lib/format.js'
 import { portfolioLabel } from '../lib/filters.js'
 import { highlightParts } from '../lib/highlight.js'
@@ -180,12 +181,13 @@ export function Kpi({ label, value, hint, accent, onClick }) {
   )
 }
 
-export function Field({ label, children, className = '' }) {
+export function Field({ label, children, className = '', as = 'label' }) {
+  const Tag = as  // 'div' quando o conteúdo tem mais de um controle (rótulo não pode conter rótulo)
   return (
-    <label className={`flex min-w-0 flex-col gap-1 ${className}`}>
+    <Tag className={`flex min-w-0 flex-col gap-1 ${className}`}>
       <span className="text-[11px] text-ink-2">{label}</span>
       {children}
-    </label>
+    </Tag>
   )
 }
 
@@ -225,4 +227,35 @@ export const dateOrNA = (s, t) => fmtDate(s, t) || 'Não informado'
 
 export function Empty({ children }) {
   return <div className="bg-white p-8 text-center text-[13px] text-muted">{children}</div>
+}
+
+
+const VALOR_ATALHOS = [['', 'Sem mínimo'], ['10000', 'R$ 10 mil'], ['50000', 'R$ 50 mil'], ['100000', 'R$ 100 mil'],
+  ['500000', 'R$ 500 mil'], ['1000000', 'R$ 1 mi']]
+
+/** Valor mínimo com atalhos (ou valor digitado) + "Ocultar sem valor". */
+export function ValorMinimo({ value, onChange, ocultar, onOcultar }) {
+  const atalho = VALOR_ATALHOS.some(([v]) => v === String(value ?? ''))
+  const [outro, setOutro] = useState(!atalho)
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex gap-1">
+        <select aria-label="Valor mínimo (atalhos)" className={inputCls} value={outro ? 'outro' : String(value ?? '')}
+          onChange={(e) => {
+            if (e.target.value === 'outro') { setOutro(true); return }
+            setOutro(false); onChange(e.target.value)
+          }}>
+          {VALOR_ATALHOS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          <option value="outro">Outro valor…</option>
+        </select>
+        {outro ? (
+          <input aria-label="Valor mínimo (R$)" type="number" min="0" step="1000" className={`${inputCls} w-32`} value={value ?? ''}
+            placeholder="R$" onChange={(e) => onChange(e.target.value)} />
+        ) : null}
+      </div>
+      <label className="flex items-center gap-1.5 text-[11px] text-ink-2">
+        <input type="checkbox" aria-label="Ocultar sem valor" checked={Boolean(ocultar)} onChange={(e) => onOcultar(e.target.checked)} /> Ocultar sem valor
+      </label>
+    </div>
+  )
 }

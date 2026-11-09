@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
-import { Badge, Casou, Empty, FAIXA_OPTS, FamiliaChips, Field, Highlight, inputCls, PortalLinks, PortfolioBadge, PortfolioSwitch, ScoreBadge, SEARCH_HINT, Select, Selos, Star, TIPO } from '../components/ui.jsx'
+import { Badge, Casou, Empty, FAIXA_OPTS, FamiliaChips, Field, Highlight, inputCls, PortalLinks, PortfolioBadge, PortfolioSwitch, ScoreBadge, SEARCH_HINT, Select, Selos, Star, TIPO, ValorMinimo } from '../components/ui.jsx'
 import { daysUntil, fmtDate, money, relDays, UFS } from '../lib/format.js'
-import { bySearchThen, filterItems, matchesPriority, portfolioCounts, SORTS, uniqueSorted } from '../lib/filters.js'
+import { bySearchThen, filterItems, matchesPriority, portfolioCounts, SORTS, uniqueSorted, valorCard } from '../lib/filters.js'
 
 export const EMPTY_FILTERS = {
   q: '', portfolio: 'tudo', orgao: '', uf: '', municipio: '', modalidade: '', estagio: '', oferta: '', selo: '', vmin: '', vmax: '',
-  pubDe: '', pubAte: '', prazoAte: '', faixa: '', familia: '', tipo: '', foco: '', prioritarios: false, favoritos: false,
+  pubDe: '', pubAte: '', prazoAte: '', faixa: '', familia: '', tipo: '', foco: '', prioritarios: false, favoritos: false, ocultarSemValor: false,
 }
 export const familiaOpts = (meta) => (meta.lookups?.familias || []).map((f) => ({ value: f.id, label: f.nome }))
 export const SELO_OPTS = [
@@ -56,6 +56,9 @@ export default function Oportunidades({ data, filters, setFilters, sort = 'score
           <Field label="Aderência" className="md:w-40">
             <Select value={filters.faixa} onChange={set('faixa')} placeholder="Todas" options={FAIXA_OPTS} />
           </Field>
+          <Field as="div" label="Valor mínimo (R$)" className="md:w-56">
+            <ValorMinimo value={filters.vmin} onChange={set('vmin')} ocultar={filters.ocultarSemValor} onOcultar={set('ocultarSemValor')} />
+          </Field>
           <button type="button" onClick={() => setMore(!more)} className="h-10 self-end px-3 text-[13px] text-brand hover:bg-brand-soft md:self-auto md:mt-4">
             {more ? 'Menos filtros' : 'Mais filtros'}{active ? ` (${active})` : ''}
           </button>
@@ -69,7 +72,6 @@ export default function Oportunidades({ data, filters, setFilters, sort = 'score
             <Field label="Selo"><Select value={filters.selo} onChange={set('selo')} options={SELO_OPTS} /></Field>
             <Field label="Tipo de registro"><Select value={filters.tipo} onChange={set('tipo')} options={[
               { value: 'contratacao', label: 'Contratação (edital/aviso)' }, { value: 'pca', label: 'Item de PCA' }, { value: 'contrato', label: 'Contrato' }]} /></Field>
-            <Field label="Valor mínimo (R$)"><input type="number" min="0" value={filters.vmin} onChange={(e) => set('vmin')(e.target.value)} className={inputCls} /></Field>
             <Field label="Valor máximo (R$)"><input type="number" min="0" value={filters.vmax} onChange={(e) => set('vmax')(e.target.value)} className={inputCls} /></Field>
             <Field label="Publicado a partir de"><input type="date" value={filters.pubDe} onChange={(e) => set('pubDe')(e.target.value)} className={inputCls} /></Field>
             <Field label="Publicado até"><input type="date" value={filters.pubAte} onChange={(e) => set('pubAte')(e.target.value)} className={inputCls} /></Field>
@@ -137,7 +139,7 @@ export function OppCard({ r, L, ctx, onOpen }) {
           </button>
           <Casou r={r} />
           <dl className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[12px]">
-            <div><dt className="inline text-muted">Valor estimado: </dt><dd className="num inline font-medium">{money(r.valor_estimado) || 'não informado'}</dd></div>
+            <div><dt className="inline text-muted">{!(r.valor_estimado > 0) && r.valor_homologado > 0 ? 'Valor homologado' : 'Valor estimado'}: </dt><dd className="num inline font-medium">{money(valorCard(r)) || 'não informado'}</dd></div>
             {r.data_publicacao ? <div><dt className="inline text-muted">Publicação: </dt><dd className="inline">{fmtDate(r.data_publicacao)}</dd></div> : null}
             {prazo ? (
               <div><dt className="inline text-muted">Propostas até: </dt>

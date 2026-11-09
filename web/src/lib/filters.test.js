@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { aggregateValue, bySearchThen, filterAtas, filterItems, indexRecord, matchesPartner, matchesPriority, portfolioCounts, portfolioLabel, SORTS } from './filters.js'
+import { aggregateValue, bySearchThen, passaValor, valorCard, filterAtas, filterItems, indexRecord, matchesPartner, matchesPriority, portfolioCounts, portfolioLabel, SORTS } from './filters.js'
 
 const mk = (o) => indexRecord({
   tipo: 'contratacao', orgao: { nome: 'ORGAO A', esfera: 'F', cnpj: '00394460000141' },
@@ -45,7 +45,8 @@ test('filtro de portfólio Tudo / Logo / MVS e contadores', () => {
 test('filtros combinados', () => {
   assert.deepEqual(filterItems(items, { uf: 'DF', estagio: 'propostas_abertas' }).map((r) => r.id), ['1'])
   assert.deepEqual(filterItems(items, { oferta: 'Suporte multivendor Cisco', faixa: 'alta' }).map((r) => r.id), ['1'])
-  assert.deepEqual(filterItems(items, { vmin: 60 }).map((r) => r.id), ['1'])
+  assert.deepEqual(filterItems(items, { vmin: 60 }).map((r) => r.id), ['1', '2'])   // '2' não tem valor: continua
+  assert.deepEqual(filterItems(items, { vmin: 60, ocultarSemValor: true }).map((r) => r.id), ['1'])
   assert.deepEqual(filterItems(items, { prazoAte: '2026-11-30' }).map((r) => r.id), ['1'])
   assert.deepEqual(filterItems(items, { foco: 'df_federal' }).map((r) => r.id), ['1', '3', '3'])
   assert.deepEqual(filterItems(items, { municipio: 'campinas' }).map((r) => r.id), ['2'])
@@ -101,4 +102,23 @@ test('filtro de atas por vigência e adesão', () => {
   assert.deepEqual(filterAtas(atas, { vigencia: 'vigentes' }).map((a) => a.id), ['a', 'c'])
   assert.deepEqual(filterAtas(atas, { vigencia: 'vence_em_breve' }).map((a) => a.id), ['c'])
   assert.deepEqual(filterAtas(atas, { adesao: 'potencial_verificar' }).map((a) => a.id), ['a'])
+})
+
+test('valor mínimo: usa o valor do card; sem valor continua, a menos de "Ocultar sem valor"', () => {
+  const rs = [
+    mk({ id: 'barato', objeto: 'Switch 8 portas', valor_estimado: 2380 }),
+    mk({ id: 'caro', objeto: 'Switches core', valor_estimado: 56_000_000 }),
+    mk({ id: 'homologado', objeto: 'Firewall', valor_estimado: null, valor_homologado: 20000 }),
+    mk({ id: 'sigiloso', objeto: 'Storage', valor_estimado: null }),
+  ]
+  assert.equal(valorCard(rs[2]), 20000)
+  assert.deepEqual(filterItems(rs, { vmin: 10000 }).map((r) => r.id), ['caro', 'homologado', 'sigiloso'])
+  assert.deepEqual(filterItems(rs, { vmin: 10000, ocultarSemValor: true }).map((r) => r.id), ['caro', 'homologado'])
+  const atas = [
+    indexRecord({ id: 'a1', tipo: 'ata', objeto: 'x', vigencia_status: 'vigente', compra: { valor: 0 }, orgao: {}, unidade: {} }),
+    indexRecord({ id: 'a2', tipo: 'ata', objeto: 'y', vigencia_status: 'vigente', compra: { valor: 50000 }, orgao: {}, unidade: {} }),
+  ]
+  assert.deepEqual(filterAtas(atas, { vmin: 10000 }).map((a) => a.id), ['a1', 'a2'])
+  assert.deepEqual(filterAtas(atas, { ocultarSemValor: true }).map((a) => a.id), ['a2'])
+  assert.equal(passaValor(rs[0], {}), true)
 })

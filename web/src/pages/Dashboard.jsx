@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Kpi } from '../components/ui.jsx'
 import { fmtDate, moneyCompact } from '../lib/format.js'
-import { aggregateValue, SORTS } from '../lib/filters.js'
+import { aggregateValue, passaValor, SORTS } from '../lib/filters.js'
 import { OppCard } from './Oportunidades.jsx'
 import { AtaCard } from './Atas.jsx'
 
@@ -27,7 +27,7 @@ export function NovaBusca({ className = '' }) {
   )
 }
 
-export default function Dashboard({ data, ctx, go, onOpen }) {
+export default function Dashboard({ data, ctx, go, onOpen, filtroValor = {} }) {
   const { items, atas, meta } = data
   const k = useMemo(() => {
     const abertas = items.filter((i) => i.estagio === 'propostas_abertas')
@@ -46,7 +46,7 @@ export default function Dashboard({ data, ctx, go, onOpen }) {
       topAbertas: [...abertas].sort(SORTS.score).slice(0, 6),
       topAtas: [...atasVig].sort(SORTS.score).slice(0, 4),
       porFamilia: (meta.lookups?.familias || []).map((f) => {
-        const rs = items.filter((i) => (i.classificacao?.familias || []).includes(f.id))
+        const rs = items.filter((i) => (i.classificacao?.familias || []).includes(f.id) && passaValor(i, filtroValor))
         const top = Object.entries(rs.reduce((acc, i) => {
           for (const o of i.classificacao?.ofertas_casadas || []) if (o.familia === f.id) acc[o.nome_pt] = (acc[o.nome_pt] || 0) + 1
           return acc
@@ -55,7 +55,7 @@ export default function Dashboard({ data, ctx, go, onOpen }) {
         return { ...f, n: rs.length, valor: aggregateValue(rs).total, top, soFamilia }
       }),
     }
-  }, [items, atas, meta])
+  }, [items, atas, meta, filtroValor])
   const maxFamilia = Math.max(1, ...k.porFamilia.map((f) => f.n))
 
   return (
@@ -106,7 +106,11 @@ export default function Dashboard({ data, ctx, go, onOpen }) {
               ))}
               {!k.porFamilia.length ? <li className="text-[12px] text-muted">Sem dados.</li> : null}
             </ul>
-            <p className="mt-2 text-[11px] text-muted">Uma oportunidade pode estar em duas famílias. Passe o mouse para ver as ofertas mais frequentes.</p>
+            <p className="mt-2 text-[11px] text-muted">
+              Uma oportunidade pode estar em duas famílias. Passe o mouse para ver as ofertas mais frequentes.
+              {Number(filtroValor.vmin) > 0 ? ` Com seu valor mínimo de ${moneyCompact(Number(filtroValor.vmin))}.` : ''}
+              {filtroValor.ocultarSemValor ? ' Sem os registros sem valor.' : ''}
+            </p>
           </section>
         </aside>
       </div>
