@@ -295,3 +295,160 @@ revoke execute on function public.admin_listar_usuarios(), public.admin_criar_us
 grant execute on function public.admin_listar_usuarios(), public.admin_criar_usuario(text, text, text),
   public.admin_redefinir_senha(uuid), public.admin_definir_ativo(uuid, boolean), public.admin_salvar_ofertas(jsonb),
   public.trocar_minha_senha(text, text) to authenticated;
+
+-- =============================================================================
+-- Senha temporária visível para o admin (pedido do administrador)
+-- A senha temporária (criação/redefinição) fica CRIPTOGRAFADA no Supabase Vault até a pessoa
+-- criar a própria senha; aí é apagada. Também é apagada ao desativar o usuário.
+-- Só o admin consegue ler (função com checagem de papel). Senhas pessoais nunca são guardadas.
+-- =============================================================================
+create table if not exists private.senhas_temporarias (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  secret_id uuid not null,
+  criada_em timestamptz not null default now()
+);
+revoke all on private.senhas_temporarias from public, anon, authenticated;
+
+create or replace function private.apagar_senha_temporaria(p_user_id uuid) returns void
+language plpgsql volatile security definer set search_path = '' as $$
+declare v_secret uuid;
+begin
+  delete from private.senhas_temporarias where user_id = p_user_id returning secret_id into v_secret;
+  if v_secret is not null then delete from vault.secrets where id = v_secret; end if;
+end $$;
+
+create or replace function private.guardar_senha_temporaria(p_user_id uuid, p_senha text) returns void
+language plpgsql volatile security definer set search_path = '' as $$
+begin
+  perform private.apagar_senha_temporaria(p_user_id);
+  insert into private.senhas_temporarias (user_id, secret_id)
+  values (p_user_id, vault.create_secret(p_senha, 'radar-tls-senha-temporaria-' || p_user_id::text || '-' || extract(epoch from clock_timestamp())::bigint,
+                                         'Senha temporária do Radar TLS (apagada quando o usuário cria a própria senha)'));
+end $$;
+
+create or replace function private.ver_senha_temporaria(p_user_id uuid) returns text
+language plpgsql stable security definer set search_path = '' as $$
+declare v_senha text;
+begin
+  perform private.exigir_admin();
+  if not exists (select 1 from public.perfis where user_id = p_user_id and trocar_senha and ativo) then
+    raise exception 'este usuário já criou a própria senha (ou está desativado): use "Redefinir senha" para gerar outra temporária';
+  end if;
+  select d.decrypted_secret into v_senha
+    from private.senhas_temporarias s join vault.decrypted_secrets d on d.id = s.secret_id
+   where s.user_id = p_user_id;
+  if v_senha is null then
+    raise exception 'senha temporária não guardada (usuário criado antes desta opção): use "Redefinir senha"';
+  end if;
+  return v_senha;
+end $$;
+
+-- criação, redefinição, troca e desativação passam a guardar/apagar a senha temporária
+create or replace function private.criar_usuario(p_usuario text, p_nome text, p_papel text default 'usuario')
+returns table (user_id uuid, usuario text, senha_temporaria text)
+language plpgsql volatile security definer set search_path = '' as $$
+declare
+  v_id uuid := gen_random_uuid();
+  v_usuario text := lower(trim(p_usuario));
+  v_email text;
+  v_senha text := private.senha_aleatoria();
+begin
+  -- auth.uid() nulo = SQL Editor do painel (papel anon/autenticado nunca chega aqui sem JWT: sem EXECUTE)
+  if auth.uid() is not null then perform private.exigir_admin(); end if;
+  if v_usuario !~ '^[a-z0-9][a-z0-9._-]{1,31}$' then
+    raise exception 'usuário inválido: use 2 a 32 caracteres (letras minúsculas, números, ponto, hífen, sublinhado)';
+  end if;
+  if coalesce(trim(p_nome), '') = '' then raise exception 'informe o nome'; end if;
+  if p_papel not in ('admin', 'usuario') then raise exception 'papel inválido'; end if;
+  if exists (select 1 from public.perfis p where p.usuario = v_usuario) then raise exception 'usuário já existe'; end if;
+  v_email := v_usuario || '@' || private.dominio_login();
+  insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+                          raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+                          confirmation_token, recovery_token, email_change_token_new, email_change)
+  values ('00000000-0000-0000-0000-000000000000', v_id, 'authenticated', 'authenticated', v_email,
+          extensions.crypt(v_senha, extensions.gen_salt('bf', 10)), now(),
+          '{"provider":"email","providers":["email"]}'::jsonb,
+          jsonb_build_object('usuario', v_usuario, 'nome', trim(p_nome)), now(), now(), '', '', '', '');
+  insert into auth.identities (user_id, provider_id, provider, identity_data, created_at, updated_at)
+  values (v_id, v_id::text, 'email',
+          jsonb_build_object('sub', v_id::text, 'email', v_email, 'email_verified', true, 'phone_verified', false), now(), now());
+  insert into public.perfis (user_id, usuario, nome, papel, ativo, trocar_senha)
+  values (v_id, v_usuario, trim(p_nome), p_papel, true, true);
+  perform private.guardar_senha_temporaria(v_id, v_senha);
+  return query select v_id, v_usuario, v_senha;
+end $$;
+
+create or replace function private.redefinir_senha(p_user_id uuid)
+returns text language plpgsql volatile security definer set search_path = '' as $$
+declare v_senha text := private.senha_aleatoria();
+begin
+  if auth.uid() is not null then perform private.exigir_admin(); end if;
+  update auth.users set encrypted_password = extensions.crypt(v_senha, extensions.gen_salt('bf', 10)), updated_at = now()
+   where id = p_user_id;
+  if not found then raise exception 'usuário não encontrado'; end if;
+  update public.perfis set trocar_senha = true, atualizado_em = now() where user_id = p_user_id;
+  delete from auth.sessions where user_id = p_user_id;          -- encerra as sessões abertas
+  perform private.guardar_senha_temporaria(p_user_id, v_senha);
+  return v_senha;
+end $$;
+
+create or replace function private.definir_ativo(p_user_id uuid, p_ativo boolean)
+returns void language plpgsql volatile security definer set search_path = '' as $$
+begin
+  perform private.exigir_admin();
+  if p_user_id = auth.uid() and not p_ativo then raise exception 'você não pode desativar o próprio acesso'; end if;
+  update public.perfis set ativo = p_ativo, atualizado_em = now() where user_id = p_user_id;
+  if not found then raise exception 'usuário não encontrado'; end if;
+  -- data distante (o Supabase Auth não aceita 'infinity')
+  update auth.users set banned_until = case when p_ativo then null else '2999-12-31 00:00:00+00'::timestamptz end, updated_at = now()
+   where id = p_user_id;
+  if not p_ativo then
+    delete from auth.sessions where user_id = p_user_id;
+    perform private.apagar_senha_temporaria(p_user_id);
+  end if;
+end $$;
+
+create or replace function private.trocar_minha_senha(p_atual text, p_nova text)
+returns void language plpgsql volatile security definer set search_path = '' as $$
+declare v_hash text;
+begin
+  if auth.uid() is null or not private.is_allowed() then raise exception 'acesso negado' using errcode = '42501'; end if;
+  select encrypted_password into v_hash from auth.users where id = auth.uid();
+  if v_hash is null or extensions.crypt(p_atual, v_hash) <> v_hash then raise exception 'senha atual incorreta'; end if;
+  if length(p_nova) < 10 or p_nova !~ '[A-Za-z]' or p_nova !~ '[0-9]' then
+    raise exception 'a nova senha precisa de ao menos 10 caracteres, com letras e números';
+  end if;
+  if p_nova = p_atual then raise exception 'a nova senha deve ser diferente da atual'; end if;
+  update auth.users set encrypted_password = extensions.crypt(p_nova, extensions.gen_salt('bf', 10)), updated_at = now()
+   where id = auth.uid();
+  update public.perfis set trocar_senha = false, atualizado_em = now() where user_id = auth.uid();
+  perform private.apagar_senha_temporaria(auth.uid());   -- a temporária deixa de existir
+end $$;
+
+-- listagem passa a dizer se há senha temporária guardada
+drop function if exists public.admin_listar_usuarios();
+drop function if exists private.listar_usuarios();
+create function private.listar_usuarios()
+returns table (user_id uuid, usuario text, nome text, papel text, ativo boolean, trocar_senha boolean,
+               criado_em timestamptz, ultimo_acesso timestamptz, senha_temporaria_guardada boolean)
+language plpgsql stable security definer set search_path = '' as $$
+begin
+  perform private.exigir_admin();
+  return query select p.user_id, p.usuario, p.nome, p.papel, p.ativo, p.trocar_senha, p.criado_em, u.last_sign_in_at,
+                      exists (select 1 from private.senhas_temporarias s where s.user_id = p.user_id)
+                 from public.perfis p join auth.users u on u.id = p.user_id order by p.usuario;
+end $$;
+create function public.admin_listar_usuarios()
+returns table (user_id uuid, usuario text, nome text, papel text, ativo boolean, trocar_senha boolean,
+               criado_em timestamptz, ultimo_acesso timestamptz, senha_temporaria_guardada boolean)
+language sql volatile security invoker set search_path = '' as $$ select * from private.listar_usuarios() $$;
+create or replace function public.admin_ver_senha_temporaria(p_user_id uuid) returns text
+language sql volatile security invoker set search_path = '' as $$ select private.ver_senha_temporaria(p_user_id) $$;
+
+revoke execute on all functions in schema private from public, anon;
+grant execute on function private.is_allowed(), private.is_admin(), private.exigir_admin(),
+  private.criar_usuario(text, text, text), private.redefinir_senha(uuid), private.definir_ativo(uuid, boolean),
+  private.listar_usuarios(), private.trocar_minha_senha(text, text), private.salvar_ofertas(jsonb),
+  private.ver_senha_temporaria(uuid) to authenticated;
+revoke execute on function public.admin_listar_usuarios(), public.admin_ver_senha_temporaria(uuid) from public, anon;
+grant execute on function public.admin_listar_usuarios(), public.admin_ver_senha_temporaria(uuid) to authenticated;

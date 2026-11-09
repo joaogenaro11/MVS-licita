@@ -26,8 +26,11 @@ export default function Usuarios({ ctx }) {
         {senha ? (
           <div role="status" className="border-l-4 border-warn bg-white px-4 py-3 text-[13px]">
             Senha temporária de <strong>{senha.usuario}</strong>: <code className="select-all bg-field px-2 py-0.5 font-mono text-[14px]">{senha.senha}</code>
-            <p className="mt-1 text-[12px] text-ink-2">Ela aparece só agora. Repasse por um canal privado; no primeiro acesso a pessoa cria a própria senha.</p>
-            <button className="mt-1 text-[12px] text-brand hover:underline" onClick={() => setSenha(null)}>Já anotei, ocultar</button>
+            <p className="mt-1 text-[12px] text-ink-2">
+              Repasse por um canal privado. Enquanto a pessoa não criar a própria senha, você pode vê-la de novo em
+              <strong> Ver senha temporária</strong>; depois do primeiro acesso ela é apagada.
+            </p>
+            <button className="mt-1 text-[12px] text-brand hover:underline" onClick={() => setSenha(null)}>Ocultar</button>
           </div>
         ) : null}
         <div className="overflow-x-auto bg-white">
@@ -44,6 +47,11 @@ export default function Usuarios({ ctx }) {
                   <td className="px-3">{u.ativo ? (u.trocar_senha ? <Badge className="bg-[#fcf4d6] text-[#8e6a00] ring-[#f1c21b]">senha temporária</Badge> : <Badge className="bg-[#defbe6] text-[#0e6027] ring-[#a7f0ba]">ativo</Badge>) : <Badge className="bg-[#fff1f1] text-[#a2191f] ring-[#ffb3b8]">desativado</Badge>}</td>
                   <td className="px-3 text-[12px] text-ink-2">{fmtDate(u.ultimo_acesso, true) || 'nunca'}</td>
                   <td className="whitespace-nowrap px-3 text-right text-[12px]">
+                    {u.ativo && u.trocar_senha ? (
+                      <button className="mr-3 text-brand hover:underline" title={u.senha_temporaria_guardada ? '' : 'Usuário criado antes desta opção: use Redefinir senha'}
+                        onClick={() => run(async () => setSenha({ usuario: u.usuario, senha: await adminApi.verSenha(u.user_id) }))}>
+                        Ver senha temporária</button>
+                    ) : null}
                     <button className="text-brand hover:underline" onClick={() => run(async () => {
                       if (!window.confirm(`Gerar nova senha temporária para ${u.usuario}? As sessões abertas dele serão encerradas.`)) return
                       setSenha({ usuario: u.usuario, senha: await adminApi.redefinir(u.user_id) })

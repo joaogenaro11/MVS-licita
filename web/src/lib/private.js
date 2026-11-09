@@ -279,6 +279,7 @@ export const adminApi = {
   async listar() { return rpc('admin_listar_usuarios', {}) },
   async criar(usuario, nome, papel) { return (await rpc('admin_criar_usuario', { p_usuario: usuario, p_nome: nome, p_papel: papel }))[0] },
   async redefinir(userId) { return rpc('admin_redefinir_senha', { p_user_id: userId }) },
+  async verSenha(userId) { return rpc('admin_ver_senha_temporaria', { p_user_id: userId }) },
   async ativo(userId, ativo) { return rpc('admin_definir_ativo', { p_user_id: userId, p_ativo: ativo }) },
   async salvarOfertas(json) { return rpc('admin_salvar_ofertas', { p_data: json }) },
   async ofertasAtuais() {
