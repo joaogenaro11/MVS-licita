@@ -6,7 +6,7 @@
   "ate": "2026-11-08"
  },
  "contratos_atualizacao": {
-  "ate": "2026-11-05"
+  "ate": "2026-11-06"
  },
  "ata_links_pendentes": {
   "12075748000132-1-000143/2024-000038": [
@@ -114,6 +114,17 @@
     "orgao": "MUNICIPIO DE BRUSQUE",
     "valor": 6827.0,
     "data_assinatura": "2026-11-06"
+   },
+   {
+    "contrato": "82572207000103-2-000746/2026",
+    "fornecedor": {
+     "ni": "04602789000101",
+     "nome": "DATEN TECNOLOGIA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE ITAPEMA",
+    "valor": 68270.0,
+    "data_assinatura": "2026-11-06"
    }
   ],
   "17879859000115-1-000138/2025-000001": [
@@ -171,6 +182,17 @@
     "orgao": "UNIVERSIDADE FEDERAL DE ALFENAS - UNIFAL-MG",
     "valor": 4179.4,
     "data_assinatura": "2026-09-29"
+   },
+   {
+    "contrato": "17879859000115-2-000759/2026",
+    "fornecedor": {
+     "ni": "05194502000114",
+     "nome": "ALFALAGOS LTDA."
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE FEDERAL DE ALFENAS - UNIFAL-MG",
+    "valor": 782.82,
+    "data_assinatura": "2026-09-22"
    }
   ],
   "01263896000164-1-000544/2026-000004": [
@@ -1832,6 +1854,17 @@
     "orgao": "UNIVERSIDADE FEDERAL DO RIO GRANDE DO SUL",
     "valor": 7350.0,
     "data_assinatura": "2026-07-07"
+   },
+   {
+    "contrato": "92969856000198-2-000992/2026",
+    "fornecedor": {
+     "ni": "01181242000272",
+     "nome": "COMPWIRE INFORMATICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE FEDERAL DO RIO GRANDE DO SUL",
+    "valor": 5499.75,
+    "data_assinatura": "2026-10-07"
    }
   ],
   "03184041000173-1-000152/2025-000001": [
@@ -1880,6 +1913,50 @@
     "orgao": "MUNICIPIO DE SARAPUI",
     "valor": 3232.5,
     "data_assinatura": "2026-11-05"
+   },
+   {
+    "contrato": "46634341000110-2-001912/2026",
+    "fornecedor": {
+     "ni": "24657970000122",
+     "nome": "HOSANA COMERCIO E REPRESENTACAO DE PRODUTOS ALIMENTICIOS EM GERAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SARAPUI",
+    "valor": 213.6,
+    "data_assinatura": "2026-11-06"
+   },
+   {
+    "contrato": "46634341000110-2-001922/2026",
+    "fornecedor": {
+     "ni": "34354674000106",
+     "nome": "LMB INDUSTRIA E COMERCIO DE PRODUTOS LACTEOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SARAPUI",
+    "valor": 19452.0,
+    "data_assinatura": "2026-11-06"
+   },
+   {
+    "contrato": "46634341000110-2-001923/2026",
+    "fornecedor": {
+     "ni": "52426252000180",
+     "nome": "NB COMÉRCIO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SARAPUI",
+    "valor": 14385.0,
+    "data_assinatura": "2026-11-06"
+   },
+   {
+    "contrato": "46634341000110-2-001926/2026",
+    "fornecedor": {
+     "ni": "08528442000117",
+     "nome": "NUTRICIONALE COMERCIO DE ALIMENTOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SARAPUI",
+    "valor": 754.55,
+    "data_assinatura": "2026-11-06"
    }
   ],
   "46068425000133-1-001945/2024-000001": [
@@ -2637,6 +2714,17 @@
     "orgao": "MUNICIPIO DE RIO DO SUL",
     "valor": 805.01,
     "data_assinatura": "2026-11-03"
+   },
+   {
+    "contrato": "83102855000150-2-002249/2026",
+    "fornecedor": {
+     "ni": "11118645000140",
+     "nome": "SPOTECH INFORMATICA CORAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE NAVEGANTES",
+    "valor": 936.42,
+    "data_assinatura": "2026-11-06"
    }
   ],
   "08806721000103-1-000040/2025-000019": [
@@ -2800,6 +2888,17 @@
     "fruto_adesao": false,
     "orgao": "MUNICIPIO DE GRAVATAL",
     "valor": 1249.0,
+    "data_assinatura": "2026-11-06"
+   },
+   {
+    "contrato": "11786437000119-2-000018/2026",
+    "fornecedor": {
+     "ni": "21748841000151",
+     "nome": "TECNETWORKING SERVICOS E SOLUCOES EM TI LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "FUNDO MUNICIPAL DE ASSISTENCIA SOCIAL DE CRICIUMA",
+    "valor": 1250.0,
     "data_assinatura": "2026-11-06"
    }
   ],
@@ -4105,6 +4204,17 @@
     "orgao": "MUNICIPIO DE FAGUNDES VARELA",
     "valor": 59.9,
     "data_assinatura": "2026-11-03"
+   },
+   {
+    "contrato": "91566893000192-2-001284/2026",
+    "fornecedor": {
+     "ni": "65172610000118",
+     "nome": "COMERCIAL PANCOTTO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE FAGUNDES VARELA",
+    "valor": 319.4,
+    "data_assinatura": "2026-11-03"
    }
   ],
   "60509015000101-1-000122/2024-000038": [
@@ -4763,6 +4873,17 @@
     "orgao": "SECRETARIA MUNICIPAL DE EDUCACAO DE ITAPOA - SC",
     "valor": 44940.0,
     "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "06089125000116-2-000728/2026",
+    "fornecedor": {
+     "ni": "32149829000147",
+     "nome": "PAXIN SOLUCOES E TECNOLOGIA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "FUNDO MUNICIPAL DE SAUDE DE IRINEOPOLIS - FMSI",
+    "valor": 3840.0,
+    "data_assinatura": "2026-11-06"
    }
   ],
   "00394494000136-1-000291/2024-000002": [
@@ -8448,6 +8569,17 @@
     "orgao": "SUPERIOR TRIBUNAL DE JUSTICA",
     "valor": 11950578.4,
     "data_assinatura": "2026-11-03"
+   },
+   {
+    "contrato": "00488478000102-2-000228/2026",
+    "fornecedor": {
+     "ni": "12006665000191",
+     "nome": "CHAIN TECNOLOGIA E SERVICOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "SUPERIOR TRIBUNAL DE JUSTICA",
+    "valor": 2886407.2,
+    "data_assinatura": "2026-11-03"
    }
   ],
   "18715383000140-1-000428/2026-000004": [
@@ -8935,6 +9067,17 @@
     "orgao": "MUNICIPIO DE BELO HORIZONTE",
     "valor": 1560.0,
     "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "18715383000140-2-003000/2026",
+    "fornecedor": {
+     "ni": "37730372000183",
+     "nome": "AVANTEMED COMERCIO DE MATERIAL HOSPITALAR LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 1560.0,
+    "data_assinatura": "2026-11-06"
    }
   ],
   "18715383000140-1-001134/2025-000005": [
@@ -9723,6 +9866,1036 @@
     "valor": 261219.0,
     "data_assinatura": "2026-11-05"
    }
+  ],
+  "00508903000188-1-001183/2026-000001": [
+   {
+    "contrato": "00508903000188-2-001571/2026",
+    "fornecedor": {
+     "ni": "45304454000194",
+     "nome": "KSC TECNOLOGIA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "JUSTICA FEDERAL DE PRIMEIRA INSTANCIA",
+    "valor": 180800.0,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "00396895000125-1-000027/2026-000001": [
+   {
+    "contrato": "00396895000125-2-001009/2026",
+    "fornecedor": {
+     "ni": "05857218000180",
+     "nome": "LOBOV CIENTIFICA, IMPORTACAO, EXPORTACAO, COMERCIO DE EQUIPAMENTOS PARA LABORATO"
+    },
+    "fruto_adesao": true,
+    "orgao": "MINISTERIO DA AGRICULTURA, PECUARIA E ABASTECIMENTO",
+    "valor": 71046.29,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "46694147000120-1-000030/2026-000001": [
+   {
+    "contrato": "46694147000120-2-001679/2026",
+    "fornecedor": {
+     "ni": "37407347000163",
+     "nome": "NEWARIS LIFESCIENCES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IGARATA",
+    "valor": 5907.12,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "46694147000120-2-001680/2026",
+    "fornecedor": {
+     "ni": "27908285000110",
+     "nome": "XISMED DISTRIBUIDORA LTDA."
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IGARATA",
+    "valor": 2700.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "46694147000120-2-001683/2026",
+    "fornecedor": {
+     "ni": "06968107000104",
+     "nome": "R.A.P. APARECIDA COMÉRCIO DE MEDICAMENTOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IGARATA",
+    "valor": 3600.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "46694147000120-2-001684/2026",
+    "fornecedor": {
+     "ni": "03634617000157",
+     "nome": "AZULPHARMA DISTRIBUIDORA DE MEDICAMENTOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IGARATA",
+    "valor": 800.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "46694147000120-2-001685/2026",
+    "fornecedor": {
+     "ni": "01140868000150",
+     "nome": "CIRURGICA OLIMPIO EIRELLI"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IGARATA",
+    "valor": 96.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "46694147000120-2-001686/2026",
+    "fornecedor": {
+     "ni": "29404097000180",
+     "nome": "OCTO FARMACO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IGARATA",
+    "valor": 5100.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "46694147000120-2-001692/2026",
+    "fornecedor": {
+     "ni": "02816696000154",
+     "nome": "PONTAMED FARMACEUTICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IGARATA",
+    "valor": 900.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "46694147000120-2-001693/2026",
+    "fornecedor": {
+     "ni": "33324795000142",
+     "nome": "PROLICITA DISTRIBUIDORA DE MEDICAMENTOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IGARATA",
+    "valor": 2000.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "46694147000120-2-001694/2026",
+    "fornecedor": {
+     "ni": "03945035000191",
+     "nome": "ACÁCIA COMÉRCIO DE MEDICAMENTOS EIRELI"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IGARATA",
+    "valor": 376.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "46694147000120-2-001695/2026",
+    "fornecedor": {
+     "ni": "03652030000685",
+     "nome": "CENTERMEDI COMERCIO DE PRODUTOS HOSPITALARES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IGARATA",
+    "valor": 890.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "46694147000120-2-001696/2026",
+    "fornecedor": {
+     "ni": "05847630000110",
+     "nome": "SOMA/SP PRODUTOS HOSPITALARES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IGARATA",
+    "valor": 225.0,
+    "data_assinatura": "2026-11-04"
+   },
+   {
+    "contrato": "46694147000120-2-001697/2026",
+    "fornecedor": {
+     "ni": "12889035000293",
+     "nome": "INOVAMED HOSPITALAR LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE IGARATA",
+    "valor": 4180.0,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "00509968000148-1-000999/2026-000001": [
+   {
+    "contrato": "00509968000148-2-004080/2026",
+    "fornecedor": {
+     "ni": "07131781000100",
+     "nome": "NILTO JAIME MACHADO"
+    },
+    "fruto_adesao": false,
+    "orgao": "TRIBUNAL SUPERIOR DO TRABALHO",
+    "valor": 49752.0,
+    "data_assinatura": "2026-10-27"
+   }
+  ],
+  "00394494000136-1-001119/2025-000002": [
+   {
+    "contrato": "00394494000136-2-002022/2026",
+    "fornecedor": {
+     "ni": "02558157000162",
+     "nome": "TELEFONICA BRASIL S.A."
+    },
+    "fruto_adesao": false,
+    "orgao": "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA",
+    "valor": 2378355.3,
+    "data_assinatura": "2026-09-25"
+   }
+  ],
+  "00489828000155-1-000329/2025-000001": [
+   {
+    "contrato": "00489828000155-2-000141/2025",
+    "fornecedor": {
+     "ni": "13103980000108",
+     "nome": "HSC DESENVOLVIMENTO E SERVICOS EM TECNOLOGIA DA INFORMACAO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MINISTERIO DA GESTAO E DA INOVACAO EM SERVICOS PUBLICOS",
+    "valor": 997877.0,
+    "data_assinatura": "2025-10-17"
+   }
+  ],
+  "00394452000103-1-006876/2026-000001": [
+   {
+    "contrato": "00394452000103-2-009350/2026",
+    "fornecedor": {
+     "ni": "31885247000166",
+     "nome": "VBM EQUIPAMENTOS LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "COMANDO DO EXERCITO",
+    "valor": 111855.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "28523215000106-1-000133/2026-000001": [
+   {
+    "contrato": "28523215000106-2-001406/2026",
+    "fornecedor": {
+     "ni": "38489025000173",
+     "nome": "GOLDEM DISTRIBUIDORA E REPRESENTACAO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE FEDERAL FLUMINENSE",
+    "valor": 6369.3,
+    "data_assinatura": "2026-10-19"
+   }
+  ],
+  "55354302000150-1-000036/2026-000001": [
+   {
+    "contrato": "55354302000150-2-005639/2026",
+    "fornecedor": {
+     "ni": "47995939000105",
+     "nome": "CRISLAINE FERNANDA RAMOS SAMPAIO"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE TACIBA",
+    "valor": 5100.0,
+    "data_assinatura": "2026-10-30"
+   }
+  ],
+  "00508903000188-1-001938/2025-000001": [
+   {
+    "contrato": "00508903000188-2-000581/2026",
+    "fornecedor": {
+     "ni": "01181242000272",
+     "nome": "COMPWIRE INFORMATICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "JUSTICA FEDERAL DE PRIMEIRA INSTANCIA",
+    "valor": 8473295.06,
+    "data_assinatura": "2026-04-14"
+   }
+  ],
+  "00444232000139-1-000935/2025-000001": [
+   {
+    "contrato": "00444232000139-2-001305/2026",
+    "fornecedor": {
+     "ni": "23122344000179",
+     "nome": "IRGON MATERIAIS DE CONSTRUCAO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INDUSTRIA DE MATERIAL BELICO DO BRASIL IMBEL",
+    "valor": 26460.0,
+    "data_assinatura": "2026-07-21"
+   }
+  ],
+  "10838653000106-1-000393/2026-000001": [
+   {
+    "contrato": "10838653000106-2-000787/2026",
+    "fornecedor": {
+     "ni": "83568873000122",
+     "nome": "PEROZIN INDUSTRIA METALURGICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA DO ESPIRITO SANTO",
+    "valor": 2342240.0,
+    "data_assinatura": "2026-09-30"
+   }
+  ],
+  "75101873000190-1-000551/2025-000001": [
+   {
+    "contrato": "75101873000190-2-001036/2026",
+    "fornecedor": {
+     "ni": "04584756000186",
+     "nome": "FACCINA DALTORA EQUIPAMENTOS DE SEGURANCA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE TECNOLOGICA FEDERAL DO PARANA",
+    "valor": 1132.4,
+    "data_assinatura": "2026-10-01"
+   }
+  ],
+  "46634382000106-1-000233/2026-000001": [
+   {
+    "contrato": "46634382000106-2-001650/2026",
+    "fornecedor": {
+     "ni": "10143338000156",
+     "nome": "ROGERIO DE LIMA SOUZA MATERIAIS DE CONSTRUÇÃO ME"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BURI",
+    "valor": 5953.2,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "10635424000186-1-000068/2026-000004": [
+   {
+    "contrato": "10635424000186-2-001666/2026",
+    "fornecedor": {
+     "ni": "11227424000100",
+     "nome": "CALIBRY METROLOGIA COMERCIO E CALIBRACAO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA CATARINENSE",
+    "valor": 405.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "10635424000186-1-000111/2026-000045": [
+   {
+    "contrato": "10635424000186-2-001667/2026",
+    "fornecedor": {
+     "ni": "45919993000138",
+     "nome": "SLIMSEG LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA CATARINENSE",
+    "valor": 214.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "10635424000186-1-000107/2026-000001": [
+   {
+    "contrato": "10635424000186-2-001668/2026",
+    "fornecedor": {
+     "ni": "07878033000188",
+     "nome": "NIVELLAR MATERIAIS DE CONSTRUCAO E TRANSPORTES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA CATARINENSE",
+    "valor": 2575.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "10635424000186-1-000111/2026-000012": [
+   {
+    "contrato": "10635424000186-2-001669/2026",
+    "fornecedor": {
+     "ni": "53046519000177",
+     "nome": "EPI CATARINENSE LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA CATARINENSE",
+    "valor": 314.1,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "10635424000186-1-000111/2026-000014": [
+   {
+    "contrato": "10635424000186-2-001670/2026",
+    "fornecedor": {
+     "ni": "39435759000132",
+     "nome": "FC SOLUCOES INTEGRADAS MULTISETORIAIS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA CATARINENSE",
+    "valor": 380.7,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "10635424000186-1-000111/2026-000020": [
+   {
+    "contrato": "10635424000186-2-001671/2026",
+    "fornecedor": {
+     "ni": "32054007000182",
+     "nome": "BRUVA UNIFORMES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA CATARINENSE",
+    "valor": 318.4,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "10635424000186-1-000111/2026-000042": [
+   {
+    "contrato": "10635424000186-2-001672/2026",
+    "fornecedor": {
+     "ni": "66788677000144",
+     "nome": "66.788.677 YASMIN BATISTA DOS SANTOS"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA CATARINENSE",
+    "valor": 648.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "49269251000165-1-000010/2026-000007": [
+   {
+    "contrato": "46392114000125-2-001165/2026",
+    "fornecedor": {
+     "ni": "23169093000188",
+     "nome": "ASERP LOCACAO E SERVICOS GERAIS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+    "valor": 3223800.0,
+    "data_assinatura": "2026-10-16"
+   }
+  ],
+  "10662072000158-1-000100/2025-000032": [
+   {
+    "contrato": "75101873000190-2-001414/2026",
+    "fornecedor": {
+     "ni": "36521392000262",
+     "nome": "GO VENDAS ELETRONICAS LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "UNIVERSIDADE TECNOLOGICA FEDERAL DO PARANA",
+    "valor": 4696.6,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "10724903000179-1-000057/2026-000007": [
+   {
+    "contrato": "75101873000190-2-001416/2026",
+    "fornecedor": {
+     "ni": "20481118000196",
+     "nome": "RUMO CLIMATIZACAO LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "UNIVERSIDADE TECNOLOGICA FEDERAL DO PARANA",
+    "valor": 3619.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "10662072000158-1-000076/2025-000014": [
+   {
+    "contrato": "75101873000190-2-001417/2026",
+    "fornecedor": {
+     "ni": "11549124000147",
+     "nome": "LANCI INDUSTRIA E COMERCIO DE MOVEIS PLASTICOS LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "UNIVERSIDADE TECNOLOGICA FEDERAL DO PARANA",
+    "valor": 1584.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "10724903000179-1-000321/2025-000001": [
+   {
+    "contrato": "75101873000190-2-001418/2026",
+    "fornecedor": {
+     "ni": "12185204000123",
+     "nome": "VITANET COMERCIO DE EQUIPAMENTOS & TRANSPORTES RODOVIARIOS LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "UNIVERSIDADE TECNOLOGICA FEDERAL DO PARANA",
+    "valor": 3846.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "75101873000190-1-000438/2025-000023": [
+   {
+    "contrato": "75101873000190-2-001419/2026",
+    "fornecedor": {
+     "ni": "31030858000122",
+     "nome": "MEDIC LIFE DISTRIBUIDORA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE TECNOLOGICA FEDERAL DO PARANA",
+    "valor": 1126.5,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "02030715000112-1-000211/2025-000005": [
+   {
+    "contrato": "75101873000190-2-001420/2026",
+    "fornecedor": {
+     "ni": "00707468000110",
+     "nome": "RD MOVEIS LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "UNIVERSIDADE TECNOLOGICA FEDERAL DO PARANA",
+    "valor": 27836.0,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "10882594000165-1-000252/2024-000001": [
+   {
+    "contrato": "10882594000165-2-001078/2026",
+    "fornecedor": {
+     "ni": "24421744000148",
+     "nome": "AVANTI ENGENHARIA E TECNOLOGIA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE SAO PAULO",
+    "valor": 57687.59,
+    "data_assinatura": "2026-04-22"
+   }
+  ],
+  "10817343000105-1-000100/2026-000004": [
+   {
+    "contrato": "10817343000105-2-000629/2026",
+    "fornecedor": {
+     "ni": "15740594000144",
+     "nome": "MEGA PRINT COMUNICACAO VISUAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO,CIENCIA E TECNOLOGIA DE RONDONIA",
+    "valor": 792.0,
+    "data_assinatura": "2026-10-30"
+   }
+  ],
+  "10635424000186-1-000097/2026-000002": [
+   {
+    "contrato": "10635424000186-2-001549/2026",
+    "fornecedor": {
+     "ni": "64819941000134",
+     "nome": "64.819.941 RANIELLEN GOMES RIBEIRO BRAGANCA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA CATARINENSE",
+    "valor": 800.0,
+    "data_assinatura": "2026-10-13"
+   }
+  ],
+  "45352267000186-1-000045/2026-000001": [
+   {
+    "contrato": "45352267000186-2-001010/2026",
+    "fornecedor": {
+     "ni": "23643895000188",
+     "nome": "SUPERARMED EQUIPAMENTOS MÉDICOS HOSPITALARES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE PONTAL",
+    "valor": 2400.0,
+    "data_assinatura": "2026-10-23"
+   },
+   {
+    "contrato": "45352267000186-2-001011/2026",
+    "fornecedor": {
+     "ni": "00331788001271",
+     "nome": "AIR LIQUIDE BRASIL LTDA."
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE PONTAL",
+    "valor": 1932.0,
+    "data_assinatura": "2026-10-23"
+   }
+  ],
+  "42498600000171-1-006530/2025-000001": [
+   {
+    "contrato": "42498600000171-2-005375/2026",
+    "fornecedor": {
+     "ni": "08270727000109",
+     "nome": "softwareone comercio e servicos de informatica ltda."
+    },
+    "fruto_adesao": false,
+    "orgao": "ESTADO DO RIO DE JANEIRO",
+    "valor": 6643981.8,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "24365710000183-1-000150/2025-000005": [
+   {
+    "contrato": "21040001000130-2-000578/2026",
+    "fornecedor": {
+     "ni": "13531571000102",
+     "nome": "ITEC INFORMATICA E TECNOLOGIA LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "UNIVERSIDADE FEDERAL DE ITAJUBA",
+    "valor": 37422.0,
+    "data_assinatura": "2026-10-29"
+   }
+  ],
+  "26989715000102-1-000509/2026-000001": [
+   {
+    "contrato": "26989715000102-2-002424/2026",
+    "fornecedor": {
+     "ni": "55088157001001",
+     "nome": "FK GRUPO S/A"
+    },
+    "fruto_adesao": false,
+    "orgao": "MINISTERIO PUBLICO DA UNIAO",
+    "valor": 315875.0,
+    "data_assinatura": "2026-10-22"
+   }
+  ],
+  "00394494000136-1-001434/2024-000001": [
+   {
+    "contrato": "00394494000136-2-002371/2026",
+    "fornecedor": {
+     "ni": "59104760000191",
+     "nome": "TOYOTA DO BRASIL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA",
+    "valor": 2812009.44,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "07598691000116-1-000055/2025-000001": [
+   {
+    "contrato": "07598691000116-2-000258/2026",
+    "fornecedor": {
+     "ni": "09622995000105",
+     "nome": "COMERCIAL E PAPELARIA SOBRAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE MASSAPE",
+    "valor": 77266.97,
+    "data_assinatura": "2026-01-02"
+   }
+  ],
+  "11234780000150-1-000083/2025-000003": [
+   {
+    "contrato": "10825373000155-2-000645/2026",
+    "fornecedor": {
+     "ni": "10402061000139",
+     "nome": "IRD PRODUTOS DE INFORMATICA LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE ALAGOAS - IF/AL",
+    "valor": 7425.0,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "82837741000196-1-000057/2026-000001": [
+   {
+    "contrato": "82837741000196-2-000221/2026",
+    "fornecedor": {
+     "ni": "62459448000125",
+     "nome": "SOLDADO URBANO CONFECCAO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE MELEIRO",
+    "valor": 229900.0,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "28909604000174-1-000145/2025-000001": [
+   {
+    "contrato": "28909604000174-2-000327/2026",
+    "fornecedor": {
+     "ni": "60228600000133",
+     "nome": "CMG COMERCIO E SOLUCOES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SAO PEDRO DA ALDEIA",
+    "valor": 32421.55,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "23555196000186-1-000194/2026-000002": [
+   {
+    "contrato": "23555196000186-2-000770/2026",
+    "fornecedor": {
+     "ni": "19292128000102",
+     "nome": "ANDRE FELIPE MAGALHAES FARIAS"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE HORIZONTE",
+    "valor": 74307.2,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "24529265000140-1-000024/2026-000001": [
+   {
+    "contrato": "24529265000140-2-000082/2026",
+    "fornecedor": {
+     "ni": "01252610000145",
+     "nome": "RADNOR ENGENHARIA E TELECOMUNICACAO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE FEDERAL RURAL DO SEMI-ARIDO - UFERSA",
+    "valor": 566611.8,
+    "data_assinatura": "2026-09-04"
+   }
+  ],
+  "22678874000135-1-000182/2026-000001": [
+   {
+    "contrato": "22678874000135-2-004073/2026",
+    "fornecedor": {
+     "ni": "52660102000137",
+     "nome": "HUNIBATE SEGURANCA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE MONTES CLAROS",
+    "valor": 20000.0,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "16958425000148-1-000392/2025-000001": [
+   {
+    "contrato": "63606479000124-2-001782/2026",
+    "fornecedor": {
+     "ni": "37467216000171",
+     "nome": "LOCARAUTO VEÍCULOS LTDA – ME"
+    },
+    "fruto_adesao": false,
+    "orgao": "ESTADO DO ACRE",
+    "valor": 80499.96,
+    "data_assinatura": "2026-09-03"
+   }
+  ],
+  "50062751000100-1-000238/2025-000001": [
+   {
+    "contrato": "50062751000100-2-000518/2026",
+    "fornecedor": {
+     "ni": "31739017000199",
+     "nome": "VIVIANE ALVES SCHUTZER"
+    },
+    "fruto_adesao": false,
+    "orgao": "SERVICO AUTONOMO DE AGUA E ESGOTO DE CAPIVARI",
+    "valor": 150119.67,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "39244595000166-1-000007/2024-000001": [
+   {
+    "contrato": "39244595000166-2-000054/2026",
+    "fornecedor": {
+     "ni": "12409711000101",
+     "nome": "NUTRIMIX COMERCIAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "FUNDACAO PUBLICA MUNICIPAL DE EDUCACAO DE NITEROI",
+    "valor": 1186028.15,
+    "data_assinatura": "2026-03-03"
+   },
+   {
+    "contrato": "39244595000166-2-000055/2026",
+    "fornecedor": {
+     "ni": "01920177000179",
+     "nome": "COMERCIAL MILANO BRASIL LTDAA"
+    },
+    "fruto_adesao": false,
+    "orgao": "FUNDACAO PUBLICA MUNICIPAL DE EDUCACAO DE NITEROI",
+    "valor": 1122552.41,
+    "data_assinatura": "2026-03-03"
+   }
+  ],
+  "01611828000149-1-000123/2026-000006": [
+   {
+    "contrato": "01611828000149-2-000870/2026",
+    "fornecedor": {
+     "ni": "64092284000176",
+     "nome": "AP OESTE DISTRIBUIDORA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE NOVA RAMADA",
+    "valor": 873.98,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "01611828000149-1-000123/2026-000005": [
+   {
+    "contrato": "01611828000149-2-000871/2026",
+    "fornecedor": {
+     "ni": "68049384000170",
+     "nome": "EKG COMERCIAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE NOVA RAMADA",
+    "valor": 705.8,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "01611828000149-1-000123/2026-000007": [
+   {
+    "contrato": "01611828000149-2-000872/2026",
+    "fornecedor": {
+     "ni": "52415955000103",
+     "nome": "ALTO URUGUAI COMERCIO DE PRODUTOS HOSPITALARES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE NOVA RAMADA",
+    "valor": 105.0,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "06553523000141-1-000008/2026-000001": [
+   {
+    "contrato": "06553523000141-2-000035/2026",
+    "fornecedor": {
+     "ni": "00702030000140",
+     "nome": "1A CLASSE VIAGENS E TURISMO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "PIAUI SECRETARIA DO PLANEJAMENTO SEPLAN",
+    "valor": 322070.36,
+    "data_assinatura": "2026-10-21"
+   },
+   {
+    "contrato": "06553523000141-2-000036/2026",
+    "fornecedor": {
+     "ni": "00702030000140",
+     "nome": "1A CLASSE VIAGENS E TURISMO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "PIAUI SECRETARIA DO PLANEJAMENTO SEPLAN",
+    "valor": 38841.06,
+    "data_assinatura": "2026-10-21"
+   }
+  ],
+  "83899526000182-1-000138/2026-000001": [
+   {
+    "contrato": "83899526000182-2-002560/2026",
+    "fornecedor": {
+     "ni": "13487685000194",
+     "nome": "HASIC GESTAO E CONSULTORIA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE FEDERAL DE SANTA CATARINA",
+    "valor": 128177.6,
+    "data_assinatura": "2026-10-28"
+   }
+  ],
+  "90895905000160-1-000035/2025-000001": [
+   {
+    "contrato": "90895905000160-2-000307/2026",
+    "fornecedor": {
+     "ni": "31621983000107",
+     "nome": "FERTRACK SEGURANÇA PRIVADA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE MONTENEGRO",
+    "valor": 35401.6,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "45352267000186-1-000055/2026-000001": [
+   {
+    "contrato": "45352267000186-2-001020/2026",
+    "fornecedor": {
+     "ni": "46687136000112",
+     "nome": "COMERCIAL J & C COMEX LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE PONTAL",
+    "valor": 600.0,
+    "data_assinatura": "2026-08-24"
+   },
+   {
+    "contrato": "45352267000186-2-001021/2026",
+    "fornecedor": {
+     "ni": "46687136000112",
+     "nome": "COMERCIAL J & C COMEX LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE PONTAL",
+    "valor": 1200.0,
+    "data_assinatura": "2026-08-24"
+   }
+  ],
+  "00444232000139-1-000568/2026-000003": [
+   {
+    "contrato": "00091652000189-2-000548/2026",
+    "fornecedor": {
+     "ni": "58545712000176",
+     "nome": "RKG COMERCIO E DISTRIBUICAO LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "COMPANHIA DE PESQUISA DE RECURSOS MINERAIS",
+    "valor": 58754.85,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "00509018000113-1-001892/2026-000001": [
+   {
+    "contrato": "00509018000113-2-004393/2026",
+    "fornecedor": {
+     "ni": "76366285000140",
+     "nome": "SEPROL IT SERVICES & CONSULTING LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "TRIBUNAL SUPERIOR ELEITORAL",
+    "valor": 1024500.0,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "10635424000186-1-000205/2025-000009": [
+   {
+    "contrato": "10882594000165-2-001016/2026",
+    "fornecedor": {
+     "ni": "23231651000198",
+     "nome": "NEW OESTE INFORMATICA DO BRASIL LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE SAO PAULO",
+    "valor": 30940.0,
+    "data_assinatura": "2026-08-20"
+   },
+   {
+    "contrato": "10882594000165-2-001015/2026",
+    "fornecedor": {
+     "ni": "23231651000198",
+     "nome": "NEW OESTE INFORMATICA DO BRASIL LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE SAO PAULO",
+    "valor": 93890.0,
+    "data_assinatura": "2026-08-20"
+   }
+  ],
+  "10651417000178-1-000102/2024-000001": [
+   {
+    "contrato": "10651417000178-2-000181/2024",
+    "fornecedor": {
+     "ni": "28008410000106",
+     "nome": "BAMEX BENEFICIOS INSTITUICAO DE PAGAMENTO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA GOIANO",
+    "valor": 3725157.2,
+    "data_assinatura": "2024-09-24"
+   }
+  ],
+  "05054937000163-1-000017/2026-000002": [
+   {
+    "contrato": "05054937000163-2-000021/2026",
+    "fornecedor": {
+     "ni": "54826367000511",
+     "nome": "MAQMOVEIS INDUSTRIA E COMERCIO DE MOVEIS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "SECRETARIA DE ESTADO DE EDUCACAO",
+    "valor": 380808.0,
+    "data_assinatura": "2026-10-28"
+   }
+  ],
+  "00394494000136-1-000291/2024-000001": [
+   {
+    "contrato": "00394494000136-2-002374/2026",
+    "fornecedor": {
+     "ni": "EXCESKAZB",
+     "nome": "CESKÁ ZBROJOVKA A.S."
+    },
+    "fruto_adesao": false,
+    "orgao": "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA",
+    "valor": 78920.6,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "00394494000136-1-001233/2024-000001": [
+   {
+    "contrato": "00394494000136-2-001021/2026",
+    "fornecedor": {
+     "ni": "57494031000163",
+     "nome": "COMPANHIA BRASILEIRA DE CARTUCHOS"
+    },
+    "fruto_adesao": false,
+    "orgao": "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA",
+    "valor": 732091.89,
+    "data_assinatura": "2026-06-16"
+   }
+  ],
+  "19843929000100-1-001006/2025-000001": [
+   {
+    "contrato": "18715383000140-2-002997/2026",
+    "fornecedor": {
+     "ni": "05194502000114",
+     "nome": "ALFALAGOS LTDA."
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 323141.96,
+    "data_assinatura": "2026-11-06"
+   },
+   {
+    "contrato": "18715383000140-2-002998/2026",
+    "fornecedor": {
+     "ni": "05194502000114",
+     "nome": "ALFALAGOS LTDA."
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 351559.32,
+    "data_assinatura": "2026-11-06"
+   },
+   {
+    "contrato": "18715383000140-2-002999/2026",
+    "fornecedor": {
+     "ni": "05194502000114",
+     "nome": "ALFALAGOS LTDA."
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 28698.72,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "18715383000140-1-000367/2026-000004": [
+   {
+    "contrato": "18715383000140-2-003001/2026",
+    "fornecedor": {
+     "ni": "04158618000135",
+     "nome": "LIMPEZA E BRILHO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 5462.5,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "18715383000140-1-001237/2025-000015": [
+   {
+    "contrato": "18715383000140-2-003002/2026",
+    "fornecedor": {
+     "ni": "23836281000112",
+     "nome": "PROCIMED HOSPITALAR E CIENTIFICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 149121.0,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "18715383000140-1-001099/2025-000010": [
+   {
+    "contrato": "18715383000140-2-003003/2026",
+    "fornecedor": {
+     "ni": "07422196000151",
+     "nome": "VITALLI COMERCIO E IMPORTACAO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 220.0,
+    "data_assinatura": "2026-11-06"
+   }
   ]
  },
  "propostas_abertas": {
@@ -9742,16 +10915,20 @@
    "7010/2026",
    "7035/2026",
    "7035/2027",
-   "7050/2026"
+   "7050/2026",
+   "7050/2027",
+   "5810/2026",
+   "5810/2027",
+   "5895/2026"
   ]
  },
  "atas_varredura": {
   "data_ref": "2026-11-04",
-  "pagina": 1359,
+  "pagina": 1554,
   "iniciada_em": "2026-11-04T10:54:48-03:00",
   "total_paginas": 9720,
   "total_registros": 485958,
-  "progresso": 14.0
+  "progresso": 16.0
  },
  "backfill_contratacoes": {
   "limite": "2025-11-08",
