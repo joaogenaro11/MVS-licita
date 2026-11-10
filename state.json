@@ -10857,6 +10857,45 @@
     "valor": 22440.0,
     "data_assinatura": "2026-10-26"
    }
+  ],
+  "24464109000148-1-000047/2026-000023": [
+   {
+    "contrato": "24464109000148-2-001164/2026",
+    "fornecedor": {
+     "ni": "30870178000154",
+     "nome": "COMERCIAL FASTPRINTER LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE FEDERAL DE ALAGOAS",
+    "valor": 104.0,
+    "data_assinatura": "2026-10-13"
+   }
+  ],
+  "00509968000148-1-002900/2024-000001": [
+   {
+    "contrato": "00509968000148-2-004082/2026",
+    "fornecedor": {
+     "ni": "13823634000196",
+     "nome": "PRO-SERVICE SERVICOS PROFISSIONAIS E ESPECIALIZADOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "TRIBUNAL SUPERIOR DO TRABALHO",
+    "valor": 130443.43,
+    "data_assinatura": "2026-11-05"
+   }
+  ],
+  "09203665000177-1-000011/2026-000001": [
+   {
+    "contrato": "09203665000177-2-000030/2026",
+    "fornecedor": {
+     "ni": "24968005000170",
+     "nome": "AUDIGESPUB - SERVICOS DE AUDITORIA, ASSESSORIA E CONSULTORIA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "SUPERINTENDENCIA DO DESENVOLVIMENTO DA AMAZONIA - SUDAM",
+    "valor": 38800.0,
+    "data_assinatura": "2026-08-24"
+   }
   ]
  },
  "propostas_abertas": {
@@ -10885,21 +10924,23 @@
  },
  "atas_varredura": {
   "data_ref": "2026-11-04",
-  "pagina": 1547,
+  "pagina": 1624,
   "iniciada_em": "2026-11-04T10:54:48-03:00",
-  "total_paginas": 9730,
-  "total_registros": 486485,
-  "progresso": 15.9
+  "total_paginas": 9737,
+  "total_registros": 486839,
+  "progresso": 16.7
  },
  "backfill_contratacoes": {
   "limite": "2025-11-09",
-  "progresso": 0.0,
-  "concluido": false
+  "progresso": 2.7,
+  "concluido": false,
+  "proximo": "2026-10-29"
  },
  "backfill_contratos": {
   "limite": "2026-10-10",
-  "progresso": 0.0,
-  "concluido": false
+  "progresso": 10.0,
+  "concluido": false,
+  "proximo": "2026-11-05"
  },
  "classificador": "ofertas_json",
  "migracao_ofertas": {
