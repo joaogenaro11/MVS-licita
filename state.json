@@ -1,9 +1,9 @@
 {
  "contratacoes_atualizacao": {
-  "ate": "2026-11-05"
+  "ate": "2026-11-04"
  },
  "atas_atualizacao": {
-  "ate": "2026-11-10"
+  "ate": "2026-11-11"
  },
  "contratos_atualizacao": {
   "ate": "2026-11-04"
@@ -1044,6 +1044,39 @@
     "fruto_adesao": false,
     "orgao": "MUNICIPIO DE SANTA HELENA",
     "valor": 49132.75,
+    "data_assinatura": "2026-09-16"
+   },
+   {
+    "contrato": "06226583000150-2-000151/2026",
+    "fornecedor": {
+     "ni": "57534025000192",
+     "nome": "CLIMATIZE LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SANTA HELENA",
+    "valor": 40027.94,
+    "data_assinatura": "2026-07-31"
+   },
+   {
+    "contrato": "06226583000150-2-000152/2026",
+    "fornecedor": {
+     "ni": "57534025000192",
+     "nome": "CLIMATIZE LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SANTA HELENA",
+    "valor": 80639.9,
+    "data_assinatura": "2026-08-07"
+   },
+   {
+    "contrato": "06226583000150-2-000153/2026",
+    "fornecedor": {
+     "ni": "57534025000192",
+     "nome": "CLIMATIZE LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SANTA HELENA",
+    "valor": 195460.06,
     "data_assinatura": "2026-09-16"
    }
   ],
@@ -11063,21 +11096,21 @@
  },
  "atas_varredura": {
   "data_ref": "2026-11-04",
-  "pagina": 1713,
+  "pagina": 1715,
   "iniciada_em": "2026-11-04T10:54:48-03:00",
-  "total_paginas": 9745,
-  "total_registros": 487234,
+  "total_paginas": 9757,
+  "total_registros": 487804,
   "progresso": 17.6
  },
  "backfill_contratacoes": {
-  "limite": "2025-11-10",
-  "progresso": 6.8,
+  "limite": "2025-11-11",
+  "progresso": 7.4,
   "concluido": false,
-  "proximo": "2026-10-15"
+  "proximo": "2026-10-14"
  },
  "backfill_contratos": {
-  "limite": "2026-10-11",
-  "progresso": 20.0,
+  "limite": "2026-10-12",
+  "progresso": 23.3,
   "concluido": false,
   "proximo": "2026-11-03"
  },
