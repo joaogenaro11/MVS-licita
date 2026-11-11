@@ -6,7 +6,7 @@
   "ate": "2026-11-10"
  },
  "contratos_atualizacao": {
-  "ate": "2026-11-05"
+  "ate": "2026-11-04"
  },
  "ata_links_pendentes": {
   "12075748000132-1-000143/2024-000038": [
@@ -10896,6 +10896,145 @@
     "valor": 38800.0,
     "data_assinatura": "2026-08-24"
    }
+  ],
+  "06226583000150-1-000041/2026-000001": [
+   {
+    "contrato": "06226583000150-2-000159/2026",
+    "fornecedor": {
+     "ni": "26669437000106",
+     "nome": "F L ALVES ARAUJO"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SANTA HELENA",
+    "valor": 120203.16,
+    "data_assinatura": "2026-07-03"
+   },
+   {
+    "contrato": "06226583000150-2-000160/2026",
+    "fornecedor": {
+     "ni": "26669437000106",
+     "nome": "F L ALVES ARAUJO"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SANTA HELENA",
+    "valor": 62576.75,
+    "data_assinatura": "2026-07-31"
+   }
+  ],
+  "01409580000138-1-003187/2025-000001": [
+   {
+    "contrato": "01409580000138-2-001997/2026",
+    "fornecedor": {
+     "ni": "81243735000903",
+     "nome": "POSITIVO TECNOLOGIA S A"
+    },
+    "fruto_adesao": true,
+    "orgao": "ESTADO DE GOIAS",
+    "valor": 3446570.0,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "10784782000150-1-000532/2024-000001": [
+   {
+    "contrato": "10784782000150-2-000251/2026",
+    "fornecedor": {
+     "ni": "31537116000198",
+     "nome": "GMS GOIAS MERCANTIL E SOLUCOES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE MATO GROSSO",
+    "valor": 82275.0,
+    "data_assinatura": "2026-05-25"
+   }
+  ],
+  "00509968000148-1-002900/2024-000002": [
+   {
+    "contrato": "00509968000148-2-004029/2026",
+    "fornecedor": {
+     "ni": "13823634000196",
+     "nome": "PRO-SERVICE SERVICOS PROFISSIONAIS E ESPECIALIZADOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "TRIBUNAL SUPERIOR DO TRABALHO",
+    "valor": 59987.44,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "46137410000180-1-000302/2026-000001": [
+   {
+    "contrato": "46137410000180-2-004772/2026",
+    "fornecedor": {
+     "ni": "49709450000147",
+     "nome": "DALO EMPREENDIMENTOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BAURU",
+    "valor": 59.75,
+    "data_assinatura": "2026-10-29"
+   },
+   {
+    "contrato": "46137410000180-2-004773/2026",
+    "fornecedor": {
+     "ni": "49709450000147",
+     "nome": "DALO EMPREENDIMENTOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BAURU",
+    "valor": 59.75,
+    "data_assinatura": "2026-10-29"
+   }
+  ],
+  "46137410000180-1-000302/2026-000002": [
+   {
+    "contrato": "46137410000180-2-004795/2026",
+    "fornecedor": {
+     "ni": "29637242000172",
+     "nome": "LUCAS COMERCIO E SERVIÇOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BAURU",
+    "valor": 120.0,
+    "data_assinatura": "2026-10-29"
+   }
+  ],
+  "06096853000155-1-000021/2026-000002": [
+   {
+    "contrato": "06096853000155-2-000096/2026",
+    "fornecedor": {
+     "ni": "11237702000100",
+     "nome": "F. MIRANDA RAMOS"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE ALDEIAS ALTAS",
+    "valor": 311837.0,
+    "data_assinatura": "2026-08-26"
+   }
+  ],
+  "18457226000181-1-000131/2026-000001": [
+   {
+    "contrato": "18457226000181-2-000213/2026",
+    "fornecedor": {
+     "ni": "26474581000197",
+     "nome": "OLIVEIRA MIRANDA MATERIAIS DE CONSTRUÇÃO"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SANTA VITORIA",
+    "valor": 283719.74,
+    "data_assinatura": "2026-11-04"
+   }
+  ],
+  "10784782000150-1-000532/2024-000002": [
+   {
+    "contrato": "10784782000150-2-000733/2026",
+    "fornecedor": {
+     "ni": "31537116000198",
+     "nome": "GMS GOIAS MERCANTIL E SOLUCOES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE MATO GROSSO",
+    "valor": 122872.0,
+    "data_assinatura": "2026-11-04"
+   }
   ]
  },
  "propostas_abertas": {
@@ -10924,23 +11063,23 @@
  },
  "atas_varredura": {
   "data_ref": "2026-11-04",
-  "pagina": 1652,
+  "pagina": 1713,
   "iniciada_em": "2026-11-04T10:54:48-03:00",
-  "total_paginas": 9742,
-  "total_registros": 487059,
-  "progresso": 16.9
+  "total_paginas": 9745,
+  "total_registros": 487234,
+  "progresso": 17.6
  },
  "backfill_contratacoes": {
   "limite": "2025-11-10",
-  "progresso": 4.9,
+  "progresso": 6.8,
   "concluido": false,
-  "proximo": "2026-10-22"
+  "proximo": "2026-10-15"
  },
  "backfill_contratos": {
   "limite": "2026-10-11",
-  "progresso": 16.7,
+  "progresso": 20.0,
   "concluido": false,
-  "proximo": "2026-11-04"
+  "proximo": "2026-11-03"
  },
  "classificador": "ofertas_json",
  "migracao_ofertas": {
