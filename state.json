@@ -6,33 +6,9 @@
   "ate": "2026-11-11"
  },
  "contratos_atualizacao": {
-  "ate": "2026-11-03"
+  "ate": "2026-11-02"
  },
  "ata_links_pendentes": {
-  "12075748000132-1-000143/2024-000038": [
-   {
-    "contrato": "01752406000193-2-000034/2026",
-    "fornecedor": {
-     "ni": "24435379000120",
-     "nome": "A. G .S. COMERCIAL LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "CAMARA MUNICIPAL DE VEREADORES DE PINHALZINHO",
-    "valor": 325.0,
-    "data_assinatura": "2026-10-30"
-   },
-   {
-    "contrato": "82940776000156-2-000851/2026",
-    "fornecedor": {
-     "ni": "24435379000120",
-     "nome": "A. G .S. COMERCIAL LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE CAIBI",
-    "valor": 325.0,
-    "data_assinatura": "2026-11-03"
-   }
-  ],
   "01763614000198-1-000044/2026-000001": [
    {
     "contrato": "01763614000198-2-003698/2026",
@@ -2612,41 +2588,6 @@
     "data_assinatura": "2026-11-03"
    }
   ],
-  "12075748000132-1-000029/2026-000001": [
-   {
-    "contrato": "83102707000136-2-000901/2026",
-    "fornecedor": {
-     "ni": "11118645000140",
-     "nome": "SPOTECH INFORMATICA CORAL LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE RIO DO CAMPO",
-    "valor": 656.0,
-    "data_assinatura": "2026-11-03"
-   },
-   {
-    "contrato": "86051398000100-2-001524/2026",
-    "fornecedor": {
-     "ni": "11118645000140",
-     "nome": "SPOTECH INFORMATICA CORAL LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE SAO BENTO DO SUL",
-    "valor": 1312.0,
-    "data_assinatura": "2026-11-04"
-   },
-   {
-    "contrato": "83102517000119-2-002423/2026",
-    "fornecedor": {
-     "ni": "11118645000140",
-     "nome": "SPOTECH INFORMATICA CORAL LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE ITAIOPOLIS",
-    "valor": 3280.0,
-    "data_assinatura": "2026-11-06"
-   }
-  ],
   "00394411000109-1-000274/2025-000001": [
    {
     "contrato": "00394411000109-2-000226/2026",
@@ -4804,19 +4745,6 @@
     "orgao": "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE SAO PAULO",
     "valor": 719400.0,
     "data_assinatura": "2026-04-08"
-   }
-  ],
-  "04071106000137-1-000125/2025-000002": [
-   {
-    "contrato": "10767239000145-2-000302/2026",
-    "fornecedor": {
-     "ni": "31495962000273",
-     "nome": "B2W INFORMATICA LTDA"
-    },
-    "fruto_adesao": true,
-    "orgao": "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE PERNAMBUCO",
-    "valor": 38475.4,
-    "data_assinatura": "2026-10-20"
    }
   ],
   "07535446000160-1-000076/2026-000002": [
@@ -7812,30 +7740,6 @@
     "orgao": "TRIBUNAL SUPERIOR ELEITORAL",
     "valor": 155960.0,
     "data_assinatura": "2026-10-29"
-   }
-  ],
-  "12075748000132-1-000029/2026-000014": [
-   {
-    "contrato": "83102459000123-2-004645/2026",
-    "fornecedor": {
-     "ni": "31495962000273",
-     "nome": "B2W INFORMATICA LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE JARAGUA DO SUL",
-    "valor": 6595.56,
-    "data_assinatura": "2026-11-04"
-   },
-   {
-    "contrato": "83102418000137-2-001830/2026",
-    "fornecedor": {
-     "ni": "31495962000273",
-     "nome": "B2W INFORMATICA LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE IBIRAMA",
-    "valor": 195.78,
-    "data_assinatura": "2026-11-04"
    }
   ],
   "46634259000195-1-000037/2025-000001": [
@@ -11114,14 +11018,14 @@
   "progresso": 17.6
  },
  "backfill_contratacoes": {
-  "limite": "2025-11-11",
-  "progresso": 7.7,
+  "limite": "2025-11-12",
+  "progresso": 7.9,
   "concluido": false,
   "proximo": "2026-10-13"
  },
  "backfill_contratos": {
-  "limite": "2026-10-12",
-  "progresso": 23.3,
+  "limite": "2026-10-13",
+  "progresso": 26.7,
   "concluido": false,
   "proximo": "2026-11-03"
  },
