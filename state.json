@@ -1,12 +1,12 @@
 {
  "contratacoes_atualizacao": {
-  "ate": "2026-11-04"
+  "ate": "2026-11-05"
  },
  "atas_atualizacao": {
   "ate": "2026-11-11"
  },
  "contratos_atualizacao": {
-  "ate": "2026-11-04"
+  "ate": "2026-11-03"
  },
  "ata_links_pendentes": {
   "12075748000132-1-000143/2024-000038": [
@@ -10952,6 +10952,17 @@
     "orgao": "MUNICIPIO DE SANTA HELENA",
     "valor": 62576.75,
     "data_assinatura": "2026-07-31"
+   },
+   {
+    "contrato": "06226583000150-2-000155/2026",
+    "fornecedor": {
+     "ni": "26669437000106",
+     "nome": "F L ALVES ARAUJO"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE SANTA HELENA",
+    "valor": 583000.0,
+    "data_assinatura": "2026-06-01"
    }
   ],
   "01409580000138-1-003187/2025-000001": [
@@ -11096,17 +11107,17 @@
  },
  "atas_varredura": {
   "data_ref": "2026-11-04",
-  "pagina": 1715,
+  "pagina": 1717,
   "iniciada_em": "2026-11-04T10:54:48-03:00",
-  "total_paginas": 9757,
-  "total_registros": 487804,
+  "total_paginas": 9763,
+  "total_registros": 488140,
   "progresso": 17.6
  },
  "backfill_contratacoes": {
   "limite": "2025-11-11",
-  "progresso": 7.4,
+  "progresso": 7.7,
   "concluido": false,
-  "proximo": "2026-10-14"
+  "proximo": "2026-10-13"
  },
  "backfill_contratos": {
   "limite": "2026-10-12",
