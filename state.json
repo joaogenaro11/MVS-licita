@@ -3,7 +3,7 @@
   "ate": "2026-11-04"
  },
  "atas_atualizacao": {
-  "ate": "2026-11-12"
+  "ate": "2026-11-11"
  },
  "contratos_atualizacao": {
   "ate": "2026-11-02"
@@ -10994,14 +10994,14 @@
   "progresso": 17.6
  },
  "backfill_contratacoes": {
-  "limite": "2025-11-12",
-  "progresso": 7.9,
+  "limite": "2025-11-13",
+  "progresso": 8.2,
   "concluido": false,
   "proximo": "2026-10-13"
  },
  "backfill_contratos": {
-  "limite": "2026-10-13",
-  "progresso": 26.7,
+  "limite": "2026-10-14",
+  "progresso": 30.0,
   "concluido": false,
   "proximo": "2026-11-03"
  },
