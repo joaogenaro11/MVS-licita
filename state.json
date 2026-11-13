@@ -1,9 +1,9 @@
 {
  "contratacoes_atualizacao": {
-  "ate": "2026-11-05"
+  "ate": "2026-11-04"
  },
  "atas_atualizacao": {
-  "ate": "2026-11-11"
+  "ate": "2026-11-12"
  },
  "contratos_atualizacao": {
   "ate": "2026-11-02"
@@ -743,30 +743,6 @@
     "orgao": "SERVICO AUTONOMO DE AGUA E ESGOTO DO MUNICIPIO DE VIDEIRA",
     "valor": 96362.2,
     "data_assinatura": "2026-10-29"
-   }
-  ],
-  "12075748000132-1-000029/2026-000013": [
-   {
-    "contrato": "83102558000105-2-000479/2026",
-    "fornecedor": {
-     "ni": "10402061000139",
-     "nome": "IRD PRODUTOS DE INFORMATICA LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE IRINEOPOLIS",
-    "valor": 211.24,
-    "data_assinatura": "2026-11-03"
-   },
-   {
-    "contrato": "83102640000130-2-001215/2026",
-    "fornecedor": {
-     "ni": "10402061000139",
-     "nome": "IRD PRODUTOS DE INFORMATICA LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE ITUPORANGA",
-    "valor": 250.0,
-    "data_assinatura": "2026-11-06"
    }
   ],
   "88830609000139-1-000004/2026-000004": [
