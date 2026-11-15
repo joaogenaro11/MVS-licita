@@ -1,12 +1,12 @@
 {
  "contratacoes_atualizacao": {
-  "ate": "2026-11-04"
+  "ate": "2026-11-05"
  },
  "atas_atualizacao": {
   "ate": "2026-11-14"
  },
  "contratos_atualizacao": {
-  "ate": "2026-11-03"
+  "ate": "2026-11-05"
  },
  "ata_links_pendentes": {
   "01763614000198-1-000044/2026-000001": [
@@ -10965,39 +10965,22 @@
   "ultimo_snapshot": "2026-11-04"
  },
  "pca": {
-  "feitos": [
-   "7021/2026",
-   "7021/2027",
-   "7022/2026",
-   "7022/2027",
-   "158/2027",
-   "7010/2027",
-   "7025/2027",
-   "158/2026",
-   "7025/2026",
-   "7010/2026",
-   "7035/2026",
-   "7035/2027",
-   "7050/2026",
-   "7050/2027",
-   "5810/2026",
-   "5810/2027",
-   "5895/2026"
-  ]
+  "feitos": [],
+  "ultimo_snapshot": "2026-11-14"
  },
  "atas_varredura": {
   "data_ref": "2026-11-04",
-  "pagina": 1708,
+  "pagina": 1738,
   "iniciada_em": "2026-11-04T10:54:48-03:00",
   "total_paginas": 9794,
-  "total_registros": 489663,
-  "progresso": 17.4
+  "total_registros": 489664,
+  "progresso": 17.7
  },
  "backfill_contratacoes": {
   "limite": "2025-11-14",
-  "progresso": 8.5,
+  "progresso": 8.8,
   "concluido": false,
-  "proximo": "2026-10-13"
+  "proximo": "2026-10-12"
  },
  "backfill_contratos": {
   "limite": "2026-10-15",
