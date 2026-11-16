@@ -1,6 +1,6 @@
 {
  "contratacoes_atualizacao": {
-  "ate": "2026-11-04"
+  "ate": "2026-11-05"
  },
  "atas_atualizacao": {
   "ate": "2026-11-15"
@@ -10970,17 +10970,17 @@
  },
  "atas_varredura": {
   "data_ref": "2026-11-04",
-  "pagina": 1747,
+  "pagina": 1792,
   "iniciada_em": "2026-11-04T10:54:48-03:00",
   "total_paginas": 9794,
   "total_registros": 489664,
-  "progresso": 17.8
+  "progresso": 18.3
  },
  "backfill_contratacoes": {
   "limite": "2025-11-15",
-  "progresso": 10.4,
+  "progresso": 11.2,
   "concluido": false,
-  "proximo": "2026-10-07"
+  "proximo": "2026-10-04"
  },
  "backfill_contratos": {
   "limite": "2026-10-16",
