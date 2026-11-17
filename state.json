@@ -6,7 +6,7 @@
   "ate": "2026-11-17"
  },
  "contratos_atualizacao": {
-  "ate": "2026-11-04"
+  "ate": "2026-11-03"
  },
  "ata_links_pendentes": {
   "01763614000198-1-000044/2026-000001": [
@@ -10970,17 +10970,17 @@
  },
  "atas_varredura": {
   "data_ref": "2026-11-04",
-  "pagina": 1824,
+  "pagina": 1831,
   "iniciada_em": "2026-11-04T10:54:48-03:00",
-  "total_paginas": 9803,
-  "total_registros": 490136,
-  "progresso": 18.6
+  "total_paginas": 9806,
+  "total_registros": 490269,
+  "progresso": 18.7
  },
  "backfill_contratacoes": {
   "limite": "2025-11-17",
-  "progresso": 13.7,
+  "progresso": 14.8,
   "concluido": false,
-  "proximo": "2026-09-27"
+  "proximo": "2026-09-23"
  },
  "backfill_contratos": {
   "limite": "2026-10-18",
