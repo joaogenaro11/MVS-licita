@@ -1,6 +1,6 @@
 {
  "contratacoes_atualizacao": {
-  "ate": "2026-11-05"
+  "ate": "2026-11-07"
  },
  "atas_atualizacao": {
   "ate": "2026-11-17"
@@ -6605,19 +6605,6 @@
     "data_assinatura": "2026-10-30"
    }
   ],
-  "42498733000148-1-002408/2025-000001": [
-   {
-    "contrato": "42498733000148-2-001312/2026",
-    "fornecedor": {
-     "ni": "00092369000171",
-     "nome": "NETCENTER INFORMATICA LTDA"
-    },
-    "fruto_adesao": false,
-    "orgao": "MUNICIPIO DE RIO DE JANEIRO",
-    "valor": 9366512.81,
-    "data_assinatura": "2026-10-01"
-   }
-  ],
   "00394494000136-1-001132/2024-000006": [
    {
     "contrato": "00394494000136-2-002338/2026",
@@ -10970,17 +10957,17 @@
  },
  "atas_varredura": {
   "data_ref": "2026-11-04",
-  "pagina": 1831,
+  "pagina": 1849,
   "iniciada_em": "2026-11-04T10:54:48-03:00",
-  "total_paginas": 9806,
-  "total_registros": 490269,
-  "progresso": 18.7
+  "total_paginas": 9811,
+  "total_registros": 490529,
+  "progresso": 18.8
  },
  "backfill_contratacoes": {
   "limite": "2025-11-17",
-  "progresso": 14.8,
+  "progresso": 15.3,
   "concluido": false,
-  "proximo": "2026-09-23"
+  "proximo": "2026-09-21"
  },
  "backfill_contratos": {
   "limite": "2026-10-18",
