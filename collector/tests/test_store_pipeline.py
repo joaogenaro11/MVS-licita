@@ -45,7 +45,7 @@ class FakeClient:
     def contratacoes_publicacao(self, a, b, mod):
         return self._pages("publicacao", [])
 
-    def contratacoes_proposta(self, d):
+    def contratacoes_proposta(self, d, start_page=1, **kw):
         return self._pages("proposta", self.compras)
 
     def atas_atualizacao(self, a, b):

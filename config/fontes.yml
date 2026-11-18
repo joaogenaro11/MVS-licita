@@ -26,6 +26,9 @@ pncp:
   # N dias; entre snapshots, as atualizações diárias capturam novas publicações.
   propostas_horizonte_dias: 180
   propostas_snapshot_intervalo_dias: 7
+  # O snapshot tem ~600 páginas e não cabe numa execução: continua de onde parou na seguinte,
+  # voltando algumas páginas porque a lista muda entre execuções.
+  propostas_sobreposicao_paginas: 3
   # Atas vigentes: varredura completa de /v1/atas (vigentes hoje) retomável,
   # refeita a cada N dias; entre varreduras, /v1/atas/atualizacao mantém em dia.
   atas_varredura_intervalo_dias: 30
@@ -52,9 +55,47 @@ pncp:
     snapshot_intervalo_dias: 7
     usar_atualizacao: false     # true = acompanha /v1/pca/atualizacao (alto volume)
 
-# Enriquecimento (itens e documentos oficiais) — apenas para candidatos relevantes.
-# Coleta de itens/documentos: primeiro os registros que casaram oferta TLS, depois os que
-# só citam uma marca (o casamento pode estar nos itens).
+# Cobertura além do filtro por termos da base de ofertas.
+# Edital com objeto GENÉRICO de TI (sem nenhum termo da base no objeto) entra como candidato:
+# os itens são coletados no enriquecimento e a classificação (base de ofertas) decide se publica.
+# Estes termos NÃO classificam nada; só dizem quais editais vale a pena abrir para ler os itens.
+# Caso real: Pregão 131/2026 da Embrapa, R$ 91 mi, "fornecimento de equipamentos de informática"
+# no objeto e os switches só nos itens.
+cobertura:
+  valor_minimo_objeto_generico: 1000000     # qualquer órgão do PNCP
+  valor_minimo_orgaos: 100000               # órgãos da lista abaixo
+  orgaos_relevantes_arquivo: orgaos_relevantes.yml
+  termos_ti_genericos:
+    - informática
+    - tecnologia da informação
+    - tecnologia da informação e comunicação
+    - TIC
+    - equipamentos de TI
+    - solução de TI
+    - soluções de TI
+    - infraestrutura de TI
+    - infraestrutura tecnológica
+    - infraestrutura de tecnologia
+    - infraestrutura de rede
+    - infraestrutura computacional
+    - rede lógica
+    - rede corporativa
+    - conectividade
+    - data center
+    - datacenter
+    - centro de dados
+    - sala cofre
+    - processamento de dados
+    - parque tecnológico
+    - parque computacional
+    - comunicação de dados
+    - segurança da informação
+    - segurança cibernética
+    - cibersegurança
+
+# Enriquecimento (itens e documentos oficiais) — apenas para candidatos relevantes: os que casaram
+# oferta TLS, os que só citam uma marca e os candidatos de objeto genérico (o casamento pode estar
+# nos itens). Ordem: propostas abertas primeiro e, dentro delas, os editais de MAIOR VALOR.
 enrichment:
   max_requests_per_run: 1500
   max_itens_por_compra: 100
@@ -80,6 +121,7 @@ time_shares:
   atas_atualizacao: 0.15
   contratos_atualizacao: 0.15
   propostas_abertas: 0.25
+  orgaos_relevantes: 0.10
   pca: 0.15
   # cargas longas dividem o tempo restante (1ª coleta real: a varredura de atas
   # consumiu todo o restante e a carga histórica de contratações ficou em 0%)
