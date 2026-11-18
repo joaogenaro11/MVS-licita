@@ -1,0 +1,435 @@
+# Órgãos relevantes: a cada coleta, o Radar consulta pelo CNPJ os editais com propostas abertas de cada
+# um (PNCP /v1/contratacoes/proposta?cnpj=...), mesmo que a varredura geral de propostas ainda não tenha
+# terminado. Edital desses órgãos com objeto genérico de TI ("equipamentos de informática") entra como
+# candidato e os itens decidem (ver cobertura em fontes.yml). A lista é retomada de onde parou.
+#
+# Montada em 18/11/2026 a partir (1) dos órgãos de grande porte acima, com o CNPJ da matriz conferido no
+# cadastro do PNCP, e (2) dos órgãos que já publicaram no Radar, por grupo: federais, Judiciário, Ministério
+# Público/Defensoria/AGU, Legislativo, empresas de TI, governos estaduais, capitais e universidades.
+# Para incluir um órgão: acrescente cnpj (14 dígitos, o que aparece nas contratações dele no PNCP) e nome.
+orgaos:
+
+  # --- Grande porte (primeiro na fila) (32)
+  - {cnpj: "00348003000110", nome: "EMPRESA BRASILEIRA DE PESQUISA AGROPECUARIA - EMBRAPA", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "33683111000107", nome: "SERVICO FEDERAL DE PROCESSAMENTO DE DADOS - SERPRO", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "42422253000101", nome: "DATAPREV", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "00038166000105", nome: "BANCO CENTRAL DO BRASIL", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "00360305000104", nome: "CAIXA ECONOMICA FEDERAL", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "34028316000103", nome: "EMPRESA BRASILEIRA DE CORREIOS E TELEGRAFOS", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "07237373000120", nome: "BANCO DO NORDESTE DO BRASIL", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "33787094000140", nome: "FUNDACAO IBGE", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "00378257000181", nome: "FUNDO NACIONAL DE DESENVOLVIMENTO DA EDUCACAO - FNDE", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "15126437000305", nome: "EMPRESA BRASILEIRA DE SERVICOS HOSPITALARES - EBSERH", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "33781055000135", nome: "FUNDACAO OSWALDO CRUZ", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "87020517000120", nome: "HOSPITAL DE CLINICAS DE PORTO ALEGRE", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "02030715000112", nome: "AGENCIA NACIONAL DE TELECOMUNICACOES - ANATEL", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "03112386000111", nome: "AGENCIA NACIONAL DE VIGILANCIA SANITARIA - ANVISA", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "03589068000146", nome: "AGENCIA NACIONAL DE SAUDE SUPLEMENTAR - ANS", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "02313673000127", nome: "AGENCIA NACIONAL DO PETROLEO - ANP", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "01678363000143", nome: "INEP", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "00394445000101", nome: "MINISTERIO DA EDUCACAO", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "00394460000141", nome: "MINISTERIO DA FAZENDA", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "26664015000148", nome: "CONTROLADORIA-GERAL DA UNIAO", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "00375114000116", nome: "DEFENSORIA PUBLICA DA UNIAO", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "00530352000159", nome: "CAMARA DOS DEPUTADOS", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "00497560000101", nome: "SUPERIOR TRIBUNAL MILITAR", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "03658507000125", nome: "TRIBUNAL REGIONAL FEDERAL DA 1A REGIAO", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "32243347000151", nome: "TRIBUNAL REGIONAL FEDERAL DA 2A REGIAO", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "59949362000176", nome: "TRIBUNAL REGIONAL FEDERAL DA 3A REGIAO", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "92518737000119", nome: "TRIBUNAL REGIONAL FEDERAL DA 4A REGIAO", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "13579586000132", nome: "COMPANHIA DE PROCESSAMENTO DE DADOS DO ESTADO DA BAHIA - PRODEB", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "30121578000167", nome: "PRODERJ - CENTRO DE TECNOLOGIA DE INFORMACAO E COMUNICACAO DO RJ", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "11006269000100", nome: "EMPREL - EMPRESA MUNICIPAL DE INFORMATICA (RECIFE)", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "03773788000167", nome: "EMPRESA DE TECNOLOGIA DA INFORMACAO DO CEARA - ETICE", grupo: "Grande porte (primeiro na fila)"}
+  - {cnpj: "09189499000100", nome: "COMPANHIA DE PROCESSAMENTO DE DADOS DA PARAIBA - CODATA", grupo: "Grande porte (primeiro na fila)"}
+
+  # --- Federal (Executivo, autarquias e empresas públicas) (89)
+  - {cnpj: "00394452000103", nome: "COMANDO DO EXERCITO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "00394502000144", nome: "COMANDO DA MARINHA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "00394494000136", nome: "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "00394429000100", nome: "COMANDO DA AERONAUTICA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "00394544000185", nome: "MINISTERIO DA SAUDE", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "01263896000164", nome: "MINISTERIO DA CIENCIA, TECNOLOGIA E INOVACOES", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "03277610000125", nome: "MINISTERIO DA DEFESA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "00402552000126", nome: "COMISSAO NACIONAL DE ENERGIA NUCLEAR", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "00394494010441", nome: "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "40176679000199", nome: "FUNDACAO BIBLIOTECA NACIONAL", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "03204421000122", nome: "INST. NAC. COLON. REFORMA AGRARIA - INCRA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "00396895000125", nome: "MINISTERIO DA AGRICULTURA, PECUARIA E ABASTECIMENTO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "15126437000143", nome: "EMPRESA BRASILEIRA DE SERVIÇOS HOSPITALARES", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "08829974000194", nome: "INSTITUTO CHICO MENDES DE CONSERVACAO DA BIODIVERSIDADE", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "37115342000167", nome: "MINISTERIO DOS TRANSPORTES", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "63106843000197", nome: "CONSELHO REGIONAL DE MEDICINA DO ESTADO DE SAO PAULO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "21744847000150", nome: "BASE ADMINISTRATIVA DO QUARTEL-GENERAL DO EXERCITO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "26474056000171", nome: "INSTITUTO DO PATRIMONIO HISTORICO E ARTISTICO NACIONAL", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "42521088000137", nome: "INSTITUTO NACIONAL DA PROPRIEDADE INDUSTRIAL", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "29406625000130", nome: "AGENCIA NACIONAL DE MINERACAO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "04898488000177", nome: "AGENCIA NACIONAL DE TRANSPORTES TERRESTRES - ANTT", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "26461699000180", nome: "COMPANHIA NACIONAL DE ABASTECIMENTO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "29979036000140", nome: "INSTITUTO NACIONAL DO SEGURO SOCIAL", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "12397930000100", nome: "UNIVERSIDADE DA INTEGRACAO INTERNACIONAL DA LUSOFONIA AFRO-BRASILEIRA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "04903587000108", nome: "AGENCIA NACIONAL DE TRANSPORTES AQUAVIARIOS", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "14702767000177", nome: "CONSELHO DE ARQUITETURA E URBANISMO DO BRASIL", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "92698471000133", nome: "CONSELHO REG DE CONTABILIDADE DO RIO GRANDE DO SUL", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "03662446000170", nome: "CONSELHO REGIONAL DE BIOLOGIA - 5 REGIAO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "76639384000159", nome: "CONSELHO REGIONAL DE ENGENHARIA E AGRONOMIA DO PARANA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "83900969000146", nome: "CONSELHO REGIONAL DE FARMACIA DE SANTA CATARINA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "04892707000100", nome: "DNIT-DEPARTAMENTO NACIONAL DE INFRAEST DE TRANSPORTES", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "26989350000116", nome: "FUNDACAO NACIONAL DE SAUDE", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "23274194000119", nome: "FURNAS-CENTRAIS ELETRICAS S.A.", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "03659166000102", nome: "INSTITUTO BRASILEIRO DO MEIO AMBIENTE E DOS RECURSOS NATURAIS RENOVAVEIS-IBAMA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "01264142000129", nome: "MINISTERIO DA CULTURA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "02270669000129", nome: "AGENCIA NACIONAL DE ENERGIA ELETRICA - ANEEL", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "00497552001471", nome: "AUDITORIAS DA JUSTICA MILITAR", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "00497552002524", nome: "AUDITORIAS DA JUSTICA MILITAR", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "34164319000174", nome: "CASA DA MOEDA DO BRASIL", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "17220203000196", nome: "CENTRO FEDERAL DE EDUCACAO TECNOLOGICA DE MINAS GERAIS", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "10770641000189", nome: "CENTRO NACIONAL DE TEC ELETRONICA AVANçADA SA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "42414284000102", nome: "COLEGIO PEDRO II", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "00399857000126", nome: "COMPANHIA DE DESENV. DO VALE DO SAO FRANCISCO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "00091652000189", nome: "COMPANHIA DE PESQUISA DE RECURSOS MINERAIS", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "34040345000190", nome: "COMPANHIA DOCAS DO RIO GRANDE DO NORTE-CODERN", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "15131560000152", nome: "CONSELHO DE ARQUITETURA E URBANISMO DE SAO PAULO (CAU-SP)", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "14951451000119", nome: "CONSELHO DE ARQUITETURA E URBANISMO DO ESTADO DE MINAS GERAIS", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "47217146000157", nome: "CONSELHO FEDERAL DE ENFERMAGEM COFEN", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "33583550000130", nome: "CONSELHO FEDERAL DE MEDICINA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "14998009000148", nome: "CONSELHO REGIONAL DE ADMINISTRACAO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "16863664000114", nome: "CONSELHO REGIONAL DE ADMINISTRACAO DE MINAS GERAIS", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "27907518000160", nome: "CONSELHO REGIONAL DE ADMINISTRACAO DO RIO DE JANEIRO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "02366047000107", nome: "CONSELHO REGIONAL DE BIOLOGIA - 1A. REGIAO - (SP,MT,MS)", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "28163343000196", nome: "CONSELHO REGIONAL DE CONTABILIDADE DO ESPIRITO SANTO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "15244148000149", nome: "CONSELHO REGIONAL DE CONTABILIDADE DO ESTADO DA BAHIA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "38145157000188", nome: "CONSELHO REGIONAL DE CORRETORES DE IMOVEIS - 25 REGIAO/TO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "62144084000194", nome: "CONSELHO REGIONAL DE ECONOMIA DOIS REGIAO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "04329527000115", nome: "CONSELHO REGIONAL DE EDUCACAO FISICA DA 10 REGIAO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "08024822000114", nome: "CONSELHO REGIONAL DE EDUCACAO FISICA DA 14 REGIAO - CREF14/GO-TO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "23411944000157", nome: "CONSELHO REGIONAL DE EDUCACAO FISICA DA 17A REGIAO - ESTADO DE MATO GROSSO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "03566870000110", nome: "CONSELHO REGIONAL DE EDUCACAO FISICA DA 2 REGIAO - CREF2/RS", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "06272868000127", nome: "CONSELHO REGIONAL DE ENFERMAGEM COREN MA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "24630212000110", nome: "CONSELHO REGIONAL DE ENFERMAGEM DE MATO GROSSO DO SUL", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "44413680000140", nome: "CONSELHO REGIONAL DE ENFERMAGEM DE SAO PAULO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "04769874000169", nome: "CONSELHO REGIONAL DE ENFERMAGEM DO PIAUI", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "09795881000159", nome: "CONSELHO REGIONAL DE ENGENHARIA E AGRONOMIA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "55556485000196", nome: "CONSELHO REGIONAL DE FISIOTERAPIA E TERAPIA OCUPACIONAL DA 19A REGIAO - CREFITO-19", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "79831566000115", nome: "CONSELHO REGIONAL DE MEDICINA DO EST DE SANTA CATARINA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "10764033000161", nome: "CONSELHO REGIONAL DE MEDICINA DO ESTADO DA PARAIBA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "08680886000173", nome: "CONSELHO REGIONAL DE MEDICINA VETERINARIA 12 REGIAO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "09791450000114", nome: "CONSELHO REGIONAL DE MEDICINA VETERINARIA DE PERNAMBUCO CRMV-PE", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "06622443000109", nome: "CONSELHO REGIONAL DE MEDICINA VETERINARIA DO ESTADO DO CEARA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "93009116000172", nome: "CONSELHO REGIONAL DE MEDICINA VETERINARIA DO ESTADO DO RIO GRANDE DO SUL", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "30892350000170", nome: "CONSELHO REGIONAL DE NUTRICIONISTAS DA 4 REGIAO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "07299589000110", nome: "CONSELHO REGIONAL DE ODONTOLOGIA DO CEARA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "33673237000192", nome: "CONSELHO REGIONAL DE SERVICO SOCIAL - 7 REGIAO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "04974325000126", nome: "CONSELHO REGIONAL DOS REPRESENTANTES COMERCIAIS NO ESTADO DO PARA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "68248901000130", nome: "CONSELHO REGIONAL DOS TECNICOS INDUSTRIAIS DA 7 REGIAO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "04892707001697", nome: "DNIT-DEPARTAMENTO NACIONAL DE INFRAEST DE TRANSPORTES", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "04892707002073", nome: "DNIT-DEPARTAMENTO NACIONAL DE INFRAEST DE TRANSPORTES", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "09168704000142", nome: "EMPRESA BRASIL DE COMUNICAÇÃO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "90976853000156", nome: "EMPRESA DE TRENS URBANOS DE PORTO ALEGRE S/A", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "09773169000159", nome: "FUNDACAO JOAQUIM NABUCO FUNDAJ", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "34143842000114", nome: "FUNDACAO OSORIO", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "05448380000145", nome: "FUNDO CONSTITUCIONAL DO DISTRITO FEDERAL - FCDF", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "05465986000199", nome: "MINISTERIO DAS CIDADES", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "37115383000153", nome: "MINISTERIO DE MINAS E ENERGIA", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "49203332000162", nome: "MINISTERIO DOS POVOS INDIGENAS", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+  - {cnpj: "09203665000177", nome: "SUPERINTENDENCIA DO DESENVOLVIMENTO DA AMAZONIA - SUDAM", grupo: "Federal (Executivo, autarquias e empresas públicas)"}
+
+  # --- Judiciário (66)
+  - {cnpj: "00509968000148", nome: "TRIBUNAL SUPERIOR DO TRABALHO", grupo: "Judiciário"}
+  - {cnpj: "00509018000113", nome: "TRIBUNAL SUPERIOR ELEITORAL", grupo: "Judiciário"}
+  - {cnpj: "00508903000188", nome: "JUSTICA FEDERAL DE PRIMEIRA INSTANCIA", grupo: "Judiciário"}
+  - {cnpj: "04567897000190", nome: "TRIBUNAL DE JUSTICA DO ESTADO DO PARA", grupo: "Judiciário"}
+  - {cnpj: "28538734000148", nome: "TRIBUNAL DE JUSTICA DO ESTADO DO RIO DE JANEIRO", grupo: "Judiciário"}
+  - {cnpj: "50290931000140", nome: "SAO PAULO TRIBUNAL DE CONTAS DO ESTADO", grupo: "Judiciário"}
+  - {cnpj: "05703755000176", nome: "TRIBUNAL REGIONAL ELEITORAL DO PARA", grupo: "Judiciário"}
+  - {cnpj: "77996312000121", nome: "TRIBUNAL DE CONTAS DO ESTADO DO PARANA", grupo: "Judiciário"}
+  - {cnpj: "04789665000187", nome: "TRIBUNAL DE CONTAS DOS MUNICIPIOS", grupo: "Judiciário"}
+  - {cnpj: "07421906000129", nome: "CONSELHO NACIONAL DE JUSTICA", grupo: "Judiciário"}
+  - {cnpj: "00488478000102", nome: "SUPERIOR TRIBUNAL DE JUSTICA", grupo: "Judiciário"}
+  - {cnpj: "00531640000128", nome: "SUPREMO TRIBUNAL FEDERAL", grupo: "Judiciário"}
+  - {cnpj: "09499757000146", nome: "TRIBUNAL DE CONTAS DO CEARA", grupo: "Judiciário"}
+  - {cnpj: "03535606000110", nome: "TRIBUNAL DE JUSTICA DO ESTADO DE  MATO GROSSO", grupo: "Judiciário"}
+  - {cnpj: "05901308000121", nome: "TRIBUNAL REGIONAL ELEITORAL DO MATO GROSSO", grupo: "Judiciário"}
+  - {cnpj: "06170517000105", nome: "TRIBUNAL REGIONAL ELEITORAL DO RIO DE JANEIRO", grupo: "Judiciário"}
+  - {cnpj: "34812669000108", nome: "TRIBUNAL DE JUSTICA DO ESTADO DE RORAIMA", grupo: "Judiciário"}
+  - {cnpj: "06302492000156", nome: "TRIBUNAL REGIONAL ELEITORAL DE SAO PAULO", grupo: "Judiciário"}
+  - {cnpj: "04812509000190", nome: "AMAZONAS TRIBUNAL DE JUSTICA", grupo: "Judiciário"}
+  - {cnpj: "50176270000126", nome: "SAO PAULO TRIBUNAL DE CONTAS DO MUNICIPIO", grupo: "Judiciário"}
+  - {cnpj: "00414607000118", nome: "TRIBUNAL DE CONTAS DA UNIAO", grupo: "Judiciário"}
+  - {cnpj: "34870246000136", nome: "TRIBUNAL DE CONTAS DO ESTADO DO AMAPA", grupo: "Judiciário"}
+  - {cnpj: "25053133000157", nome: "TRIBUNAL DE CONTAS DO ESTADO DO TOCANTINS", grupo: "Judiciário"}
+  - {cnpj: "32634420000116", nome: "TRIBUNAL DE CONTAS DOS MUNICIPIOS", grupo: "Judiciário"}
+  - {cnpj: "00531954000120", nome: "TRIBUNAL DE JUSTICA DO DISTRITO FEDERAL E DOS TERRITORIOS", grupo: "Judiciário"}
+  - {cnpj: "04293700000172", nome: "TRIBUNAL DE JUSTICA DO ESTADO DE RONDONIA", grupo: "Judiciário"}
+  - {cnpj: "03241738000139", nome: "TRIBUNAL REGIONAL DO TRABALHO DA 2A REGIAO", grupo: "Judiciário"}
+  - {cnpj: "03235270000170", nome: "TRIBUNAL REGIONAL DO TRABALHO DA 7A. REGIAO", grupo: "Judiciário"}
+  - {cnpj: "05955085000185", nome: "TRIBUNAL REGIONAL ELEITORAL DE RORAIMA", grupo: "Judiciário"}
+  - {cnpj: "05288790000176", nome: "ESTADO DO MARANHAO - TRIBUNAL DE JUSTICA DO MARANHAO", grupo: "Judiciário"}
+  - {cnpj: "05424540000116", nome: "JUSTICA FEDERAL DE PRIMEIRO GRAU NO RIO DE JANEIRO", grupo: "Judiciário"}
+  - {cnpj: "12978037000178", nome: "NATAL TRIBUNAL DE CONTAS DO ESTADO DO RIO G DO NORTE", grupo: "Judiciário"}
+  - {cnpj: "12473062000108", nome: "TRIBUNAL DE JUSTICA DO ESTADO DE ALAGOAS", grupo: "Judiciário"}
+  - {cnpj: "09444530000101", nome: "TRIBUNAL DE JUSTICA DO ESTADO DO CEARA", grupo: "Judiciário"}
+  - {cnpj: "06981344000105", nome: "TRIBUNAL DE JUSTICA DO ESTADO DO PIAUI", grupo: "Judiciário"}
+  - {cnpj: "25053190000136", nome: "TRIBUNAL DE JUSTICA DO ESTADO DO TOCANTINS", grupo: "Judiciário"}
+  - {cnpj: "03979663000198", nome: "TRIBUNAL DE JUSTICA DO ESTADO MATO GROSSO DO SUL", grupo: "Judiciário"}
+  - {cnpj: "03326815000153", nome: "TRIBUNAL REGIONAL DO TRABALHO 14A REGIAO", grupo: "Judiciário"}
+  - {cnpj: "37115409000163", nome: "TRIBUNAL REGIONAL DO TRABALHO DA 24 REGIAO", grupo: "Judiciário"}
+  - {cnpj: "06015041000138", nome: "TRIBUNAL REGIONAL ELEITORAL DE ALAGOAS", grupo: "Judiciário"}
+  - {cnpj: "03883929000102", nome: "TRIBUNAL REGIONAL ELEITORAL DE MATO GROSSO DO SUL", grupo: "Judiciário"}
+  - {cnpj: "06026531000130", nome: "TRIBUNAL REGIONAL ELEITORAL DO CEARA", grupo: "Judiciário"}
+  - {cnpj: "47784477000179", nome: "TRIBUNAL REGIONAL FEDERAL DA 6A REGIAO", grupo: "Judiciário"}
+  - {cnpj: "06989347000195", nome: "ESTADO DO MARANHAO - TRIBUNAL DE CONTAS DO ESTADO", grupo: "Judiciário"}
+  - {cnpj: "02291730000114", nome: "GOIAS TRIBUNAL DE CONTAS", grupo: "Judiciário"}
+  - {cnpj: "09283110000182", nome: "JOAO PESSOA TRIBUNAL DE CONTAS DO ESTADO DA PARAIBA", grupo: "Judiciário"}
+  - {cnpj: "05424467000182", nome: "JUSTICA FEDERAL DE PRIMEIRO GRAU NO ESPIRITO SANTO", grupo: "Judiciário"}
+  - {cnpj: "05818935000101", nome: "PIAUI TRIBUNAL DE CONTAS DO ESTADO", grupo: "Judiciário"}
+  - {cnpj: "89550032000174", nome: "RIO GRANDE DO SUL TRIBUNAL DE CONTAS DO ESTADO", grupo: "Judiciário"}
+  - {cnpj: "83845701000159", nome: "SANTA CATARINA TRIBUNAL DE JUSTICA", grupo: "Judiciário"}
+  - {cnpj: "51174001000193", nome: "SAO PAULO TRIBUNAL DE JUSTICA", grupo: "Judiciário"}
+  - {cnpj: "00534560000126", nome: "TRIBUNAL DE CONTAS DO DISTRITO FEDERAL", grupo: "Judiciário"}
+  - {cnpj: "11435633000149", nome: "TRIBUNAL DE CONTAS DO ESTADO DE PERNAMBUCO", grupo: "Judiciário"}
+  - {cnpj: "04801221000110", nome: "TRIBUNAL DE CONTAS DO ESTADO DE RONDONIA", grupo: "Judiciário"}
+  - {cnpj: "84008440000185", nome: "TRIBUNAL DE CONTAS DO ESTADO DE RORAIMA", grupo: "Judiciário"}
+  - {cnpj: "02600963000151", nome: "TRIBUNAL DE CONTAS DOS MUNICIPIOS", grupo: "Judiciário"}
+  - {cnpj: "34870576000121", nome: "TRIBUNAL DE JUSTICA DO ESTADO DO AMAPA", grupo: "Judiciário"}
+  - {cnpj: "02578421000120", nome: "TRIBUNAL REGIONAL DO TRABALHO DA 1A. REGIAO", grupo: "Judiciário"}
+  - {cnpj: "37115425000156", nome: "TRIBUNAL REGIONAL DO TRABALHO DA 23 REGIAO", grupo: "Judiciário"}
+  - {cnpj: "02566224000190", nome: "TRIBUNAL REGIONAL DO TRABALHO DA 6A REGIAO", grupo: "Judiciário"}
+  - {cnpj: "03141166000116", nome: "TRIBUNAL REGIONAL DO TRABALHO DA 9 REGIAO", grupo: "Judiciário"}
+  - {cnpj: "05789902000172", nome: "TRIBUNAL REGIONAL ELEITORAL DE TOCANTINS", grupo: "Judiciário"}
+  - {cnpj: "05959999000114", nome: "TRIBUNAL REGIONAL ELEITORAL DO AMAZONAS", grupo: "Judiciário"}
+  - {cnpj: "04099695000161", nome: "TRIBUNAL REGIONAL ELEITORAL DO DISTRITO FEDERAL", grupo: "Judiciário"}
+  - {cnpj: "05962421000117", nome: "TRIBUNAL REGIONAL ELEITORAL DO MARANHAO", grupo: "Judiciário"}
+  - {cnpj: "03985113000181", nome: "TRIBUNAL REGIONAL ELEITORAL DO PARANA", grupo: "Judiciário"}
+
+  # --- Ministério Público / Defensoria / AGU (41)
+  - {cnpj: "11762144000100", nome: "DEFENSORIA PUBLICA DO ESTADO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "08036157000189", nome: "DEFENSORIA PUBLICA DO ESTADO DE SAO PAULO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "02941240000116", nome: "PROCURADORIA GERAL DO ESTADO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "26989715000102", nome: "MINISTERIO PUBLICO DA UNIAO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "01786078000146", nome: "TOCANTINS PROCURADORIA GERAL DA JUSTICA", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "05805924000189", nome: "PIAUI PROCURADORIA GERAL DA JUSTICA", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "26994558000123", nome: "ADVOCACIA GERAL DA UNIAO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "20971057000145", nome: "PROCURADORIA GERAL DE JUSTICA DE MINAS GERAIS", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "08539710000104", nome: "MINISTERIO PUBLICO DO ESTADO DO RIO GRANDE DO NORTE", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "18325503000100", nome: "PROCURADORIA GERAL DO MUNICIPIO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "05483912000185", nome: "ESTADO DO MARANHAO - PROCURADORIA GERAL DA JUSTICA", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "28305936000140", nome: "MINISTERIO PUBLICO DO ESTADO DO RIO DE JANEIRO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "03983541000175", nome: "MINISTERIO PUBLICO ESTADUAL", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "14921092000157", nome: "PROCURADORIA GERAL DE JUSTICA DO ESTADO DE MATO GROSSO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "74704636000150", nome: "RIO GRANDE DO SUL DEFENSORIA PUBLICA DO ESTADO DO RS", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "13168687000110", nome: "SERGIPE MINISTERIO PUBLICO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "01072076000195", nome: "DEFENSORIA PUBLICA DO ESTADO DE RONDONIA", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "13950733000139", nome: "DEFENSORIA PUBLICA DO ESTADO DO PARANA", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "01468760000190", nome: "MINISTERIO PUBLICO DO ESTADO DE SAO PAULO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "34869354000199", nome: "MINISTERIO PUBLICO DO ESTADO DO AMAPA", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "05054960000158", nome: "PARA MINISTERIO PUBLICO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "04153748000185", nome: "PROCURADORIA GERAL DE JUSTICA DO ESTADO DO AMAZONAS", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "71584833000195", nome: "PROCURADORIA GERAL DO ESTADO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "01002322000132", nome: "PROCURADORIA GERAL DO ESTADO DO AMAPA", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "38299379000155", nome: "PROCURADORIA-GERAL DO ESTADO DE RORAIMA", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "04581375000143", nome: "DEFENSORIA PUBLICA -GERAL DO ESTADO DO ACRE", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "05599094000180", nome: "DEFENSORIA PUBLICA DO ESTADO DE MINAS GERAIS", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "19421427000191", nome: "DEFENSORIA PUBLICA DO ESTADO DO AMAZONAS", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "41263856000137", nome: "DEFENSORIA PUBLICA DO ESTADO DO PIAUI", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "07248660000135", nome: "DEFENSORIA PUBLICA DO ESTADO DO TOCANTINS", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "00820295000142", nome: "ESTADO DO MARANHAO - DEFENSORIA PUBLICA DO ESTADO DO MARANHAO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "03464870000100", nome: "FUNDO ESPECIAL DE APOIO E DESENVOLVIMENTO DO MINISTERIO PUBLICO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "04142491000166", nome: "MINISTERIO PUBLICO DO ESTADO DA BAHIA", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "09284001000180", nome: "MINISTERIO PUBLICO DO ESTADO DA PARAIBA - PGJ", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "04381083000167", nome: "MINISTERIO PUBLICO DO ESTADO DE RONDONIA", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "76276849000154", nome: "MINISTERIO PUBLICO DO ESTADO DE SANTA CATARINA PROCURADORIA GERAL DE JUSTICA", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "04034450000156", nome: "MINISTERIO PUBLICO DO ESTADO DO ACRE", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "06928790000156", nome: "MINISTERIO PUBLICO DO ESTADO DO CEARA", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "02304470000174", nome: "MINISTERIO PUBLICO DO ESTADO DO ESPIRITO SANTO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "35329242000108", nome: "PROCURADORIA GERAL DO ESTADO", grupo: "Ministério Público / Defensoria / AGU"}
+  - {cnpj: "04088258000142", nome: "PROCURADORIA GERAL DO ESTADO", grupo: "Ministério Público / Defensoria / AGU"}
+
+  # --- Legislativo (11)
+  - {cnpj: "00001727000193", nome: "GOIANIA CAMARA MUNICIPAL DE GOIANIA", grupo: "Legislativo"}
+  - {cnpj: "26963645000113", nome: "CAMARA LEGISLATIVA DO DISTRITO FEDERAL", grupo: "Legislativo"}
+  - {cnpj: "89522437000107", nome: "CAMARA MUNICIPAL DE PORTO ALEGRE", grupo: "Legislativo"}
+  - {cnpj: "00530279000115", nome: "SENADO FEDERAL", grupo: "Legislativo"}
+  - {cnpj: "59952259000185", nome: "ASSEMBLEIA LEGISLATIVA DO ESTADO DE SAO PAULO", grupo: "Legislativo"}
+  - {cnpj: "14674337000199", nome: "BAHIA ASSEMBLEIA LEGISLATIVA", grupo: "Legislativo"}
+  - {cnpj: "77636520000110", nome: "CAMARA MUNICIPAL DE CURITIBA", grupo: "Legislativo"}
+  - {cnpj: "06750525000120", nome: "CEARA ASSEMBLEIA LEGISLATIVA", grupo: "Legislativo"}
+  - {cnpj: "09283912000192", nome: "JOAO PESSOA ASSEMBLEIA LEGISLATIVA", grupo: "Legislativo"}
+  - {cnpj: "04503504000185", nome: "MANAUS CAMARA MUNICIPAL DE MANAUS", grupo: "Legislativo"}
+  - {cnpj: "03929049000111", nome: "MATO GROSSO ASSEMBLEIA LEGISLATIVA", grupo: "Legislativo"}
+
+  # --- Empresas e órgãos de TI (14)
+  - {cnpj: "07337989000172", nome: "AGENCIA MUNICIPAL DE TECNOLOGIA DA INFORMACAO E INOVACAO", grupo: "Empresas e órgãos de TI"}
+  - {cnpj: "18239038000187", nome: "EMPRESA DE INFORMATICA E INFORMACAO DO MUN.BHTE S/", grupo: "Empresas e órgãos de TI"}
+  - {cnpj: "01591392000173", nome: "CENTRO DE GESTAO DA TECNOLOGIA DA INFORMACAO", grupo: "Empresas e órgãos de TI"}
+  - {cnpj: "16636540000104", nome: "CIA DE TECNOLOGIA DA INFORMACAO DO ESTADO DE MG", grupo: "Empresas e órgãos de TI"}
+  - {cnpj: "05100031000138", nome: "INSTITUTO DE TECNOLOGIA EM INFORMATICA E INFORMACAO DO ESTADO DE ALAGOAS", grupo: "Empresas e órgãos de TI"}
+  - {cnpj: "04039532000193", nome: "INSTITUTO NACIONAL DE TECNOLOGIA DA INFORMACAO", grupo: "Empresas e órgãos de TI"}
+  - {cnpj: "62577929000135", nome: "(UO) ESP-PRODESP-CIA.PROC DE DADOS EST. SP", grupo: "Empresas e órgãos de TI"}
+  - {cnpj: "32893926000140", nome: "AGENCIA DE TECNOLOGIA DA INFORMACAO", grupo: "Empresas e órgãos de TI"}
+  - {cnpj: "83043745000165", nome: "CENTRO DE INFORMATICA E AUTOMACAO DO ESTADO DE SC S/A - CIASC", grupo: "Empresas e órgãos de TI"}
+  - {cnpj: "28162790000120", nome: "INSTITUTO DE TECNOLOGIA DA INFORMACAO E COMUNICACAO DO ESTADO DO ESPIRITO SANTO", grupo: "Empresas e órgãos de TI"}
+  - {cnpj: "05059613000118", nome: "Empresa de Tecnologia da Informação e Comunicação do Estado do Pará - PRODEPA", grupo: "Empresas e órgãos de TI"}
+  - {cnpj: "07520940000150", nome: "FUNDACAO  MUNICIPAL DE TECNOLOGIA DA INFORMACAO, TELECOMUNICACOES E CULTURA EGBERTO TAVARES COSTA", grupo: "Empresas e órgãos de TI"}
+  - {cnpj: "43076702000161", nome: "PMSP - EMPRESA DE TEC. DA INFORMAÇÃO - PRODAM", grupo: "Empresas e órgãos de TI"}
+  - {cnpj: "04407920000180", nome: "PRODAM PROCESSAMENTO DE DADOS AMAZONAS S A", grupo: "Empresas e órgãos de TI"}
+
+  # --- Governos estaduais (32)
+  - {cnpj: "42498600000171", nome: "ESTADO DO RIO DE JANEIRO", grupo: "Governos estaduais"}
+  - {cnpj: "07954480000179", nome: "ESTADO DO CEARA", grupo: "Governos estaduais"}
+  - {cnpj: "01409580000138", nome: "ESTADO DE GOIAS", grupo: "Governos estaduais"}
+  - {cnpj: "63606479000124", nome: "ESTADO DO ACRE", grupo: "Governos estaduais"}
+  - {cnpj: "00394577000125", nome: "ESTADO DO AMAPA", grupo: "Governos estaduais"}
+  - {cnpj: "03352086000100", nome: "ESTADO DO MARANHAO - SECRETARIA DE ESTADO DA EDUCACAO", grupo: "Governos estaduais"}
+  - {cnpj: "06650139000167", nome: "ESTADO DO MARANHAO - POLICIA MILITAR DO MARANHAO", grupo: "Governos estaduais"}
+  - {cnpj: "09554912000180", nome: "ESTADO DO MARANHAO - POLICIA CIVIL DO ESTADO DO MARANHAO", grupo: "Governos estaduais"}
+  - {cnpj: "02973240000106", nome: "ESTADO DO MARANHAO - SECRETARIA DE ESTADO DA SAUDE", grupo: "Governos estaduais"}
+  - {cnpj: "05022633000114", nome: "ESTADO DO MARANHAO - SECRETARIA DE ESTADO DO PLANEJAMENTO E ORCAMENTO", grupo: "Governos estaduais"}
+  - {cnpj: "08892295000160", nome: "ESTADO DO MARANHAO - SECRETARIA DE ESTADO DA INFRAESTRUTURA", grupo: "Governos estaduais"}
+  - {cnpj: "05054903000179", nome: "SECRETARIA DE ESTADO DA FAZENDA", grupo: "Governos estaduais"}
+  - {cnpj: "16907746000113", nome: "SECRETARIA DE ESTADO DE FAZENDA DE MINAS GERAIS", grupo: "Governos estaduais"}
+  - {cnpj: "06060917000168", nome: "ESTADO DO MARANHAO - SECRETARIA DE ESTADO DA CULTURA", grupo: "Governos estaduais"}
+  - {cnpj: "05023045000103", nome: "ESTADO DO MARANHAO - SECRETARIA DE ESTADO DE MEIO AMBIENTE E RECURSOS NATURAIS", grupo: "Governos estaduais"}
+  - {cnpj: "46377222000129", nome: "SECRETARIA DA FAZENDA E PLANEJAMENTO", grupo: "Governos estaduais"}
+  - {cnpj: "27080571000130", nome: "ESPIRITO SANTO SECRETARIA DE ESTADO DA FAZENDA", grupo: "Governos estaduais"}
+  - {cnpj: "03507415002864", nome: "ESTADO DE MATO GROSSO", grupo: "Governos estaduais"}
+  - {cnpj: "00394577000206", nome: "ESTADO DO AMAPA", grupo: "Governos estaduais"}
+  - {cnpj: "02940097000148", nome: "ESTADO DO MARANHAO - SECRETARIA DE ESTADO DO DESENVOLVIMENTO SOCIAL", grupo: "Governos estaduais"}
+  - {cnpj: "05506465000132", nome: "ESTADO DO MARANHAO - SECRETARIA DE ESTADO DO ESPORTE", grupo: "Governos estaduais"}
+  - {cnpj: "11762128000109", nome: "SECRETARIA DE ESTADO DA FAZENDA", grupo: "Governos estaduais"}
+  - {cnpj: "08761132000148", nome: "SECRETARIA DE ESTADO DA FAZENDA - SEFAZ-PB", grupo: "Governos estaduais"}
+  - {cnpj: "02935843000105", nome: "SEFAZ - SECRETARIA DE ESTADO DE FAZENDA", grupo: "Governos estaduais"}
+  - {cnpj: "14030908000152", nome: "ESTADO DO MARANHAO - GERENCIA DE PROTECAO E DEFESA DO CONSUMIDOR", grupo: "Governos estaduais"}
+  - {cnpj: "06354500000108", nome: "ESTADO DO MARANHAO - SECRETARIA DE ESTADO DA SEGURANCA PUBLICA", grupo: "Governos estaduais"}
+  - {cnpj: "24393108000150", nome: "ESTADO DO MARANHAO - SECRETARIA DE ESTADO DE GOVERNO", grupo: "Governos estaduais"}
+  - {cnpj: "21853640000114", nome: "ESTADO DO MARANHAO - SECRETARIA DE TRANSPARENCIA E CONTROLE", grupo: "Governos estaduais"}
+  - {cnpj: "76416890000189", nome: "GOVERNO DO PARANA SECRETARIA DE ESTADO DA FAZENDA", grupo: "Governos estaduais"}
+  - {cnpj: "10572014000133", nome: "SECRETARIA DA FAZENDA", grupo: "Governos estaduais"}
+  - {cnpj: "82951310000156", nome: "SECRETARIA DE ESTADO DA FAZENDA", grupo: "Governos estaduais"}
+  - {cnpj: "04034484000140", nome: "SECRETARIA DE ESTADO DA FAZENDA - SEFAZ", grupo: "Governos estaduais"}
+
+  # --- Capitais (20)
+  - {cnpj: "03501509000106", nome: "MUNICIPIO DE CAMPO GRANDE", grupo: "Capitais"}
+  - {cnpj: "05903125000145", nome: "MUNICIPIO DE PORTO VELHO", grupo: "Capitais"}
+  - {cnpj: "08778326000156", nome: "MUNICIPIO DE JOAO PESSOA", grupo: "Capitais"}
+  - {cnpj: "04034583000637", nome: "MUNICIPIO DE RIO BRANCO", grupo: "Capitais"}
+  - {cnpj: "42498733000148", nome: "MUNICIPIO DE RIO DE JANEIRO", grupo: "Capitais"}
+  - {cnpj: "46395000000139", nome: "MUNICIPIO DE SAO PAULO", grupo: "Capitais"}
+  - {cnpj: "04034583001447", nome: "MUNICIPIO DE RIO BRANCO", grupo: "Capitais"}
+  - {cnpj: "24851511000185", nome: "MUNICIPIO DE PALMAS", grupo: "Capitais"}
+  - {cnpj: "04034583002761", nome: "MUNICIPIO DE RIO BRANCO", grupo: "Capitais"}
+  - {cnpj: "27142058000126", nome: "MUNICIPIO DE VITORIA", grupo: "Capitais"}
+  - {cnpj: "05055009000113", nome: "MUNICIPIO DE BELEM", grupo: "Capitais"}
+  - {cnpj: "18715383000140", nome: "MUNICIPIO DE BELO HORIZONTE", grupo: "Capitais"}
+  - {cnpj: "82892282000143", nome: "MUNICIPIO DE FLORIANOPOLIS", grupo: "Capitais"}
+  - {cnpj: "07954605000160", nome: "MUNICIPIO DE FORTALEZA", grupo: "Capitais"}
+  - {cnpj: "08241747000305", nome: "MUNICIPIO DE NATAL", grupo: "Capitais"}
+  - {cnpj: "08241747000496", nome: "MUNICIPIO DE NATAL", grupo: "Capitais"}
+  - {cnpj: "92963560000160", nome: "MUNICIPIO DE PORTO ALEGRE", grupo: "Capitais"}
+  - {cnpj: "04034583000556", nome: "MUNICIPIO DE RIO BRANCO", grupo: "Capitais"}
+  - {cnpj: "04034583001951", nome: "MUNICIPIO DE RIO BRANCO", grupo: "Capitais"}
+  - {cnpj: "13927801000149", nome: "MUNICIPIO DE SALVADOR", grupo: "Capitais"}
+
+  # --- Universidades estaduais de grande porte (3)
+  - {cnpj: "63025530000104", nome: "UNIVERSIDADE DE SAO PAULO", grupo: "Universidades estaduais de grande porte"}
+  - {cnpj: "48031918000124", nome: "UNIVERSIDADE ESTADUAL PAULISTA JULIO DE MESQUITA FILHO", grupo: "Universidades estaduais de grande porte"}
+  - {cnpj: "46068425000133", nome: "UNIVERSIDADE ESTADUAL DE CAMPINAS", grupo: "Universidades estaduais de grande porte"}
+
+  # --- Universidades e institutos federais (97)
+  - {cnpj: "17217985000104", nome: "UNIVERSIDADE FEDERAL DE MINAS GERAIS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10744098000145", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO CEARA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10767239000145", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE PERNAMBUCO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10784782000150", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE MATO GROSSO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10882594000165", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE SAO PAULO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10648539000105", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO SUL DE MINAS GERAIS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10724903000179", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA BAIANO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10763998000130", nome: "INSTITUTO FEDERAL DE EDUCACAO,CIENCIA E TECNOLOGIA DO PARA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10838653000106", nome: "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA DO ESPIRITO SANTO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10735145000194", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO MARANHAO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "05055128000176", nome: "UNIVERSIDADE FEDERAL DE CAMPINA GRANDE", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10952708000104", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO RIO DE JANEIRO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10877412000168", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO RIO GRANDE DO NORTE", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10806496000149", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO PIAUI", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10764307000112", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DA BAHIA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "34621748000123", nome: "UNIVERSIDADE FEDERAL DO PARA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10651417000178", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA GOIANO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "92969856000198", nome: "UNIVERSIDADE FEDERAL DO RIO GRANDE DO SUL", grupo: "Universidades e institutos federais"}
+  - {cnpj: "17217985005840", nome: "UNIVERSIDADE FEDERAL DE MINAS GERAIS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "33663683000116", nome: "UNIVERSIDADE FEDERAL DO RIO DE JANEIRO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "83899526000182", nome: "UNIVERSIDADE FEDERAL DE SANTA CATARINA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "25944455000196", nome: "UNIVERSIDADE FEDERAL DE VICOSA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10825373000155", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE ALAGOAS - IF/AL", grupo: "Universidades e institutos federais"}
+  - {cnpj: "21040001000130", nome: "UNIVERSIDADE FEDERAL DE ITAJUBA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10727655000110", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO NORTE DE MINAS GERAIS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "01567601000143", nome: "UNIVERSIDADE FEDERAL DE GOIAS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "09341233000122", nome: "FUNDACAO UNIVERSIDADE FEDERAL DO PAMPA - UNIPAMPA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10728444000100", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE SERGIPE", grupo: "Universidades e institutos federais"}
+  - {cnpj: "94877586000110", nome: "UNIVERSIDADE FEDERAL DO RIO GRANDE - FURG", grupo: "Universidades e institutos federais"}
+  - {cnpj: "18560547000107", nome: "UNIVERSIDADE FEDERAL DO SUL DA BAHIA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "06517387000134", nome: "FUNDACAO UNIVERSIDADE FEDERAL DO PIAUI", grupo: "Universidades e institutos federais"}
+  - {cnpj: "05440725000114", nome: "FUNDACAO UNIVERSIDADE FEDERAL DO VALE DO SAO FRANCISCO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10783898000175", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DA PARAIBA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "24098477000110", nome: "UNIVERSIDADE FEDERAL DA PARAIBA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "24464109000148", nome: "UNIVERSIDADE FEDERAL DE ALAGOAS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "33519114000100", nome: "UNIVERSIDADE FEDERAL DO DELTA DO PARNAIBA - UFDPAR", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10695891000100", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO TRIANGULO MINEIRO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "22078679000174", nome: "UNIVERSIDADE FEDERAL DE LAVRAS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "06279103000119", nome: "FUNDACAO UNIVERSIDADE FEDERAL DO MARANHAO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10723648000140", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO SUDESTE DE MINAS GERAIS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "75101873000190", nome: "UNIVERSIDADE TECNOLOGICA FEDERAL DO PARANA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10792928000100", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO AMAZONAS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10652179000115", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO PARANA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "21195755000169", nome: "UNIVERSIDADE FEDERAL DE JUIZ DE FORA UFJF", grupo: "Universidades e institutos federais"}
+  - {cnpj: "24134488000108", nome: "UNIVERSIDADE FEDERAL DE PERNAMBUCO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "18621825000199", nome: "UNIVERSIDADE FEDERAL DO CARIRI-UFCA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "45358058000140", nome: "FUNDACAO UNIVERSIDADE FEDERAL DE SAO CARLOS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "92242080000100", nome: "UNIVERSIDADE FEDERAL DE PELOTAS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "75095679000149", nome: "UNIVERSIDADE FEDERAL DO PARANA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "28523215000106", nome: "UNIVERSIDADE FEDERAL FLUMINENSE", grupo: "Universidades e institutos federais"}
+  - {cnpj: "15461510000133", nome: "FUNDACAO UNIVERSIDADE FEDERAL DE MATO GROSSO DO SUL", grupo: "Universidades e institutos federais"}
+  - {cnpj: "11402887000160", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE SANTA CATARINA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "18641263000145", nome: "UNIVERSIDADE FEDERAL DO OESTE DA BAHIA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10637926000146", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO RIO GRANDE DO SUL", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10830301000104", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO SERTAO PERNAMBUCANO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10662072000158", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA FARROUPILHA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "11118393000159", nome: "UNIVERSIDADE FEDERAL DO OESTE DO PARA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "25437484000161", nome: "UNIVERSIDADE FEDERAL DO TRIANGULO MINEIRO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "07722779000106", nome: "FUNDACAO UNIVERSIDADE FEDERAL DO ABC - UFABC", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10870883000144", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE GOIAS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10673078000120", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE MATO GROSSO DO SUL", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10779511000107", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA FLUMINENSE.", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10729992000146", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA SUL-RIO-GRANDENSE - RS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "95591764000105", nome: "UNIVERSIDADE FEDERAL DE SANTA MARIA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "25648387000118", nome: "UNIVERSIDADE FEDERAL DE UBERLANDIA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "07777800000162", nome: "UNIVERSIDADE FEDERAL DO RECONCAVO DA BAHIA - UFRB", grupo: "Universidades e institutos federais"}
+  - {cnpj: "18657063000180", nome: "UNIVERSIDADE FEDERAL DO SUL E SUDESTE DO PARA - UNIFESSPA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "13031547000104", nome: "FUNDACAO UNIVERSIDADE FEDERAL DE SERGIPE", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10918674000123", nome: "INSTITUTO FEDERAL DE EDUCACAO,CIENCIA E TECNOLOGIA DO ACRE", grupo: "Universidades e institutos federais"}
+  - {cnpj: "15180714000104", nome: "UNIVERSIDADE FEDERAL DA BAHIA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "11234780000150", nome: "UNIVERSIDADE FEDERAL DA FRONTEIRA SUL - UFFS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "17879859000115", nome: "UNIVERSIDADE FEDERAL DE ALFENAS - UNIFAL-MG", grupo: "Universidades e institutos federais"}
+  - {cnpj: "35840659000130", nome: "UNIVERSIDADE FEDERAL DE JATAI", grupo: "Universidades e institutos federais"}
+  - {cnpj: "21186804000105", nome: "UNIVERSIDADE FEDERAL DE SAO JOAO DEL-REI", grupo: "Universidades e institutos federais"}
+  - {cnpj: "38178825000173", nome: "UNIVERSIDADE FEDERAL DO NORTE DO TOCANTINS - UFNT", grupo: "Universidades e institutos federais"}
+  - {cnpj: "07775847000197", nome: "FUNDACAO UNIVERSIDADE FEDERAL DA GRANDE DOURADOS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "04071106000137", nome: "FUNDACAO UNIVERSIDADE FEDERAL DO ACRE", grupo: "Universidades e institutos federais"}
+  - {cnpj: "05149726000104", nome: "FUNDACAO UNIVERSIDADE FEDERAL DO TOCANTINS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "11806275000133", nome: "UNIVERSIDADE FEDERAL DA INTEGRACAO LATINO-AMERICANA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "32479123000143", nome: "UNIVERSIDADE FEDERAL DO ESPIRITO SANTO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "24365710000183", nome: "UNIVERSIDADE FEDERAL DO RIO GRANDE DO NORTE", grupo: "Universidades e institutos federais"}
+  - {cnpj: "29427465000105", nome: "UNIVERSIDADE FEDERAL RURAL DO RIO DE JANEIRO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "92967595000177", nome: "FUNDACAO UNIVERSIDADE FEDERAL DE CIENCIAS DA SAUDE DE PORTO ALEGRE", grupo: "Universidades e institutos federais"}
+  - {cnpj: "04418943000190", nome: "FUNDACAO UNIVERSIDADE FEDERAL DE RONDONIA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10635424000186", nome: "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA CATARINENSE", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10626896000172", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE MINAS GERAIS", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10820882000195", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO AMAPA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10817343000105", nome: "INSTITUTO FEDERAL DE EDUCACAO,CIENCIA E TECNOLOGIA DE RONDONIA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "34023077000107", nome: "UNIVERSIDADE FEDERAL DO ESTADO DO RIO DE JANEIRO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "24529265000140", nome: "UNIVERSIDADE FEDERAL RURAL DO SEMI-ARIDO - UFERSA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "00038174000143", nome: "FUNDACAO UNIVERSIDADE DE BRASILIA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "10791831000182", nome: "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE BRASILIA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "60453032000174", nome: "UNIVERSIDADE FEDERAL DE SAO PAULO", grupo: "Universidades e institutos federais"}
+  - {cnpj: "35872812000101", nome: "UNIVERSIDADE FEDERAL DO AGRESTE DE PERNAMBUCO - UFAPE", grupo: "Universidades e institutos federais"}
+  - {cnpj: "07272636000131", nome: "UNIVERSIDADE FEDERAL DO CEARA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "05200001000101", nome: "UNIVERSIDADE FEDERAL RURAL DA AMAZONIA", grupo: "Universidades e institutos federais"}
+  - {cnpj: "24416174000106", nome: "UNIVERSIDADE FEDERAL RURAL DE PERNAMBUCO", grupo: "Universidades e institutos federais"}

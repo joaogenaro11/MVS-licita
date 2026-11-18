@@ -76,6 +76,9 @@ class Runner:
         self.page_size = pc.get("page_size", 50)
         self.modalidades = pc.get("modalidades", [6])
         self._prefilter = self._build_prefilter()
+        self.cobertura = self.cfg.get("cobertura") or {}
+        self._ti_generico = self._build_ti_generico()
+        self.orgaos_relevantes = carregar_orgaos(self.config_dir, self.cobertura.get("orgaos_relevantes_arquivo"))
         self.counters = {"vistos": 0, "novos": 0, "atualizados": 0}
 
     # ----------------------------------------------------------- utilidades
@@ -95,6 +98,29 @@ class Runner:
 
     def relevant_text(self, *texts: str | None) -> bool:
         return bool(self._prefilter.search(norm_ofertas(" ".join(t for t in texts if t))))
+
+    def _build_ti_generico(self) -> re.Pattern | None:
+        termos = {norm_ofertas(t) for t in self.cobertura.get("termos_ti_genericos") or [] if norm_ofertas(t)}
+        if not termos:
+            return None
+        alts = sorted((re.escape(t) for t in termos), key=len, reverse=True)
+        return re.compile(r"(?<![a-z0-9])(?:" + "|".join(alts) + r")(?![a-z0-9])")
+
+    def motivo_candidato(self, raw: dict, orgao_relevante: bool = False) -> str | None:
+        """Edital cujo objeto é genérico de TI ("equipamentos de informática", "solução de TIC")
+        e não cita nenhum termo da base: entra como candidato (sem publicar) quando o valor é
+        alto ou o órgão está na lista de órgãos relevantes. Os itens são coletados no
+        enriquecimento e a classificação decide. Ex.: Pregão 131/2026 da Embrapa, R$ 91 mi,
+        com os switches só nos itens."""
+        if not self._ti_generico:
+            return None
+        texto = norm_ofertas(" ".join(t for t in (raw.get("objetoCompra"), raw.get("informacaoComplementar")) if t))
+        if not self._ti_generico.search(texto):
+            return None
+        valor = float(raw.get("valorTotalEstimado") or raw.get("valorTotalHomologado") or 0)
+        if orgao_relevante:
+            return "órgão relevante" if valor >= float(self.cobertura.get("valor_minimo_orgaos", 0)) else None
+        return "valor alto" if valor >= float(self.cobertura.get("valor_minimo_objeto_generico", 1_000_000)) else None
 
     @contextmanager
     def feed(self, name: str):
@@ -127,20 +153,26 @@ class Runner:
             self.counters["atualizados"] += 1
 
     # ------------------------------------------------------------ ingestão
-    def ingest_contratacao(self, raw: dict, feed: str) -> None:
+    def ingest_contratacao(self, raw: dict, feed: str, orgao_relevante: bool = False) -> None:
         self.counters["vistos"] += 1
         if raw.get("modalidadeId") not in self.modalidades:
             return
         ctrl = raw.get("numeroControlePNCP")
         known = ctrl in self.store.items
+        motivo = None
         if not known and not self.relevant_text(raw.get("objetoCompra"), raw.get("informacaoComplementar")):
-            return
+            motivo = self.motivo_candidato(raw, orgao_relevante)
+            if not motivo:
+                return
         item = normalize_contratacao(raw, self.now, feed)
         if not item:
             return
         if not known:
             if not self.classify_item(item)["tls"]:
-                return
+                # candidato só enquanto ainda dá para participar; não é publicado até os itens casarem
+                if not motivo or item.get("estagio") not in ESTAGIOS_ABERTOS:
+                    return
+                item["candidato_itens"] = motivo
         self._count(self.store.upsert(self.store.items, item, self.now_iso))
 
     def ingest_ata(self, raw: dict) -> None:
@@ -312,25 +344,71 @@ class Runner:
                                 self.ingest_contrato)
 
     def feed_propostas_abertas(self) -> None:
+        """Snapshot das contratações com propostas abertas (~600 páginas). Não cabe numa execução:
+        guarda a página em que parou e continua dela na seguinte (com sobreposição de algumas
+        páginas, porque a lista muda entre execuções). Concluído, só é refeito após N dias."""
         st = self.store.state.setdefault("propostas_abertas", {})
         every = int(self.cfg["pncp"].get("propostas_snapshot_intervalo_dias", 7))
-        if st.get("ultimo_snapshot") and (self.today - date.fromisoformat(st["ultimo_snapshot"][:10])).days < every:
+        em_andamento = bool(st.get("pagina"))
+        if not em_andamento and st.get("ultimo_snapshot") and \
+                (self.today - date.fromisoformat(st["ultimo_snapshot"][:10])).days < every:
             return  # entre snapshots, as atualizações diárias mantêm a base em dia
         deadline = self._feed_deadline("propostas_abertas")
+        sobrepor = int(self.cfg["pncp"].get("propostas_sobreposicao_paginas", 3))
         with self.feed("propostas_abertas") as rec:
             horizon = self.today + timedelta(days=self.cfg["pncp"].get("propostas_horizonte_dias", 365))
-            n = 0
-            for rows in self.client.contratacoes_proposta(d2s(horizon)):
+            inicio = max(1, int(st["pagina"]) - sobrepor) if em_andamento else 1
+            if not em_andamento:
+                st["iniciado_em"] = self.today.isoformat()
+            pagina = inicio
+            concluido = True
+            for rows in self.client.contratacoes_proposta(d2s(horizon), start_page=inicio):
                 for r in rows:
                     self.ingest_contratacao(r, "propostas")
-                n += 1
+                pagina += 1
+                st["pagina"] = pagina
+                if pagina % 10 == 0:
+                    self.store.save_state()
                 if self.time_left_for_bulk() < 60 or time.monotonic() > deadline:
-                    rec["status"] = "parcial"
-                    rec["erro"] = "orçamento de tempo esgotado durante o snapshot de propostas"
+                    concluido = False
                     break
-            rec["paginas"] = n
-            if rec.get("status") != "parcial":
+            rec["paginas"] = pagina - inicio
+            rec["pagina_atual"] = pagina
+            if concluido:
                 st["ultimo_snapshot"] = self.today.isoformat()
+                st.pop("pagina", None)
+                rec["erro"] = None
+            else:
+                rec["status"] = "parcial"
+                rec["erro"] = f"snapshot em andamento (parou na página {pagina}); continua dela na próxima execução"
+
+    def feed_orgaos_relevantes(self) -> None:
+        """Editais abertos de cada órgão da lista (consulta pelo CNPJ), em toda execução: garante
+        a cobertura dos órgãos de grande porte mesmo quando o snapshot geral ainda não terminou.
+        Objeto genérico de TI desses órgãos entra como candidato (os itens decidem)."""
+        orgaos = self.orgaos_relevantes
+        if not orgaos:
+            return
+        deadline = self._feed_deadline("orgaos_relevantes")
+        with self.feed("orgaos_relevantes") as rec:
+            st = self.store.state.setdefault("orgaos_relevantes", {})
+            i0 = int(st.get("proximo") or 0) % len(orgaos)
+            horizon = self.today + timedelta(days=self.cfg["pncp"].get("propostas_horizonte_dias", 365))
+            feitos = 0
+            for k in range(len(orgaos)):
+                idx = (i0 + k) % len(orgaos)
+                if self.time_left_for_bulk() < 60 or time.monotonic() > deadline:
+                    st["proximo"] = idx
+                    rec["status"] = "parcial"
+                    rec["erro"] = f"{feitos} de {len(orgaos)} órgãos nesta execução; continua do próximo"
+                    rec["orgaos"] = feitos
+                    return
+                for rows in self.client.contratacoes_proposta(d2s(horizon), cnpj=orgaos[idx]["cnpj"]):
+                    for r in rows:
+                        self.ingest_contratacao(r, "orgaos", orgao_relevante=True)
+                feitos += 1
+            st["proximo"] = 0
+            rec["orgaos"] = feitos
 
     def feed_pca(self) -> None:
         """PCA: consulta /v1/pca/ apenas nas classes CATMAT/CATSER de TIC configuradas
@@ -486,11 +564,13 @@ class Runner:
 
         def candidato(x: dict) -> bool:
             c = x.get("classificacao") or {}
-            return bool(c.get("tls") or c.get("sinais"))  # casou oferta, ou ao menos cita uma marca
+            # casou oferta, cita uma marca, ou é edital genérico de TI de valor alto/órgão relevante
+            return bool(c.get("tls") or c.get("sinais") or x.get("candidato_itens"))
 
         def prioridade(x: dict) -> tuple:
+            # propostas abertas primeiro e, dentro delas, os editais de maior valor
             c = x.get("classificacao") or {}
-            return (not c.get("tls"), -(c.get("score") or 0))
+            return (x.get("estagio") != "propostas_abertas", -(valor_registro(x) or 0), -(c.get("score") or 0))
 
         with self.feed("enriquecimento") as rec:
             cands = [i for i in self.store.items.values()
@@ -602,7 +682,7 @@ class Runner:
         status = "ok"
         # incrementais primeiro (baratos e essenciais); snapshot semanal de propostas e PCA depois
         steps = [self.feed_contratacoes_atualizacao, self.feed_atas_atualizacao, self.feed_contratos_atualizacao,
-                 self.feed_propostas_abertas, self.feed_pca]
+                 self.feed_orgaos_relevantes, self.feed_propostas_abertas, self.feed_pca]
         for step in steps:
             if self.time_left() < 120:
                 log.warning("orçamento de tempo esgotado antes de %s", step.__name__)
@@ -666,6 +746,27 @@ def classificar_registro(base: BaseOfertas, item: dict) -> dict:
     elif item.get("itens_texto"):
         textos += item["itens_texto"].split(" | ")
     return base.classificar(textos, tem_itens=bool(itens or item.get("itens_texto")), **ctx)
+
+
+ESTAGIOS_ABERTOS = {"propostas_abertas", "publicada", "preparacao"}
+
+
+def carregar_orgaos(config_dir: Path, arquivo: str | None) -> list[dict]:
+    """Lista de órgãos relevantes (config/orgaos_relevantes.yml): [{cnpj, nome, grupo}]."""
+    if not arquivo:
+        return []
+    p = Path(config_dir) / arquivo
+    if not p.exists():
+        log.warning("lista de órgãos relevantes não encontrada: %s", p)
+        return []
+    dados = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    vistos, out = set(), []
+    for o in dados.get("orgaos") or []:
+        cnpj = re.sub(r"\D", "", str(o.get("cnpj") or ""))
+        if len(cnpj) == 14 and cnpj not in vistos:
+            vistos.add(cnpj)
+            out.append({"cnpj": cnpj, "nome": o.get("nome") or cnpj, "grupo": o.get("grupo")})
+    return out
 
 
 def valor_registro(item: dict) -> float | None:

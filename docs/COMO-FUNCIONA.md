@@ -33,11 +33,25 @@ Site (GitHub Pages): https://joaogenaro11.github.io/MVS-licita/  → pede login;
 ## O que cada busca faz
 
 1. **Atualizações recentes** (desde a última busca): contratações novas ou alteradas, atas e contratos.
-2. **Propostas abertas:** fotografia completa das licitações com prazo aberto, uma vez por semana.
-3. **PCA** (planos de contratação 2026/2027): classes de TIC, uma vez por semana.
-4. **Carga histórica:** avança alguns dias por busca até cobrir 12 meses.
-5. **Itens e documentos oficiais** das oportunidades relevantes (edital, TR etc.).
-6. **Classificação**, gravação na base e publicação do site.
+2. **Órgãos relevantes** (lista em `config/orgaos_relevantes.yml`, ~400 órgãos: federais de grande porte,
+   Judiciário, Ministério Público, Legislativo, empresas de TI, governos estaduais, capitais e universidades):
+   os editais abertos de cada um são consultados pelo CNPJ em toda busca; a lista continua de onde parou.
+3. **Propostas abertas:** fotografia completa das licitações com prazo aberto (~600 páginas). Não cabe numa
+   busca: continua da página em que parou na busca seguinte e, terminada, é refeita a cada 7 dias.
+4. **PCA** (planos de contratação 2026/2027): classes de TIC, uma vez por semana.
+5. **Carga histórica:** avança alguns dias por busca até cobrir 12 meses.
+6. **Itens e documentos oficiais** das oportunidades relevantes (edital, TR etc.), começando pelas propostas
+   abertas de **maior valor**.
+7. **Classificação**, gravação na base e publicação do site.
+
+**Edital com objeto genérico de TI.** Quando o objeto não cita nenhum termo da base de ofertas, mas fala em
+"equipamentos de informática", "solução de TIC", "data center" etc. (lista em `config/fontes.yml`), o edital
+entra como **candidato** se valer R$ 1 mi ou mais (ou R$ 100 mil, nos órgãos relevantes). Os itens são
+coletados e a classificação decide: só aparece no site se os itens casarem com a base. Caso que motivou a
+regra: Pregão 131/2026 da Embrapa (R$ 91 mi), com os switches só nos itens.
+
+**Link de cada oportunidade:** o detalhe tem o botão **Copiar link** (`#/oportunidades?id=<id>`). O link abre
+direto o detalhe e exige login, como o resto do site; se a oportunidade já venceu, o Radar avisa.
 
 ## Login e o que é de cada um
 

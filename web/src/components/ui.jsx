@@ -147,8 +147,12 @@ const ArrowIcon = () => (
 )
 
 /** Botões de acesso direto: portal de origem (link oficial informado ao PNCP) + PNCP. */
+// Só a página inicial do portal (sem caminho) não leva ao processo: não conta como link direto.
+const linkDireto = (u) => (isSafeUrl(u) && /^https?:\/\/[^/]+\/.+/i.test(u) ? u : null)
+
 export function PortalLinks({ links, compact = false }) {
-  const origem = isSafeUrl(links?.origem) ? links.origem : null
+  const origem = linkDireto(links?.origem)
+  const processo = linkDireto(links?.processo_eletronico)
   const btn = 'inline-flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium whitespace-nowrap'
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -161,7 +165,7 @@ export function PortalLinks({ links, compact = false }) {
         {origem ? 'PNCP' : 'Abrir no PNCP'} <ArrowIcon />
       </ExtLink>
       {!compact && (
-        <ExtLink href={links?.processo_eletronico} className={`${btn} text-brand hover:underline`}>Processo eletrônico <ArrowIcon /></ExtLink>
+        <ExtLink href={processo} className={`${btn} text-brand hover:underline`}>Processo eletrônico <ArrowIcon /></ExtLink>
       )}
       {origem && links?.origem_portal ? (
         <span className="text-[11px] text-muted">Portal: {links.origem_portal}</span>

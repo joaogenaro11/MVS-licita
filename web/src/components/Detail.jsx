@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ESFERAS, fmtDate, money } from '../lib/format.js'
 import { matchesPartner, matchesPriority } from '../lib/filters.js'
 import { STATUS_COMERCIAL } from '../lib/private.js'
+import { linkDe } from '../lib/link.js'
 import { ADESAO, Badge, dateOrNA, ExtLink, FAIXA, FamiliaChips, Highlight, inputCls, KV, PortalLinks, PortfolioBadge, RELACAO, ScoreBadge, Selos, Star, TIPO, valueOrNA, VIGENCIA } from './ui.jsx'
 
 function Section({ title, children, right }) {
@@ -45,6 +46,7 @@ export default function Detail({ r, meta, ctx, onClose }) {
             <div className="text-[13px] font-medium">{r.orgao?.nome}</div>
             <div className="font-mono text-[11px] text-muted">{r.id}</div>
           </div>
+          <CopiarLink r={r} />
           <Star on={ctx.isFav(r.id)} onClick={() => ctx.toggleFav(r)} />
           <button onClick={onClose} className="px-2 text-[22px] leading-none text-ink-2 hover:text-ink" aria-label="Fechar">×</button>
         </header>
@@ -288,5 +290,32 @@ function Tracking({ r, ctx }) {
         {t.updated_by ? <span className="text-[11px] text-muted">Última edição: {t.updated_by} em {fmtDate(t.updated_at, true)}</span> : null}
       </div>
     </Section>
+  )
+}
+
+/** Copia o endereço próprio da oportunidade (abre direto o detalhe; exige login). */
+function CopiarLink({ r }) {
+  const [estado, setEstado] = useState('')
+  const link = linkDe(r)
+  const copiar = async () => {
+    try {
+      await navigator.clipboard.writeText(link)
+      setEstado('copiado')
+    } catch {
+      setEstado('manual')   // navegador sem permissão de área de transferência: mostra o link
+    }
+    setTimeout(() => setEstado((e) => (e === 'copiado' ? '' : e)), 2500)
+  }
+  return (
+    <div className="relative shrink-0">
+      <button type="button" onClick={copiar} className="h-8 px-2 text-[13px] text-brand ring-1 ring-line hover:bg-brand-soft"
+        title="Copia um link que abre esta oportunidade direto (quem receber precisa ter login no Radar)">
+        {estado === 'copiado' ? 'Link copiado ✓' : 'Copiar link'}
+      </button>
+      {estado === 'manual' ? (
+        <input readOnly value={link} aria-label="Link da oportunidade" autoFocus onFocus={(e) => e.target.select()}
+          className="absolute right-0 top-9 z-20 w-80 bg-white px-2 py-1 text-[12px] shadow ring-1 ring-line" />
+      ) : null}
+    </div>
   )
 }
