@@ -1,12 +1,12 @@
 {
  "contratacoes_atualizacao": {
-  "ate": "2026-11-10"
+  "ate": "2026-11-09"
  },
  "atas_atualizacao": {
-  "ate": "2026-11-18"
+  "ate": "2026-11-19"
  },
  "contratos_atualizacao": {
-  "ate": "2026-11-03"
+  "ate": "2026-11-02"
  },
  "ata_links_pendentes": {
   "01763614000198-1-000044/2026-000001": [
@@ -10959,19 +10959,19 @@
   "data_ref": "2026-11-04",
   "pagina": 1845,
   "iniciada_em": "2026-11-04T10:54:48-03:00",
-  "total_paginas": 9819,
-  "total_registros": 490937,
+  "total_paginas": 9825,
+  "total_registros": 491206,
   "progresso": 18.8
  },
  "backfill_contratacoes": {
-  "limite": "2025-11-18",
-  "progresso": 15.9,
+  "limite": "2025-11-19",
+  "progresso": 17.0,
   "concluido": false,
-  "proximo": "2026-09-20"
+  "proximo": "2026-09-17"
  },
  "backfill_contratos": {
-  "limite": "2026-10-19",
-  "progresso": 46.7,
+  "limite": "2026-10-20",
+  "progresso": 50.0,
   "concluido": false,
   "proximo": "2026-11-03"
  },
