@@ -1,46 +1,46 @@
 {
  "app": "Radar TLS",
  "versao": "1.0.0",
- "gerado_em": "2026-11-19T15:24:09-03:00",
+ "gerado_em": "2026-11-19T22:53:43-03:00",
  "status": "ok",
  "fontes_com_falha": [],
  "fontes": {
   "contratacoes_atualizacao": {
-   "ultima_execucao": "2026-11-19T15:24:09-03:00",
+   "ultima_execucao": "2026-11-19T22:53:43-03:00",
    "status": "parcial",
-   "erro": "fatia de tempo da fonte esgotada no meio do dia; será refeito",
-   "ultimo_sucesso": "2026-11-19T15:24:09-03:00",
-   "registros_vistos": 19380,
-   "novos": 0,
-   "atualizados": 2
+   "erro": "fatia de tempo da fonte esgotada; continua na próxima execução",
+   "ultimo_sucesso": "2026-11-19T22:53:43-03:00",
+   "registros_vistos": 29736,
+   "novos": 20,
+   "atualizados": 10
   },
   "atas_atualizacao": {
-   "ultima_execucao": "2026-11-19T15:24:09-03:00",
+   "ultima_execucao": "2026-11-19T22:53:43-03:00",
    "status": "ok",
    "erro": null,
-   "ultimo_sucesso": "2026-11-19T15:24:09-03:00",
-   "registros_vistos": 8386,
+   "ultimo_sucesso": "2026-11-19T22:53:43-03:00",
+   "registros_vistos": 5227,
    "novos": 3,
-   "atualizados": 27
+   "atualizados": 0
   },
   "contratos_atualizacao": {
-   "ultima_execucao": "2026-11-19T15:24:09-03:00",
+   "ultima_execucao": "2026-11-19T22:53:43-03:00",
    "status": "parcial",
    "erro": "fatia de tempo da fonte esgotada no meio do dia; será refeito",
-   "ultimo_sucesso": "2026-11-19T15:24:09-03:00",
-   "registros_vistos": 8376,
+   "ultimo_sucesso": "2026-11-19T22:53:43-03:00",
+   "registros_vistos": 28410,
    "novos": 0,
    "atualizados": 0
   },
   "propostas_abertas": {
-   "ultima_execucao": "2026-11-19T15:24:09-03:00",
+   "ultima_execucao": "2026-11-19T22:53:43-03:00",
    "status": "parcial",
    "erro": "orçamento de tempo esgotado durante o snapshot de propostas",
-   "paginas": 261,
-   "ultimo_sucesso": "2026-11-19T15:24:09-03:00",
-   "registros_vistos": 13050,
-   "novos": 1,
-   "atualizados": 4
+   "paginas": 371,
+   "ultimo_sucesso": "2026-11-19T22:53:43-03:00",
+   "registros_vistos": 18550,
+   "novos": 4,
+   "atualizados": 3
   },
   "pca": {
    "ultima_execucao": "2026-11-14T21:15:03-03:00",
@@ -52,42 +52,42 @@
    "atualizados": 0
   },
   "atas_varredura": {
-   "ultima_execucao": "2026-11-19T15:24:09-03:00",
+   "ultima_execucao": "2026-11-19T22:53:43-03:00",
    "status": "parcial",
    "erro": null,
-   "progresso": 18.8,
-   "ultimo_sucesso": "2026-11-19T15:24:09-03:00",
-   "registros_vistos": 500,
-   "novos": 0,
-   "atualizados": 2
+   "progresso": 18.9,
+   "ultimo_sucesso": "2026-11-19T22:53:43-03:00",
+   "registros_vistos": 1250,
+   "novos": 1,
+   "atualizados": 0
   },
   "backfill_contratacoes": {
-   "ultima_execucao": "2026-11-19T15:24:09-03:00",
+   "ultima_execucao": "2026-11-19T22:53:43-03:00",
    "status": "parcial",
    "erro": null,
-   "progresso": 17.0,
-   "ultimo_sucesso": "2026-11-19T15:24:09-03:00",
-   "registros_vistos": 2729,
-   "novos": 3,
+   "progresso": 17.3,
+   "ultimo_sucesso": "2026-11-19T22:53:43-03:00",
+   "registros_vistos": 3140,
+   "novos": 9,
    "atualizados": 0
   },
   "backfill_contratos": {
-   "ultima_execucao": "2026-11-19T15:24:09-03:00",
+   "ultima_execucao": "2026-11-19T22:53:43-03:00",
    "status": "parcial",
    "erro": null,
-   "progresso": 50.0,
-   "ultimo_sucesso": "2026-11-19T15:24:09-03:00",
-   "registros_vistos": 0,
+   "progresso": 53.3,
+   "ultimo_sucesso": "2026-11-19T22:53:43-03:00",
+   "registros_vistos": 8117,
    "novos": 0,
-   "atualizados": 0
+   "atualizados": 1
   },
   "enriquecimento": {
-   "ultima_execucao": "2026-11-19T15:24:09-03:00",
-   "status": "ok",
+   "ultima_execucao": "2026-11-19T22:53:43-03:00",
+   "status": "parcial",
    "erro": null,
-   "enriquecidos": 16,
-   "pendentes": 0,
-   "ultimo_sucesso": "2026-11-19T15:24:09-03:00",
+   "enriquecidos": 0,
+   "pendentes": 45,
+   "ultimo_sucesso": "2026-11-19T22:53:43-03:00",
    "registros_vistos": 0,
    "novos": 0,
    "atualizados": 0
@@ -95,46 +95,46 @@
  },
  "carga_historica": {
   "contratacoes": {
-   "proximo": "2026-09-17",
+   "proximo": "2026-09-16",
    "limite": "2025-11-19",
-   "progresso": 17.0,
+   "progresso": 17.3,
    "concluido": false
   },
   "contratos": {
-   "proximo": "2026-11-03",
+   "proximo": "2026-11-02",
    "limite": "2026-10-20",
-   "progresso": 50.0,
+   "progresso": 53.3,
    "concluido": false
   },
   "atas_vigentes": {
-   "pagina": 1845,
-   "total_paginas": 9825,
-   "total_registros": 491206,
-   "progresso": 18.8,
+   "pagina": 1860,
+   "total_paginas": 9827,
+   "total_registros": 491349,
+   "progresso": 18.9,
    "concluida_em": null,
    "iniciada_em": "2026-11-04T10:54:48-03:00"
   }
  },
  "totais_base": {
-  "itens": 9646,
-  "contratacoes": 1238,
+  "itens": 9679,
+  "contratacoes": 1271,
   "pca": 7990,
   "contratos": 418,
-  "atas": 544
+  "atas": 548
  },
  "cliente_http": {
-  "requests": 1122,
-  "retries": 12,
+  "requests": 1966,
+  "retries": 52,
   "failures": 0,
-  "no_content": 8,
-  "limitadas_429": 12,
+  "no_content": 7,
+  "limitadas_429": 52,
   "by_status": {
-   "200": 1102,
-   "204": 8,
-   "429": 12
+   "200": 1907,
+   "204": 7,
+   "429": 52
   }
  },
- "duracao_s": 8390.0,
+ "duracao_s": 9040.7,
  "classificador": {
   "base_ofertas": "privada",
   "versao_ofertas": "2026-11-09e",
