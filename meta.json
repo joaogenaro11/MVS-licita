@@ -1,58 +1,57 @@
 {
  "app": "Radar TLS",
  "versao": "1.0.0",
- "gerado_em": "2026-11-20T22:43:17-03:00",
+ "gerado_em": "2026-11-21T13:51:03-03:00",
  "status": "parcial",
  "fontes_com_falha": [
-  "propostas_abertas",
   "atas_varredura"
  ],
  "fontes": {
   "contratacoes_atualizacao": {
-   "ultima_execucao": "2026-11-20T22:43:17-03:00",
-   "status": "parcial",
-   "erro": "fatia de tempo da fonte esgotada; continua na próxima execução",
-   "ultimo_sucesso": "2026-11-20T22:43:17-03:00",
-   "registros_vistos": 29496,
-   "novos": 8,
-   "atualizados": 2
-  },
-  "atas_atualizacao": {
-   "ultima_execucao": "2026-11-20T22:43:17-03:00",
-   "status": "ok",
-   "erro": null,
-   "ultimo_sucesso": "2026-11-20T22:43:17-03:00",
-   "registros_vistos": 3355,
-   "novos": 0,
-   "atualizados": 0
-  },
-  "contratos_atualizacao": {
-   "ultima_execucao": "2026-11-20T22:43:17-03:00",
+   "ultima_execucao": "2026-11-21T13:51:03-03:00",
    "status": "parcial",
    "erro": "fatia de tempo da fonte esgotada no meio do dia; será refeito",
-   "ultimo_sucesso": "2026-11-20T22:43:17-03:00",
-   "registros_vistos": 31128,
+   "ultimo_sucesso": "2026-11-21T13:51:03-03:00",
+   "registros_vistos": 30061,
+   "novos": 39,
+   "atualizados": 16
+  },
+  "atas_atualizacao": {
+   "ultima_execucao": "2026-11-21T13:51:03-03:00",
+   "status": "ok",
+   "erro": null,
+   "ultimo_sucesso": "2026-11-21T13:51:03-03:00",
+   "registros_vistos": 3366,
+   "novos": 0,
+   "atualizados": 20
+  },
+  "contratos_atualizacao": {
+   "ultima_execucao": "2026-11-21T13:51:03-03:00",
+   "status": "parcial",
+   "erro": "fatia de tempo da fonte esgotada no meio do dia; será refeito",
+   "ultimo_sucesso": "2026-11-21T13:51:03-03:00",
+   "registros_vistos": 35997,
    "novos": 0,
    "atualizados": 0
   },
   "propostas_abertas": {
-   "ultima_execucao": "2026-11-20T22:43:17-03:00",
-   "status": "falha",
-   "erro": "falha após 6 tentativas: HTTP 500 (HTTP 500)",
-   "paginas": 333,
-   "ultimo_sucesso": "2026-11-20T14:53:48-03:00",
-   "registros_vistos": 150,
-   "novos": 0,
-   "atualizados": 0
+   "ultima_execucao": "2026-11-21T13:51:03-03:00",
+   "status": "parcial",
+   "erro": "orçamento de tempo esgotado durante o snapshot de propostas",
+   "paginas": 495,
+   "ultimo_sucesso": "2026-11-21T13:51:03-03:00",
+   "registros_vistos": 24750,
+   "novos": 23,
+   "atualizados": 1
   },
   "pca": {
-   "ultima_execucao": "2026-11-14T21:15:03-03:00",
-   "status": "ok",
+   "ultima_execucao": "2026-11-21T13:51:03-03:00",
+   "status": "parcial",
    "erro": null,
-   "ultimo_sucesso": "2026-11-14T21:15:03-03:00",
-   "registros_vistos": 765,
-   "novos": 30,
-   "atualizados": 0
+   "ultimo_sucesso": "2026-11-21T13:51:03-03:00",
+   "registros_vistos": 8941,
+   "novos": 131,
+   "atualizados": 57
   },
   "atas_varredura": {
    "ultima_execucao": "2026-11-20T22:43:17-03:00",
@@ -85,12 +84,12 @@
    "atualizados": 0
   },
   "enriquecimento": {
-   "ultima_execucao": "2026-11-20T22:43:17-03:00",
-   "status": "ok",
+   "ultima_execucao": "2026-11-21T13:51:03-03:00",
+   "status": "parcial",
    "erro": null,
-   "enriquecidos": 100,
-   "pendentes": 0,
-   "ultimo_sucesso": "2026-11-20T22:43:17-03:00",
+   "enriquecidos": 0,
+   "pendentes": 74,
+   "ultimo_sucesso": "2026-11-21T13:51:03-03:00",
    "registros_vistos": 0,
    "novos": 0,
    "atualizados": 0
@@ -119,26 +118,26 @@
   }
  },
  "totais_base": {
-  "itens": 9833,
-  "contratacoes": 1422,
-  "pca": 7990,
+  "itens": 10026,
+  "contratacoes": 1484,
+  "pca": 8121,
   "contratos": 421,
   "atas": 552
  },
  "cliente_http": {
-  "requests": 2127,
-  "retries": 104,
-  "failures": 2,
-  "no_content": 17,
-  "limitadas_429": 90,
+  "requests": 3306,
+  "retries": 179,
+  "failures": 0,
+  "no_content": 2,
+  "limitadas_429": 174,
   "by_status": {
-   "200": 2004,
-   "204": 17,
-   "429": 90,
-   "500": 2
+   "200": 3125,
+   "204": 2,
+   "429": 174,
+   "500": 5
   }
  },
- "duracao_s": 8494.9,
+ "duracao_s": 13043.2,
  "classificador": {
   "base_ofertas": "privada",
   "versao_ofertas": "2026-11-09e",

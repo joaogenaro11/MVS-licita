@@ -3,10 +3,10 @@
   "ate": "2026-11-12"
  },
  "atas_atualizacao": {
-  "ate": "2026-11-20"
+  "ate": "2026-11-21"
  },
  "contratos_atualizacao": {
-  "ate": "2026-11-04"
+  "ate": "2026-11-05"
  },
  "ata_links_pendentes": {
   "01763614000198-1-000044/2026-000001": [
@@ -10965,7 +10965,11 @@
   "ultimo_snapshot": "2026-11-04"
  },
  "pca": {
-  "feitos": [],
+  "feitos": [
+   "158/2026",
+   "158/2027",
+   "7010/2026"
+  ],
   "ultimo_snapshot": "2026-11-14"
  },
  "atas_varredura": {
