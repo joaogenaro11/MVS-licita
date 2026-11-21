@@ -1,12 +1,12 @@
 {
  "contratacoes_atualizacao": {
-  "ate": "2026-11-11"
+  "ate": "2026-11-12"
  },
  "atas_atualizacao": {
   "ate": "2026-11-20"
  },
  "contratos_atualizacao": {
-  "ate": "2026-11-03"
+  "ate": "2026-11-04"
  },
  "ata_links_pendentes": {
   "01763614000198-1-000044/2026-000001": [
@@ -10946,6 +10946,19 @@
     "valor": 122872.0,
     "data_assinatura": "2026-11-04"
    }
+  ],
+  "10729992000146-1-000186/2025-000064": [
+   {
+    "contrato": "10637926000146-2-000689/2026",
+    "fornecedor": {
+     "ni": "31495962000273",
+     "nome": "B2W INFORMATICA LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO RIO GRANDE DO SUL",
+    "valor": 13450.0,
+    "data_assinatura": "2026-10-20"
+   }
   ]
  },
  "propostas_abertas": {
@@ -10965,15 +10978,15 @@
  },
  "backfill_contratacoes": {
   "limite": "2025-11-20",
-  "progresso": 18.1,
+  "progresso": 21.4,
   "concluido": false,
-  "proximo": "2026-09-14"
+  "proximo": "2026-09-02"
  },
  "backfill_contratos": {
   "limite": "2026-10-21",
-  "progresso": 56.7,
+  "progresso": 70.0,
   "concluido": false,
-  "proximo": "2026-11-02"
+  "proximo": "2026-10-29"
  },
  "classificador": "ofertas_json",
  "migracao_ofertas": {
