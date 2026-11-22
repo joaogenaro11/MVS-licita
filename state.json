@@ -1,12 +1,12 @@
 {
  "contratacoes_atualizacao": {
-  "ate": "2026-11-13"
+  "ate": "2026-11-15"
  },
  "atas_atualizacao": {
-  "ate": "2026-11-21"
+  "ate": "2026-11-22"
  },
  "contratos_atualizacao": {
-  "ate": "2026-11-09"
+  "ate": "2026-11-10"
  },
  "ata_links_pendentes": {
   "01763614000198-1-000044/2026-000001": [
@@ -1861,6 +1861,17 @@
     "orgao": "UNIVERSIDADE FEDERAL DO RIO GRANDE DO SUL",
     "valor": 16580.0,
     "data_assinatura": "2026-10-28"
+   },
+   {
+    "contrato": "92969856000198-2-000976/2026",
+    "fornecedor": {
+     "ni": "01181242000272",
+     "nome": "COMPWIRE INFORMATICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE FEDERAL DO RIO GRANDE DO SUL",
+    "valor": 287718.3,
+    "data_assinatura": "2026-10-05"
    }
   ],
   "03184041000173-1-000152/2025-000001": [
@@ -2848,6 +2859,39 @@
     "orgao": "CONSORCIO INTERMUNICIPAL DE SAUDE DO NORDESTE DE SANTA CATARINA",
     "valor": 2500.0,
     "data_assinatura": "2026-11-09"
+   },
+   {
+    "contrato": "83102798000100-2-000440/2026",
+    "fornecedor": {
+     "ni": "21748841000151",
+     "nome": "TECNETWORKING SERVICOS E SOLUCOES EM TI LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE INDAIAL",
+    "valor": 3750.0,
+    "data_assinatura": "2026-11-09"
+   },
+   {
+    "contrato": "01566620000155-2-000245/2026",
+    "fornecedor": {
+     "ni": "21748841000151",
+     "nome": "TECNETWORKING SERVICOS E SOLUCOES EM TI LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE TIGRINHOS",
+    "valor": 792.0,
+    "data_assinatura": "2026-11-11"
+   },
+   {
+    "contrato": "82928656000133-2-000710/2026",
+    "fornecedor": {
+     "ni": "21748841000151",
+     "nome": "TECNETWORKING SERVICOS E SOLUCOES EM TI LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE TUBARAO",
+    "valor": 1860.0,
+    "data_assinatura": "2026-11-11"
    }
   ],
   "08761140000194-1-000251/2024-000001": [
@@ -3095,6 +3139,28 @@
     "orgao": "MUNICIPIO DE BELO HORIZONTE",
     "valor": 1181.1,
     "data_assinatura": "2026-10-29"
+   },
+   {
+    "contrato": "18239038000187-2-000062/2026",
+    "fornecedor": {
+     "ni": "57142978000105",
+     "nome": "BRASOFTWARE INFORMATICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "EMPRESA DE INFORMATICA E INFORMACAO DO MUN.BHTE S/",
+    "valor": 502619.04,
+    "data_assinatura": "2026-11-09"
+   },
+   {
+    "contrato": "18715383000140-2-003118/2026",
+    "fornecedor": {
+     "ni": "57142978000105",
+     "nome": "BRASOFTWARE INFORMATICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BELO HORIZONTE",
+    "valor": 944.88,
+    "data_assinatura": "2026-11-09"
    }
   ],
   "46384111000140-1-000204/2026-000002": [
@@ -7751,6 +7817,17 @@
     "orgao": "TRIBUNAL SUPERIOR DO TRABALHO",
     "valor": 1753918.68,
     "data_assinatura": "2026-10-26"
+   },
+   {
+    "contrato": "00509968000148-2-004141/2026",
+    "fornecedor": {
+     "ni": "35718160000155",
+     "nome": "A2C SOLUCOES EM TECNOLOGIA DA INFORMACAO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "TRIBUNAL SUPERIOR DO TRABALHO",
+    "valor": 5280761.06,
+    "data_assinatura": "2026-10-27"
    }
   ],
   "05149726000104-1-000022/2025-000001": [
@@ -8185,6 +8262,17 @@
     "orgao": "TRIBUNAL SUPERIOR DO TRABALHO",
     "valor": 990180.0,
     "data_assinatura": "2026-10-26"
+   },
+   {
+    "contrato": "00509968000148-2-004163/2026",
+    "fornecedor": {
+     "ni": "08706548000325",
+     "nome": "O2 SOLUCOES EM TECNOLOGIA DIGITAL LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "TRIBUNAL SUPERIOR DO TRABALHO",
+    "valor": 1074996.0,
+    "data_assinatura": "2026-11-10"
    }
   ],
   "00394494000136-1-000675/2025-000001": [
@@ -10778,6 +10866,17 @@
     "orgao": "MUNICIPIO DE ARIQUEMES",
     "valor": 22440.0,
     "data_assinatura": "2026-10-26"
+   },
+   {
+    "contrato": "04104816000116-2-000881/2026",
+    "fornecedor": {
+     "ni": "27274178000187",
+     "nome": "TJ COMERCIO DE PRODUTOS EIRELI"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE ARIQUEMES",
+    "valor": 12599.97,
+    "data_assinatura": "2026-11-09"
    }
   ],
   "24464109000148-1-000047/2026-000023": [
@@ -10915,6 +11014,17 @@
     "orgao": "MUNICIPIO DE BAURU",
     "valor": 59.75,
     "data_assinatura": "2026-10-29"
+   },
+   {
+    "contrato": "46137410000180-2-004875/2026",
+    "fornecedor": {
+     "ni": "49709450000147",
+     "nome": "DALO EMPREENDIMENTOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BAURU",
+    "valor": 47.8,
+    "data_assinatura": "2026-11-06"
    }
   ],
   "46137410000180-1-000302/2026-000002": [
@@ -10928,6 +11038,17 @@
     "orgao": "MUNICIPIO DE BAURU",
     "valor": 120.0,
     "data_assinatura": "2026-10-29"
+   },
+   {
+    "contrato": "46137410000180-2-004886/2026",
+    "fornecedor": {
+     "ni": "29637242000172",
+     "nome": "LUCAS COMERCIO E SERVIÇOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BAURU",
+    "valor": 48.0,
+    "data_assinatura": "2026-11-06"
    }
   ],
   "06096853000155-1-000021/2026-000002": [
@@ -11070,6 +11191,201 @@
     "valor": 7000.0,
     "data_assinatura": "2026-11-09"
    }
+  ],
+  "08539710000104-1-000247/2026-000001": [
+   {
+    "contrato": "08539710000104-2-000276/2026",
+    "fornecedor": {
+     "ni": "04958321000154",
+     "nome": "Hardlink Informática e Sistemas Ltda"
+    },
+    "fruto_adesao": false,
+    "orgao": "MINISTERIO PUBLICO DO ESTADO DO RIO GRANDE DO NORTE",
+    "valor": 1093968.0,
+    "data_assinatura": "2026-11-09"
+   }
+  ],
+  "01786078000146-1-000010/2026-000001": [
+   {
+    "contrato": "10203387000137-2-000054/2026",
+    "fornecedor": {
+     "ni": "07789113000167",
+     "nome": "LETTEL DISTRIBUIDORA DE TELEFONIA LTDA"
+    },
+    "fruto_adesao": true,
+    "orgao": "INSTITUTO DE PREVIDENCIA DOS SERVIDORES DO DISTRITO FEDERAL",
+    "valor": 36060.0,
+    "data_assinatura": "2026-11-09"
+   }
+  ],
+  "10735145000194-1-000240/2025-000001": [
+   {
+    "contrato": "10783898000175-2-001171/2025",
+    "fornecedor": {
+     "ni": "58464245000150",
+     "nome": "58.464.245 YELINES JOSEFINA CASTRO SUAREZ"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DA PARAIBA",
+    "valor": 169899.0,
+    "data_assinatura": "2025-12-30"
+   }
+  ],
+  "27165554000103-1-000168/2026-000001": [
+   {
+    "contrato": "27165554003110-2-000002/2026",
+    "fornecedor": {
+     "ni": "28440028000169",
+     "nome": "WAY MAKER SOLUCOES EM TI LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE VILA VELHA",
+    "valor": 2974833.84,
+    "data_assinatura": "2026-05-13"
+   }
+  ],
+  "03930106000182-1-000162/2025-000001": [
+   {
+    "contrato": "04312419000130-2-000317/2026",
+    "fornecedor": {
+     "ni": "05503214000102",
+     "nome": "FABITECK SANEAMENTO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "SECRETARIA DE ESTADO DE EDUCACAO E DESPORTO",
+    "valor": 43006517.4,
+    "data_assinatura": "2026-10-27"
+   }
+  ],
+  "47784477000179-1-000054/2025-000001": [
+   {
+    "contrato": "47784477000179-2-000088/2025",
+    "fornecedor": {
+     "ni": "05795607000390",
+     "nome": "WISEIT - SISTEMAS E INFORMATICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "TRIBUNAL REGIONAL FEDERAL DA 6A REGIAO",
+    "valor": 1141415.3,
+    "data_assinatura": "2025-12-02"
+   }
+  ],
+  "10648539000105-1-000295/2025-000025": [
+   {
+    "contrato": "10648539000105-2-001100/2026",
+    "fornecedor": {
+     "ni": "45687323000133",
+     "nome": "L N CASTAGNARO  LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO SUL DE MINAS GERAIS",
+    "valor": 17847.6,
+    "data_assinatura": "2026-09-10"
+   }
+  ],
+  "00119784000171-1-000015/2026-000007": [
+   {
+    "contrato": "00119784000171-2-000055/2026",
+    "fornecedor": {
+     "ni": "44562943000264",
+     "nome": "RML PRODUTOS IMPORTADOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "CONSELHO FEDERAL DE MEDICINA VETERINARIA",
+    "valor": 15800.0,
+    "data_assinatura": "2026-10-27"
+   }
+  ],
+  "32243347000151-1-000078/2025-000001": [
+   {
+    "contrato": "00508903000188-2-001598/2026",
+    "fornecedor": {
+     "ni": "00603139000120",
+     "nome": "STILLE TECNOLOGIA & INOVACAO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "JUSTICA FEDERAL DE PRIMEIRA INSTANCIA",
+    "valor": 5646.0,
+    "data_assinatura": "2026-11-10"
+   }
+  ],
+  "46137410000180-1-001235/2025-000001": [
+   {
+    "contrato": "46137410000180-2-004888/2026",
+    "fornecedor": {
+     "ni": "00006879000260",
+     "nome": "Compacta Comércio e Serviços Ltda"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE BAURU",
+    "valor": 36579.76,
+    "data_assinatura": "2026-11-11"
+   }
+  ],
+  "07387525000170-1-000134/2025-000001": [
+   {
+    "contrato": "07387525000170-2-000207/2026",
+    "fornecedor": {
+     "ni": "47129314000152",
+     "nome": "MVM COMERCIO E SERVICOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE ARATUBA",
+    "valor": 642788.0,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "07963051000168-1-000008/2026-000001": [
+   {
+    "contrato": "07963051000168-2-000360/2026",
+    "fornecedor": {
+     "ni": "10311802000176",
+     "nome": "FIBERPLAY TELECOMUNICACOES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE MARANGUAPE",
+    "valor": 6168.0,
+    "data_assinatura": "2026-11-03"
+   }
+  ],
+  "00509026000160-1-000038/2026-000001": [
+   {
+    "contrato": "00509026000160-2-000038/2026",
+    "fornecedor": {
+     "ni": "16812837000175",
+     "nome": "ALFAMAX COMERCIO DE PRODUTOS PARA LIMPEZA E ESCRITORIO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUTUA DE ASSISTENCIA DOS PROFISSIO DA ENG ARQ AGRONOMIA",
+    "valor": 67831.0,
+    "data_assinatura": "2026-09-22"
+   }
+  ],
+  "28162790000120-1-000012/2026-000001": [
+   {
+    "contrato": "28162790000120-2-000036/2026",
+    "fornecedor": {
+     "ni": "05795607000390",
+     "nome": "WISEIT SISTEMAS E INFORMÁTICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "INSTITUTO DE TECNOLOGIA DA INFORMACAO E COMUNICACAO DO ESTADO DO ESPIRITO SANTO",
+    "valor": 1879666.0,
+    "data_assinatura": "2026-11-11"
+   }
+  ],
+  "00508903000188-1-001514/2026-000002": [
+   {
+    "contrato": "00508903000188-2-001592/2026",
+    "fornecedor": {
+     "ni": "11743904000123",
+     "nome": "VETT - VIA EXPRESS TECNOLOGIA E TELECOMUNICACOES LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "JUSTICA FEDERAL DE PRIMEIRA INSTANCIA",
+    "valor": 225000.0,
+    "data_assinatura": "2026-11-11"
+   }
   ]
  },
  "propostas_abertas": {
@@ -11079,7 +11395,8 @@
   "feitos": [
    "158/2026",
    "158/2027",
-   "7010/2026"
+   "7010/2026",
+   "7010/2027"
   ],
   "ultimo_snapshot": "2026-11-14"
  },
