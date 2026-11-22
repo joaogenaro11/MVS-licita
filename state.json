@@ -1,12 +1,12 @@
 {
  "contratacoes_atualizacao": {
-  "ate": "2026-11-12"
+  "ate": "2026-11-13"
  },
  "atas_atualizacao": {
   "ate": "2026-11-21"
  },
  "contratos_atualizacao": {
-  "ate": "2026-11-05"
+  "ate": "2026-11-09"
  },
  "ata_links_pendentes": {
   "01763614000198-1-000044/2026-000001": [
@@ -1850,6 +1850,17 @@
     "orgao": "UNIVERSIDADE FEDERAL DO RIO GRANDE DO SUL",
     "valor": 5499.75,
     "data_assinatura": "2026-10-07"
+   },
+   {
+    "contrato": "92969856000198-2-001081/2026",
+    "fornecedor": {
+     "ni": "01181242000272",
+     "nome": "COMPWIRE INFORMATICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE FEDERAL DO RIO GRANDE DO SUL",
+    "valor": 16580.0,
+    "data_assinatura": "2026-10-28"
    }
   ],
   "03184041000173-1-000152/2025-000001": [
@@ -2826,6 +2837,17 @@
     "orgao": "FUNDO MUNICIPAL DE ASSISTENCIA SOCIAL DE CRICIUMA",
     "valor": 1250.0,
     "data_assinatura": "2026-11-06"
+   },
+   {
+    "contrato": "03222337000131-2-000122/2026",
+    "fornecedor": {
+     "ni": "21748841000151",
+     "nome": "TECNETWORKING SERVICOS E SOLUCOES EM TI LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "CONSORCIO INTERMUNICIPAL DE SAUDE DO NORDESTE DE SANTA CATARINA",
+    "valor": 2500.0,
+    "data_assinatura": "2026-11-09"
    }
   ],
   "08761140000194-1-000251/2024-000001": [
@@ -10958,6 +10980,95 @@
     "orgao": "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO RIO GRANDE DO SUL",
     "valor": 13450.0,
     "data_assinatura": "2026-10-20"
+   }
+  ],
+  "04071106000137-1-000122/2025-000002": [
+   {
+    "contrato": "44365866000171-2-000014/2026",
+    "fornecedor": {
+     "ni": "02213325000501",
+     "nome": "PLUGNET COMERCIO E REPRESENTACOES LTDA."
+    },
+    "fruto_adesao": true,
+    "orgao": "AUTORIDADE NACIONAL DE PROTEÇÃO DE DADOS",
+    "valor": 418392.0,
+    "data_assinatura": "2026-10-28"
+   }
+  ],
+  "75095679000149-1-000486/2025-000001": [
+   {
+    "contrato": "75095679000149-2-003535/2025",
+    "fornecedor": {
+     "ni": "57142978000105",
+     "nome": "BRASOFTWARE INFORMATICA LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE FEDERAL DO PARANA",
+    "valor": 765504.0,
+    "data_assinatura": "2025-12-26"
+   }
+  ],
+  "05648738000183-1-000024/2026-000001": [
+   {
+    "contrato": "05648738000183-2-000161/2026",
+    "fornecedor": {
+     "ni": "13463803000124",
+     "nome": "J. ESTACIO DE OLIVEIRA COMERCIO E SERVICOS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "MUNICIPIO DE VARGEM GRANDE",
+    "valor": 212500.0,
+    "data_assinatura": "2026-07-20"
+   }
+  ],
+  "46068425000133-1-000839/2025-000001": [
+   {
+    "contrato": "46068425000133-2-010676/2026",
+    "fornecedor": {
+     "ni": "65149197000251",
+     "nome": "REPREMIG REPRESENTACAO E COMERCIO DE MINAS GERAIS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE ESTADUAL DE CAMPINAS",
+    "valor": 6599.0,
+    "data_assinatura": "2026-10-29"
+   },
+   {
+    "contrato": "46068425000133-2-010680/2026",
+    "fornecedor": {
+     "ni": "65149197000251",
+     "nome": "REPREMIG REPRESENTACAO E COMERCIO DE MINAS GERAIS LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "UNIVERSIDADE ESTADUAL DE CAMPINAS",
+    "valor": 2889.0,
+    "data_assinatura": "2026-10-29"
+   }
+  ],
+  "33787094000140-1-000263/2024-000003": [
+   {
+    "contrato": "33787094000140-2-000651/2026",
+    "fornecedor": {
+     "ni": "00710985000149",
+     "nome": "VIBHUTI COMERCIO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "FUNDACAO INSTIT BRAS DE GEOGRAFIA E ESTATISTICA IBGE",
+    "valor": 55532.0,
+    "data_assinatura": "2026-11-06"
+   }
+  ],
+  "00509968000148-1-000999/2026-000002": [
+   {
+    "contrato": "00509968000148-2-004125/2026",
+    "fornecedor": {
+     "ni": "41972339000137",
+     "nome": "ADS CONEXAO LTDA"
+    },
+    "fruto_adesao": false,
+    "orgao": "TRIBUNAL SUPERIOR DO TRABALHO",
+    "valor": 7000.0,
+    "data_assinatura": "2026-11-09"
    }
   ]
  },
