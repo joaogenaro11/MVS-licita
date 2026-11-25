@@ -146,10 +146,12 @@ class PNCPClient:
 
     # ------------------------------------------------------------ pagination
     def paginate(self, path: str, params: dict[str, Any], page_size: int = 50,
-                 base: str = CONSULTA_BASE, max_pages: int | None = None) -> Iterator[list[dict]]:
-        """Itera página a página. Levanta SourceError se qualquer página falhar,
-        para que o chamador não avance o checkpoint com dados incompletos."""
-        page = 1
+                 base: str = CONSULTA_BASE, max_pages: int | None = None,
+                 start_page: int = 1) -> Iterator[list[dict]]:
+        """Itera página a página (a partir de start_page, para retomar uma varredura).
+        Levanta SourceError se qualquer página falhar, para que o chamador não avance o
+        checkpoint com dados incompletos."""
+        page = max(1, int(start_page or 1))
         total_pages = None
         while True:
             q = dict(params, pagina=page, tamanhoPagina=page_size)
@@ -178,11 +180,13 @@ class PNCPClient:
         p = {"dataInicial": data_ini, "dataFinal": data_fim, "codigoModalidadeContratacao": modalidade}
         return self.paginate("/v1/contratacoes/atualizacao", _merge(p, kw))
 
-    def contratacoes_proposta(self, data_fim: str, modalidade: int | None = None, **kw):
+    def contratacoes_proposta(self, data_fim: str, modalidade: int | None = None, start_page: int = 1, **kw):
+        """Contratações com recebimento de propostas aberto até data_fim. kw aceita os filtros
+        da API (ex.: cnpj=... para um órgão)."""
         p: dict[str, Any] = {"dataFinal": data_fim}
         if modalidade is not None:
             p["codigoModalidadeContratacao"] = modalidade
-        return self.paginate("/v1/contratacoes/proposta", _merge(p, kw))
+        return self.paginate("/v1/contratacoes/proposta", _merge(p, kw), start_page=start_page)
 
     def atas(self, data_ini: str, data_fim: str, **kw):
         return self.paginate("/v1/atas", _merge({"dataInicial": data_ini, "dataFinal": data_fim}, kw))

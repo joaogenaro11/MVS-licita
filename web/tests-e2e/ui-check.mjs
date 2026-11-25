@@ -323,6 +323,31 @@ await safe('Acompanhamento comercial salva (status/responsável/observação)', 
   await page.keyboard.press('Escape')
   check('Detalhes fecham com Esc', (await page.locator('[role="dialog"]').count()) === 0)
 })
+await safe('Link próprio da oportunidade: abre direto o detalhe, "Copiar link" e aviso de link inexistente', async () => {
+  await nav(page, 'Oportunidades')
+  await page.locator('main ul > li button:has-text("Detalhes")').first().click()
+  await page.waitForSelector('[role="dialog"]')
+  const idAberto = (await page.locator('[role="dialog"] header .font-mono').innerText()).trim()
+  const hashAberto = await page.evaluate(() => decodeURIComponent(window.location.hash))
+  await page.keyboard.press('Escape')
+  const hashFechado = await page.evaluate(() => window.location.hash)
+  // nova aba com o link: abre o mesmo detalhe
+  const p2 = await newPage({ permissions: ['clipboard-read', 'clipboard-write'] })
+  await p2.goto(`${BASE}#/oportunidades?id=${encodeURIComponent(idAberto)}`, { waitUntil: 'networkidle' })
+  await p2.waitForSelector('[role="dialog"]', { timeout: 15000 })
+  const idLink = (await p2.locator('[role="dialog"] header .font-mono').innerText()).trim()
+  await p2.locator('[role="dialog"] button:has-text("Copiar link")').click()
+  await p2.waitForSelector('[role="dialog"] button:has-text("Link copiado")', { timeout: 5000 })
+  const copiado = await p2.evaluate(() => navigator.clipboard.readText())
+  await p2.goto(`${BASE}#/oportunidades?id=nao-existe-123`, { waitUntil: 'networkidle' })
+  await p2.reload({ waitUntil: 'networkidle' })
+  await p2.waitForSelector('text=/não está na base publicada/', { timeout: 15000 })
+  await p2.context().close()
+  check('Link próprio da oportunidade: abre direto o detalhe, "Copiar link" e aviso de link inexistente',
+    idLink === idAberto && hashAberto.endsWith(`?id=${idAberto}`) && !hashFechado.includes('id=') &&
+      copiado.includes(`#/oportunidades?id=${encodeURIComponent(idAberto)}`),
+    `${idAberto} · ${copiado.slice(copiado.indexOf('#'))}`)
+})
 
 // 4. Acompanhamento + persistência local + configuração comercial privada
 await safe('Favorito/acompanhamento aparece e persiste após recarregar (local)', async () => {

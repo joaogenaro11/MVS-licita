@@ -3,6 +3,7 @@ import Detail from './components/Detail.jsx'
 import { loadAll } from './lib/data.js'
 import { indexRecord } from './lib/filters.js'
 import { fmtDate } from './lib/format.js'
+import { hashId } from './lib/link.js'
 import { useAuth, useCommercialConfig, useFavoritos, useMigracaoLocal, usePreferencias, useTracking } from './lib/private.js'
 import { Login, SemAcesso, TrocarSenha } from './pages/Acesso.jsx'
 import Acompanhamento from './pages/Acompanhamento.jsx'
@@ -57,8 +58,23 @@ function Radar({ auth }) {
   const [filters, setFiltersState] = useState(EMPTY_FILTERS)
   const [ataFilters, setAtaFiltersState] = useState(EMPTY_ATA_FILTERS)
   const [sort, setSortState] = useState('score')
-  const [open, setOpen] = useState(null)
+  const [open, setOpenState] = useState(null)
+  const [linkId, setLinkId] = useState(() => hashId())
+  const [linkPerdido, setLinkPerdido] = useState(null)
   const [menu, setMenu] = useState(false)
+
+  // o endereço acompanha o detalhe aberto (dá para copiar da barra ou recarregar a página)
+  const setOpen = useCallback((r) => {
+    setOpenState(r)
+    setLinkId(null)
+    const base = window.location.hash.replace(/^#\/?/, '').split('?')[0] || 'dashboard'
+    window.history.replaceState(null, '', r ? `#/${base}?id=${encodeURIComponent(r.id)}` : `#/${base}`)
+  }, [])
+  useEffect(() => {
+    const on = () => setLinkId(hashId())
+    window.addEventListener('hashchange', on)
+    return () => window.removeEventListener('hashchange', on)
+  }, [])
 
   const favoritos = useFavoritos(auth)
   const prefs = usePreferencias(auth)
@@ -73,6 +89,14 @@ function Radar({ auth }) {
       setData(d)
     }).catch((e) => setError(e.message))
   }, [])
+
+  // link direto (#/oportunidades?id=...): abre o detalhe quando os dados chegam
+  useEffect(() => {
+    if (!data || !linkId) return
+    const r = data.items.find((x) => x.id === linkId) || data.atas.find((x) => x.id === linkId)
+    if (r) { setOpenState(r); setLinkPerdido(null) } else setLinkPerdido(linkId)
+    setLinkId(null)
+  }, [data, linkId])
 
   // Preferências pessoais: filtros, ordenação e portfólio voltam como cada usuário deixou.
   useEffect(() => {
@@ -162,6 +186,13 @@ function Radar({ auth }) {
           <div className="p-6 text-[14px] text-muted">Carregando dados…</div>
         ) : (
           <>
+            {linkPerdido ? (
+              <div role="status" className="mb-4 flex items-start justify-between gap-3 border-l-4 border-warn bg-white px-4 py-3 text-[13px]">
+                <span>A oportunidade do link (<span className="font-mono text-[12px]">{linkPerdido}</span>) não está na base publicada:
+                  pode ter vencido ou saído do Radar. Procure pelo número na busca.</span>
+                <button className="text-brand hover:underline" onClick={() => setLinkPerdido(null)}>Fechar</button>
+              </div>
+            ) : null}
             <h1 className="mb-4 text-[24px] font-light">{TITLES[route]}</h1>
             {route === 'dashboard' && <Dashboard data={data} ctx={ctx} go={go} onOpen={setOpen}
               filtroValor={{ vmin: filters.vmin, ocultarSemValor: filters.ocultarSemValor }} />}
