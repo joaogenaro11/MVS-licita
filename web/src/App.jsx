@@ -4,7 +4,8 @@ import { loadAll } from './lib/data.js'
 import { indexRecord } from './lib/filters.js'
 import { fmtDate } from './lib/format.js'
 import { hashId } from './lib/link.js'
-import { useAuth, useCommercialConfig, useFavoritos, useMigracaoLocal, usePreferencias, useTracking } from './lib/private.js'
+import { useAuth, useCommercialConfig, useFavoritos, useCRM, useMigracaoLocal, usePreferencias } from './lib/private.js'
+import { agenda } from './lib/crm.js'
 import { Login, SemAcesso, TrocarSenha } from './pages/Acesso.jsx'
 import Acompanhamento from './pages/Acompanhamento.jsx'
 import Atas, { EMPTY_ATA_FILTERS } from './pages/Atas.jsx'
@@ -16,17 +17,18 @@ const NAV = [
   { key: 'dashboard', label: 'Dashboard' },
   { key: 'oportunidades', label: 'Oportunidades' },
   { key: 'atas', label: 'Radar de Atas' },
-  { key: 'acompanhamento', label: 'Acompanhamento' },
+  { key: 'crm', label: 'CRM' },
   { key: 'analise', label: 'Análise de Compras', soon: true },
   { key: 'usuarios', label: 'Usuários', admin: true },
 ]
 const TITLES = {
   dashboard: 'Radar de Demanda Pública', oportunidades: 'Oportunidades', atas: 'Radar de Atas',
-  acompanhamento: 'Acompanhamento', usuarios: 'Administração', senha: 'Trocar senha',
+  crm: 'CRM comercial', usuarios: 'Administração', senha: 'Trocar senha',
 }
 
 function useHashRoute(isAdmin) {
-  const get = () => (window.location.hash.replace(/^#\/?/, '').split('?')[0] || 'dashboard')
+  const ALIAS = { acompanhamento: 'crm' }   // endereço antigo
+  const get = () => { const r = window.location.hash.replace(/^#\/?/, '').split('?')[0] || 'dashboard'; return ALIAS[r] || r }
   const [route, setRoute] = useState(get)
   useEffect(() => {
     const on = () => setRoute(get())
@@ -78,9 +80,11 @@ function Radar({ auth }) {
 
   const favoritos = useFavoritos(auth)
   const prefs = usePreferencias(auth)
-  const tracking = useTracking(auth)
+  const crm = useCRM(auth)
   const commercial = useCommercialConfig(auth)
-  useMigracaoLocal(auth, favoritos, prefs, tracking)
+  useMigracaoLocal(auth, favoritos, prefs, crm)
+  const agendaHoje = useMemo(() => agenda(crm.meus, crm.me), [crm.meus, crm.me])
+  const badgeCRM = agendaHoje.hoje.length + agendaHoje.pedidos.length
 
   useEffect(() => {
     loadAll().then((d) => {
@@ -123,9 +127,9 @@ function Radar({ auth }) {
 
   const familias = useMemo(() => Object.fromEntries((data?.meta?.lookups?.familias || []).map((f) => [f.id, f])), [data])
   const ctx = useMemo(() => ({
-    isFav: favoritos.isFav, toggleFav: favoritos.toggle, favoritos, tracking, auth, commercial, prefs, familias,
-    config: commercial.config, priorityOrgs: commercial.config.priority_orgs,
-  }), [favoritos, tracking, auth, commercial, prefs, familias])
+    isFav: favoritos.isFav, toggleFav: favoritos.toggle, favoritos, crm, auth, commercial, prefs, familias,
+    config: commercial.config, priorityOrgs: commercial.config.priority_orgs, agendaHoje,
+  }), [favoritos, crm, auth, commercial, prefs, familias, agendaHoje])
 
   const go = useCallback((r, f) => {
     // atalhos do Dashboard mantêm as escolhas pessoais de portfólio e de valor mínimo
@@ -146,7 +150,7 @@ function Radar({ auth }) {
             <span className="text-[14px] tracking-wide"><span className="font-semibold">RADAR</span> TLS</span>
           </a>
           <nav className="hidden h-full items-stretch lg:flex" aria-label="Navegação principal">
-            {navItems.map((n) => <NavItem key={n.key} n={n} active={route === n.key} onClick={() => nav(n.key)} />)}
+            {navItems.map((n) => <NavItem key={n.key} n={n} badge={n.key === 'crm' ? badgeCRM : 0} active={route === n.key} onClick={() => nav(n.key)} />)}
           </nav>
           <div className="ml-auto hidden items-center gap-4 whitespace-nowrap text-[11px] text-[#c6c6c6] 2xl:flex">
             {data ? <span>Dados de {fmtDate(data.meta.gerado_em, true)}</span> : null}
@@ -164,7 +168,7 @@ function Radar({ auth }) {
         </div>
         {menu ? (
           <nav className="flex flex-col border-t border-[#393939] lg:hidden">
-            {navItems.map((n) => <NavItem key={n.key} n={n} mobile active={route === n.key} onClick={() => { setMenu(false); nav(n.key) }} />)}
+            {navItems.map((n) => <NavItem key={n.key} n={n} mobile badge={n.key === 'crm' ? badgeCRM : 0} active={route === n.key} onClick={() => { setMenu(false); nav(n.key) }} />)}
             {auth.enabled && auth.perfil ? (
               <div className="flex items-center gap-4 border-t border-[#393939] px-4 py-3 text-[13px]">
                 <span>{auth.perfil.nome}</span>
@@ -198,7 +202,7 @@ function Radar({ auth }) {
               filtroValor={{ vmin: filters.vmin, ocultarSemValor: filters.ocultarSemValor }} />}
             {route === 'oportunidades' && <Oportunidades data={data} filters={filters} setFilters={setFilters} sort={sort} setSort={setSort} ctx={ctx} onOpen={setOpen} />}
             {route === 'atas' && <Atas data={data} filters={ataFilters} setFilters={setAtaFilters} ctx={ctx} onOpen={setOpen} />}
-            {route === 'acompanhamento' && <Acompanhamento data={data} ctx={ctx} onOpen={setOpen} />}
+            {route === 'crm' && <Acompanhamento data={data} ctx={ctx} onOpen={setOpen} />}
             {route === 'usuarios' && auth.isAdmin && <Usuarios ctx={ctx} />}
             {route === 'senha' && <div className="max-w-sm bg-white p-4"><TrocarSenha auth={auth} /></div>}
           </>
@@ -212,7 +216,7 @@ function Radar({ auth }) {
   )
 }
 
-function NavItem({ n, active, onClick, mobile }) {
+function NavItem({ n, active, onClick, mobile, badge = 0 }) {
   if (n.soon) {
     return (
       <span aria-disabled="true" title="Em breve: análise do planejamento de compras de um órgão (PCA, PDTI/PDTIC, PETI, ETP)"
@@ -225,6 +229,8 @@ function NavItem({ n, active, onClick, mobile }) {
     <button onClick={onClick} aria-current={active ? 'page' : undefined}
       className={`flex items-center whitespace-nowrap px-3 text-[13px] ${mobile ? 'py-3 text-left' : 'border-b-2'} ${active ? 'border-brand bg-[#262626] text-white' : 'border-transparent text-[#c6c6c6] hover:bg-[#262626] hover:text-white'}`}>
       {n.label}
+      {badge ? <span className="ml-1.5 min-w-[18px] rounded-full bg-[#da1e28] px-1.5 text-center text-[11px] font-semibold leading-[18px] text-white"
+        title="Acompanhamentos de hoje + pedidos do gestor">{badge}</span> : null}
     </button>
   )
 }

@@ -3,6 +3,8 @@ import { Badge, Field, inputCls, Select } from '../components/ui.jsx'
 import { fmtDate } from '../lib/format.js'
 import { adminApi } from '../lib/private.js'
 
+const PAPEIS = [['usuario', 'vendedor (usuário)'], ['gestor', 'gestor (master)'], ['admin', 'administrador']]
+
 /** Administração (só papel admin; o banco recusa as chamadas de quem não é admin). */
 export default function Usuarios({ ctx }) {
   const [rows, setRows] = useState([])
@@ -43,7 +45,13 @@ export default function Usuarios({ ctx }) {
                 <tr key={u.user_id} className="border-t border-line">
                   <td className="px-3 py-2 font-mono">{u.usuario}</td>
                   <td className="px-3">{u.nome}</td>
-                  <td className="px-3">{u.papel === 'admin' ? <Badge className="bg-ink text-white ring-ink">admin</Badge> : 'usuário'}</td>
+                  <td className="px-3">
+                    {u.user_id === me ? <Badge className="bg-ink text-white ring-ink">admin</Badge> : (
+                      <select aria-label={`Papel de ${u.usuario}`} className="bg-transparent text-[13px] outline-none ring-1 ring-line" value={u.papel}
+                        onChange={(e) => { const p = e.target.value; run(() => adminApi.papel(u.user_id, p)) }}>
+                        {PAPEIS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                      </select>)}
+                  </td>
                   <td className="px-3">{u.ativo ? (u.trocar_senha ? <Badge className="bg-[#fcf4d6] text-[#8e6a00] ring-[#f1c21b]">senha temporária</Badge> : <Badge className="bg-[#defbe6] text-[#0e6027] ring-[#a7f0ba]">ativo</Badge>) : <Badge className="bg-[#fff1f1] text-[#a2191f] ring-[#ffb3b8]">desativado</Badge>}</td>
                   <td className="px-3 text-[12px] text-ink-2">{fmtDate(u.ultimo_acesso, true) || 'nunca'}</td>
                   <td className="whitespace-nowrap px-3 text-right text-[12px]">
@@ -81,11 +89,13 @@ export default function Usuarios({ ctx }) {
           <Field label="Usuário (login: minúsculas, sem espaço)"><input className={inputCls} value={novo.usuario} required pattern="[a-z0-9][a-z0-9._\-]{1,31}"
             onChange={(e) => setNovo({ ...novo, usuario: e.target.value.toLowerCase().replace(/\s/g, '') })} /></Field>
           <Field label="Nome"><input className={inputCls} value={novo.nome} required onChange={(e) => setNovo({ ...novo, nome: e.target.value })} /></Field>
-          <Field label="Papel"><Select value={novo.papel} onChange={(v) => setNovo({ ...novo, papel: v || 'usuario' })} placeholder="usuário"
-            options={[{ value: 'admin', label: 'administrador' }]} /></Field>
+          <Field label="Papel"><Select value={novo.papel} onChange={(v) => setNovo({ ...novo, papel: v || 'usuario' })} placeholder="vendedor (usuário)"
+            options={PAPEIS.filter(([v]) => v !== 'usuario').map(([value, label]) => ({ value, label }))} /></Field>
+          <p className="text-[11px] text-muted">Vendedor vê só o próprio CRM. Gestor (master) vê o CRM de todos, filtra por vendedor e pede acompanhamento. Administrador também gerencia usuários e bases.</p>
           <button className="bg-ink py-2 text-[13px] text-white hover:bg-ink-2">Criar e gerar senha temporária</button>
         </form>
         <BaseOfertas />
+        <BasesComerciais />
       </aside>
     </div>
   )
@@ -118,6 +128,42 @@ function BaseOfertas() {
       </label>
       {msg ? <p role="status" className="text-[12px]">{msg}</p> : null}
       <p className="text-[11px] text-muted">A base é privada: fica no banco protegido e nunca é publicada no site nem no GitHub.</p>
+    </section>
+  )
+}
+
+const BASES = {
+  atestados: { titulo: 'Atestados de capacidade técnica', arquivo: 'atestados_base.json', chave: 'atestados' },
+  territorios: { titulo: 'Territórios (carteira por vendedor)', arquivo: 'territorios.json', chave: 'contas' },
+}
+function BasesComerciais() {
+  const [info, setInfo] = useState({})
+  const [msg, setMsg] = useState('')
+  const load = useCallback(() => adminApi.basesInfo().then((rows) => setInfo(Object.fromEntries((rows || []).map((b) => [b.id, b])))).catch((e) => setMsg(e.message)), [])
+  useEffect(() => { load() }, [load])
+  return (
+    <section className="flex flex-col gap-3 bg-white p-4 text-[13px]">
+      <h2 className="text-[14px] font-semibold">Atestados e territórios</h2>
+      {Object.entries(BASES).map(([id, b]) => (
+        <div key={id} className="flex flex-col gap-1">
+          <strong className="text-[12px]">{b.titulo}</strong>
+          <span className="text-[12px] text-ink-2">{info[id] ? <>Versão <strong>{info[id].versao || '—'}</strong> · {info[id].registros} registros · {info[id].atualizado_por || '—'} em {fmtDate(info[id].atualizado_em, true)}</> : 'Não enviada.'}</span>
+          <input type="file" accept="application/json,.json" aria-label={`Enviar ${b.arquivo}`} className="block w-full text-[12px]" onChange={async (e) => {
+            const f = e.target.files?.[0]
+            if (!f) return
+            setMsg('Validando…')
+            try {
+              const json = JSON.parse(await f.text())
+              if (!Array.isArray(json[b.chave])) throw new Error(`esperado {"${b.chave}": [...]} (${b.arquivo})`)
+              setMsg(`${b.titulo}: ${await adminApi.salvarBase(id, json)}. Vale a partir da próxima coleta.`)
+              load()
+            } catch (x) { setMsg(`Erro: ${x.message}`) }
+            e.target.value = ''
+          }} />
+        </div>
+      ))}
+      {msg ? <p role="status" className="text-[12px]">{msg}</p> : null}
+      <p className="text-[11px] text-muted">Bases privadas: ficam no banco protegido e nunca vão para o site nem para o GitHub. O site só mostra o resultado (nível do atestado e vendedor do território) para quem tem login.</p>
     </section>
   )
 }

@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
-import { ADESAO, Badge, Casou, Empty, FamiliaChips, Field, Highlight, inputCls, PortalLinks, PortfolioBadge, PortfolioSwitch, ScoreBadge, SCORE_MIN_OPTS, SEARCH_HINT, Select, Selos, Star, ValorMinimo, VIGENCIA } from '../components/ui.jsx'
+import { ADESAO, Badge, Casou, ComercialBadges, Empty, FamiliaChips, Field, Highlight, inputCls, PortalLinks, PortfolioBadge, PortfolioSwitch, ScoreBadge, SCORE_MIN_OPTS, SEARCH_HINT, Select, Selos, Star, ValorMinimo, VIGENCIA } from '../components/ui.jsx'
 import { fmtDate, money, UFS } from '../lib/format.js'
-import { bySearchThen, filterAtas, matchesPartner, matchesPriority, portfolioCounts, SORTS, uniqueSorted } from '../lib/filters.js'
+import { ATESTADO_OPTS, bySearchThen, filterAtas, FOCO_OPTS, territorioOpts, matchesPartner, matchesPriority, portfolioCounts, SORTS, uniqueSorted } from '../lib/filters.js'
 import { familiaOpts, SELO_OPTS } from './Oportunidades.jsx'
 
 export const EMPTY_ATA_FILTERS = {
-  q: '', portfolio: 'tudo', orgao: '', vigencia: 'vigentes', adesao: '', oferta: '', selo: '', vmin: '', vmax: '', scoreMin: '', familia: '', uf: '', ocultarSemValor: false,
+  q: '', portfolio: 'tudo', orgao: '', vigencia: 'vigentes', adesao: '', oferta: '', selo: '', vmin: '', vmax: '', scoreMin: '', familia: '', uf: '', foco: '', atestado: '', territorio: '', ocultarSemValor: false,
   prioritarios: false, favoritos: false,
 }
 
@@ -49,6 +49,9 @@ export default function Atas({ data, filters, setFilters, ctx, onOpen }) {
         <Field label="Valor máximo (R$)"><input type="number" min="0" value={filters.vmax} onChange={(e) => set('vmax')(e.target.value)} className={inputCls} /></Field>
         <Field label="Aderência mínima"><Select value={filters.scoreMin} onChange={set('scoreMin')} placeholder="Qualquer" options={SCORE_MIN_OPTS} /></Field>
         <Field label="Família"><Select value={filters.familia} onChange={set('familia')} options={familiaOpts(data.meta)} /></Field>
+        <Field label="Região"><Select value={filters.foco} onChange={set('foco')} placeholder="Nacional" options={FOCO_OPTS} /></Field>
+        <Field label="Atestados"><Select value={filters.atestado} onChange={set('atestado')} placeholder="Qualquer" options={ATESTADO_OPTS} /></Field>
+        <Field label="Território (vendedor)"><Select value={filters.territorio} onChange={set('territorio')} options={territorioOpts(data.meta, ctx.auth?.perfil?.nome)} /></Field>
         <div className="flex flex-col justify-end gap-1 text-[13px]">
           <label className="flex items-center gap-2"><input type="checkbox" checked={filters.prioritarios} onChange={(e) => set('prioritarios')(e.target.checked)} /> Órgãos prioritários</label>
           <label className="flex items-center gap-2"><input type="checkbox" checked={filters.favoritos} onChange={(e) => set('favoritos')(e.target.checked)} /> Favoritas</label>
@@ -91,6 +94,7 @@ export function AtaCard({ a, ctx, onOpen }) {
             <FamiliaChips c={c} familias={ctx.familias} />
             <PortfolioBadge c={c} />
             {matchesPriority(a, ctx.priorityOrgs) ? <Badge className="bg-[#f6f2ff] text-[#6929c4] ring-[#d4bbff]">Órgão prioritário</Badge> : null}
+            <ComercialBadges c={c} />
             {partners.length ? <Badge className="bg-[#f6f2ff] text-[#6929c4] ring-[#d4bbff]">Parceiro: {partners.join(', ')}</Badge> : null}
           </div>
           <div className="text-[12px] font-medium">{a.orgao?.nome}{a.unidade?.uf ? <span className="font-normal text-ink-2"> · {a.unidade.uf}</span> : null}</div>

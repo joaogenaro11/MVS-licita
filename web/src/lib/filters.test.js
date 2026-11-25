@@ -127,3 +127,40 @@ test('valor mínimo: usa o valor do card; sem valor continua, a menos de "Oculta
   assert.deepEqual(filterAtas(atas, { ocultarSemValor: true }).map((a) => a.id), ['a2'])
   assert.equal(passaValor(rs[0], {}), true)
 })
+
+test('região: nacional, DF + federais e as 5 regiões pela UF', () => {
+  const rs = [
+    mk({ id: 'sp', objeto: 'a', unidade: { uf: 'SP' }, orgao: { esfera: 'E' } }),
+    mk({ id: 'rs', objeto: 'b', unidade: { uf: 'RS' }, orgao: { esfera: 'M' } }),
+    mk({ id: 'df', objeto: 'c', unidade: { uf: 'DF' }, orgao: { esfera: 'E' } }),
+    mk({ id: 'fed', objeto: 'd', unidade: { uf: 'PA' }, orgao: { esfera: 'F' } }),
+  ]
+  const ids = (foco) => filterItems(rs, { foco }).map((r) => r.id)
+  assert.deepEqual(ids(''), ['sp', 'rs', 'df', 'fed'])
+  assert.deepEqual(ids('df_federal'), ['df', 'fed'])
+  assert.deepEqual(ids('sudeste'), ['sp'])
+  assert.deepEqual(ids('sul'), ['rs'])
+  assert.deepEqual(ids('norte'), ['fed'])
+  assert.deepEqual(ids('centro_oeste'), ['df'])
+  assert.deepEqual(ids('nordeste'), [])
+})
+
+test('filtros de atestado e território', async () => {
+  const { passaAtestado, passaTerritorio, territorioOpts, SEM_TERRITORIO } = await import('./filters.js')
+  const at = { classificacao: { atestados: { nivel: 'atende' }, territorio: { bsb: 'Ana Souza', renovacao: 'Bruno Lima' } } }
+  const px = { classificacao: { atestados: { nivel: 'proximo' } } }
+  const nada = { classificacao: {} }
+  assert.equal(passaAtestado(at, 'atende'), true)
+  assert.equal(passaAtestado(px, 'atende'), false)
+  assert.equal(passaAtestado(px, 'proximo'), true)
+  assert.equal(passaAtestado(at, 'algum') && passaAtestado(px, 'algum'), true)
+  assert.equal(passaAtestado(nada, 'algum'), false)
+  assert.equal(passaAtestado(nada, 'nenhum'), true)
+  assert.equal(passaTerritorio(at, 'Ana Souza'), true)
+  assert.equal(passaTerritorio(at, 'Bruno Lima'), true)
+  assert.equal(passaTerritorio(px, 'Ana Souza'), false)
+  assert.equal(passaTerritorio(px, SEM_TERRITORIO), true)
+  const o = territorioOpts({ lookups: { territorios: ['Ana Souza', 'Bruno Lima'] } }, 'ana souza')
+  assert.equal(o[0].label, 'Meu território (Ana Souza)')
+  assert.equal(o.at(-1).value, SEM_TERRITORIO)
+})

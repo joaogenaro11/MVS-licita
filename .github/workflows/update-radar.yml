@@ -8,8 +8,8 @@ name: Atualizar Radar TLS
 # Requer o secret SUPABASE_SERVICE_ROLE_KEY (Settings > Secrets and variables > Actions).
 on:
   schedule:
-    - cron: "23 9 * * *"    # 06:23 (Brasília) — fora do minuto 0 para evitar fila
-    - cron: "41 20 * * *"   # 17:41 (Brasília)
+    - cron: "7 14 * * *"    # 11:07 (Brasília) — fora do minuto 0 para evitar fila
+    - cron: "7 21 * * *"    # 18:07 (Brasília)
   workflow_dispatch:
     inputs:
       budget_min:

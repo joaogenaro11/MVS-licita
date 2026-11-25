@@ -225,7 +225,7 @@ await safe('Busca por palavra-chave filtra resultados', async () => {
 await safe('Filtros avançados (UF, pontuação, valor, prazo, foco DF/federal)', async () => {
   await page.click('text=Mais filtros')
   const labels = ['Aderência mínima', 'Órgão / unidade', 'UF', 'Município', 'Modalidade', 'Selo', 'Valor mínimo (R$)', 'Valor máximo (R$)',
-    'Publicado a partir de', 'Prazo de propostas até', 'Oferta TLS', 'Foco', 'Tipo de registro', 'Buscas salvas']
+    'Publicado a partir de', 'Prazo de propostas até', 'Oferta TLS', 'Região', 'Atestados', 'Território (vendedor)', 'Tipo de registro', 'Buscas salvas']
   const missing = []
   for (const l of labels) if (!(await page.locator(`label:has-text("${l}"), div:has(> span:text-is("${l}"))`).count())) missing.push(l)
   check('Filtros avançados presentes', missing.length === 0, missing.join(', '))
@@ -311,17 +311,39 @@ await safe('Detalhe com "Por que apareceu": ofertas (nome) ou família e termos'
   check('Botão de acesso direto também na tela de detalhes', access > 0)
   await shot(page, '03-detalhe')
 })
-await safe('Acompanhamento comercial salva (status/responsável/observação)', async () => {
+await safe('CRM no detalhe: salvar no meu CRM, etapa, código da oportunidade/SC e histórico', async () => {
   const dlg = page.locator('[role="dialog"]')
-  await dlg.locator('label:has-text("Status comercial") select').selectOption('Em análise')
-  await dlg.locator('label:has-text("Responsável") input').fill('Teste automatizado')
+  await dlg.locator('button:has-text("Salvar no meu CRM")').click()
+  await dlg.locator('button:has-text("Salvar no CRM")').waitFor({ timeout: 5000 })
+  await dlg.locator('[role="group"][aria-label="Etapa"] button:has-text("Qualificando")').click()
+  await dlg.locator('label:has-text("Código da oportunidade / SC") input').fill('SC-TESTE-1')
+  await dlg.locator('label:has-text("Valor do negócio") input').fill('250000')
   await dlg.locator('label:has-text("Observação") textarea').fill('Verificação funcional')
-  await dlg.locator('button:has-text("Salvar acompanhamento")').click()
+  await dlg.locator('button:has-text("Salvar no CRM")').click()
   await page.waitForSelector('text=Salvo.', { timeout: 5000 })
-  check('Acompanhamento comercial salva (status/responsável/observação)', true)
-  await dlg.locator('button[aria-pressed]').first().click() // favoritar
+  await dlg.locator('input[aria-label="Nova nota"]').fill('Contato com o órgão (teste)')
+  await dlg.locator('button:has-text("Adicionar nota")').click()
+  await page.waitForTimeout(300)
+  const t = await dlg.innerText()
+  check('CRM no detalhe: salvar no meu CRM, etapa, código da oportunidade/SC e histórico',
+    /Entrou no CRM/.test(t) && /Etapa: Novo → Qualificando/.test(t) && /Código da oportunidade: SC-TESTE-1/.test(t) && /Nota: Contato com o órgão/.test(t))
+  await shot(page, '03b-detalhe-crm')
+  await dlg.locator('button[aria-pressed]').first().click() // favoritar (estrela do cabeçalho)
   await page.keyboard.press('Escape')
   check('Detalhes fecham com Esc', (await page.locator('[role="dialog"]').count()) === 0)
+})
+await safe('Filtros de atestados e território', async () => {
+  await nav(page, 'Oportunidades')
+  if (!(await page.locator('label:has-text("Atestados") select').count())) await page.click('text=Mais filtros')
+  const sel = page.locator('label:has-text("Atestados") select').first()
+  await sel.selectOption('algum'); await page.waitForTimeout(250)
+  const nAt = await page.locator('text=Nenhuma oportunidade com esses filtros').count() ? 0 : await countText(page)
+  const badges = await page.locator('main ul > li >> text=/^Atestado: (atende|próximo)$/').count()
+  const cards = await page.locator('main ul > li button:has-text("Detalhes")').count()
+  await sel.selectOption(''); await page.waitForTimeout(150)
+  const terr = await page.locator('label:has-text("Território (vendedor)") select option').allInnerTexts()
+  check('Filtros de atestados e território', (nAt === 0 || badges === cards) && terr.includes('Fora da carteira'),
+    `atende/próximo: ${nAt} · vendedores: ${terr.length - 2}`)
 })
 await safe('Link próprio da oportunidade: abre direto o detalhe, "Copiar link" e aviso de link inexistente', async () => {
   await nav(page, 'Oportunidades')
@@ -349,19 +371,33 @@ await safe('Link próprio da oportunidade: abre direto o detalhe, "Copiar link" 
     `${idAberto} · ${copiado.slice(copiado.indexOf('#'))}`)
 })
 
-// 4. Acompanhamento + persistência local + configuração comercial privada
-await safe('Favorito/acompanhamento aparece e persiste após recarregar (local)', async () => {
-  await nav(page, 'Acompanhamento')
+// 4. CRM + persistência local + configuração comercial privada
+await safe('CRM: funil, agenda, favoritos e persistência após recarregar (local)', async () => {
+  await nav(page, 'CRM')
   await page.reload({ waitUntil: 'networkidle' })
-  await nav(page, 'Acompanhamento')
-  const t = await page.locator('main').innerText()
-  check('Favorito/acompanhamento aparece e persiste após recarregar (local)', /Em análise/.test(t) && /Teste automatizado/.test(t) && /meu favorito/.test(t))
-  check('Aviso explícito de que favoritos locais não são compartilhados', /somente neste navegador/.test(t))
+  await nav(page, 'CRM')
+  const main = page.locator('main')
+  const t = await main.innerText()
+  const coluna = await main.locator('[data-etapa="qualificando"] li').count()
+  check('CRM: funil, agenda, favoritos e persistência após recarregar (local)',
+    coluna === 1 && /SC-TESTE-1/.test(t) && /Acompanhamentos de hoje/.test(t) && /Pedidos do gestor/.test(t) && /Meus favoritos/.test(t),
+    `qualificando: ${coluna}`)
+  check('Aviso explícito de que o CRM local não é compartilhado', /somente neste navegador/.test(t))
+  // adiar para hoje não existe: "amanhã" reagenda e a data muda no card
+  await main.locator('[data-etapa="qualificando"] li button:has-text("+1 semana")').click()
+  await page.waitForTimeout(200)
+  const dataCard = await main.locator('[data-etapa="qualificando"] li').innerText()
+  const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 5000 }), page.click('button:has-text("Exportar CSV")')])
+  check('CRM: reagendar acompanhamento e exportar CSV', /\d{2}\/\d{2}\/\d{4}/.test(dataCard) && /crm-radar-tls-.*\.csv$/.test(dl.suggestedFilename()))
+  await shot(page, '04-crm')
+  // endereço antigo continua funcionando
+  await page.goto(`${BASE}#/acompanhamento`, { waitUntil: 'networkidle' })
+  check('Endereço antigo #/acompanhamento abre o CRM', await page.locator('h1:text-is("CRM comercial")').count() === 1)
 })
 await safe('Configuração comercial privada: órgão prioritário marca e filtra', async () => {
   await nav(page, 'Oportunidades')
   const org = (await page.locator('main ul > li .font-medium.text-ink').first().innerText()).trim()
-  await nav(page, 'Acompanhamento')
+  await nav(page, 'CRM')
   await page.click('button:has-text("editar")')
   await page.locator('textarea').last().fill(`priority_orgs:\n  - ${org}\n\npartners:\n  - EXEMPLO\n\nvendor_notes:\n  Cisco: "nota de teste"`)
   await page.click('button:has-text("Salvar configuração")')

@@ -20,7 +20,7 @@ export function NovaBusca({ className = '' }) {
         Nova busca ↗
       </a>
       <p className="mt-1 text-[11px] text-muted">
-        Buscas automáticas: 06:23 e 17:41 (Brasília). Para buscar agora: abre o GitHub, clique em <strong>Run workflow</strong> →
+        Buscas automáticas: 11h e 18h (Brasília). Para buscar agora: abre o GitHub, clique em <strong>Run workflow</strong> →
         <strong> Run workflow</strong>. Leva cerca de 40 minutos; ao final, recarregue a página.
       </p>
     </div>
@@ -57,8 +57,18 @@ export default function Dashboard({ data, ctx, go, onOpen, filtroValor = {} }) {
   }, [items, atas, meta, filtroValor])
   const maxFamilia = Math.max(1, ...k.porFamilia.map((f) => f.n))
 
+  const ag = ctx.agendaHoje
   return (
     <div className="flex flex-col gap-6">
+      {ag && (ag.hoje.length || ag.pedidos.length) ? (
+        <button onClick={() => go('crm')} className="flex flex-wrap items-center gap-x-4 gap-y-1 border-l-4 border-brand bg-white px-4 py-3 text-left text-[13px] hover:bg-brand-soft"
+          aria-label="Abrir o CRM">
+          <strong>Seu CRM hoje:</strong>
+          <span>{ag.hoje.length} acompanhamento{ag.hoje.length === 1 ? '' : 's'}{ag.atrasados ? <span className="text-bad"> ({ag.atrasados} atrasado{ag.atrasados > 1 ? 's' : ''})</span> : ''}</span>
+          {ag.pedidos.length ? <span className="text-[#6929c4]">{ag.pedidos.length} pedido{ag.pedidos.length > 1 ? 's' : ''} do gestor</span> : null}
+          <span className="ml-auto text-brand">abrir CRM →</span>
+        </button>
+      ) : null}
       <div className="grid grid-cols-2 gap-px bg-line sm:grid-cols-4">
         <Kpi label="Oportunidades encontradas" value={k.total.toLocaleString('pt-BR')} hint="casaram oferta ou família TLS" onClick={() => go('oportunidades', {})} />
         <Kpi label="Propostas abertas" value={k.abertas.toLocaleString('pt-BR')} accent="#0f62fe" onClick={() => go('oportunidades', { estagio: 'propostas_abertas' })} />

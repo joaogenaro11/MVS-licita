@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
-import { Badge, Casou, Empty, FamiliaChips, Field, Highlight, inputCls, PortalLinks, PortfolioBadge, PortfolioSwitch, ScoreBadge, SCORE_MIN_OPTS, SEARCH_HINT, SEARCH_PLACEHOLDER, Select, Selos, Star, TIPO, ValorMinimo } from '../components/ui.jsx'
+import { Badge, Casou, ComercialBadges, Empty, FamiliaChips, Field, Highlight, inputCls, PortalLinks, PortfolioBadge, PortfolioSwitch, ScoreBadge, SCORE_MIN_OPTS, SEARCH_HINT, SEARCH_PLACEHOLDER, Select, Selos, Star, TIPO, ValorMinimo } from '../components/ui.jsx'
 import { daysUntil, fmtDate, money, relDays, UFS } from '../lib/format.js'
-import { bySearchThen, filterItems, matchesPriority, portfolioCounts, SORTS, uniqueSorted, valorCard } from '../lib/filters.js'
+import { ATESTADO_OPTS, bySearchThen, filterItems, FOCO_OPTS, territorioOpts, matchesPriority, portfolioCounts, SORTS, uniqueSorted, valorCard } from '../lib/filters.js'
 
 export const EMPTY_FILTERS = {
   q: '', portfolio: 'tudo', orgao: '', uf: '', municipio: '', modalidade: '', estagio: '', oferta: '', selo: '', vmin: '', vmax: '',
-  pubDe: '', pubAte: '', prazoAte: '', scoreMin: '', familia: '', tipo: '', foco: '', prioritarios: false, favoritos: false, ocultarSemValor: false,
+  pubDe: '', pubAte: '', prazoAte: '', scoreMin: '', familia: '', tipo: '', foco: '', atestado: '', territorio: '', prioritarios: false, favoritos: false, ocultarSemValor: false,
 }
 export const familiaOpts = (meta) => (meta.lookups?.familias || []).map((f) => ({ value: f.id, label: f.nome }))
 export const SELO_OPTS = [{ value: 'falso_positivo', label: 'Possível falso positivo' }]
@@ -70,7 +70,9 @@ export default function Oportunidades({ data, filters, setFilters, sort = 'score
             <Field label="Publicado a partir de"><input type="date" value={filters.pubDe} onChange={(e) => set('pubDe')(e.target.value)} className={inputCls} /></Field>
             <Field label="Publicado até"><input type="date" value={filters.pubAte} onChange={(e) => set('pubAte')(e.target.value)} className={inputCls} /></Field>
             <Field label="Prazo de propostas até"><input type="date" value={filters.prazoAte} onChange={(e) => set('prazoAte')(e.target.value)} className={inputCls} /></Field>
-            <Field label="Foco"><Select value={filters.foco} onChange={set('foco')} placeholder="Nacional" options={[{ value: 'df_federal', label: 'DF + órgãos federais' }]} /></Field>
+            <Field label="Região"><Select value={filters.foco} onChange={set('foco')} placeholder="Nacional" options={FOCO_OPTS} /></Field>
+            <Field label="Atestados"><Select value={filters.atestado} onChange={set('atestado')} placeholder="Qualquer" options={ATESTADO_OPTS} /></Field>
+            <Field label="Território (vendedor)"><Select value={filters.territorio} onChange={set('territorio')} options={territorioOpts(meta, ctx.auth?.perfil?.nome)} /></Field>
             <label className="flex items-end gap-2 pb-2 text-[13px]"><input type="checkbox" checked={filters.prioritarios} onChange={(e) => set('prioritarios')(e.target.checked)} /> Órgãos prioritários</label>
             <label className="flex items-end gap-2 pb-2 text-[13px]"><input type="checkbox" checked={filters.favoritos} onChange={(e) => set('favoritos')(e.target.checked)} /> Somente favoritos</label>
             <div className="col-span-2 flex flex-col gap-1 md:col-span-4 lg:col-span-6">
@@ -126,6 +128,7 @@ export function OppCard({ r, L, ctx, onOpen }) {
             <FamiliaChips c={c} familias={ctx.familias} />
             <PortfolioBadge c={c} />
             {prio ? <Badge className="bg-[#f6f2ff] text-[#6929c4] ring-[#d4bbff]">Órgão prioritário</Badge> : null}
+            <ComercialBadges c={c} />
           </div>
           <div className="text-[12px] text-ink-2">
             <span className="font-medium text-ink">{r.orgao?.nome || 'Órgão não informado'}</span>

@@ -14,3 +14,7 @@ config/portfolio_private.yml
 config/ofertas_tls_radar.json
 ofertas_tls_radar.json
 ofertas_tls_mvs_consolidado.md
+
+# bases comerciais privadas (ficam no Supabase; cópia local só para teste)
+config/atestados.json
+config/territorios.json
