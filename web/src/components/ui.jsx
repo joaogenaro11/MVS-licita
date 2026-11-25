@@ -266,3 +266,16 @@ export function ValorMinimo({ value, onChange, ocultar, onOcultar }) {
     </div>
   )
 }
+
+/** Selos comerciais do card: atestado (atende/próximo) e vendedor do território. */
+export function ComercialBadges({ c }) {
+  const n = c?.atestados?.nivel
+  const t = c?.territorio
+  return (
+    <>
+      {n === 'atende' ? <Badge className="bg-[#defbe6] text-[#0e6027] ring-[#a7f0ba]" title={(c.atestados.lista || []).filter((a) => a.nivel === 'atende').map((a) => a.titulo).join(' · ')}>Atestado: atende</Badge> : null}
+      {n === 'proximo' ? <Badge className="bg-[#fcf4d6] text-[#8e6a00] ring-[#f1c21b]" title={(c.atestados.lista || []).map((a) => a.titulo).join(' · ')}>Atestado: próximo</Badge> : null}
+      {t?.bsb ? <Badge className="bg-[#e5f6ff] text-[#00539a] ring-[#82cfff]" title={`Território: ${t.bsb}${t.renovacao ? ` · renovação: ${t.renovacao}` : ''}`}>{t.bsb}</Badge> : null}
+    </>
+  )
+}

@@ -84,6 +84,24 @@ export function matchesPartner(r, partners) {
 
 /** Valor exibido no card: ata → valor da contratação de origem; demais → estimado, ou
  *  homologado quando não houver estimado. null = sem valor informado (ou sigiloso). */
+export const REGIOES = {
+  norte: { label: 'Norte', ufs: ['AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO'] },
+  nordeste: { label: 'Nordeste', ufs: ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE'] },
+  centro_oeste: { label: 'Centro-Oeste', ufs: ['DF', 'GO', 'MT', 'MS'] },
+  sudeste: { label: 'Sudeste', ufs: ['ES', 'MG', 'RJ', 'SP'] },
+  sul: { label: 'Sul', ufs: ['PR', 'RS', 'SC'] },
+}
+export const FOCO_OPTS = [{ value: 'df_federal', label: 'DF + órgãos federais' },
+  ...Object.entries(REGIOES).map(([value, r]) => ({ value, label: r.label }))]
+
+/** Foco geográfico: vazio = nacional; DF + federais; ou uma das 5 regiões (pela UF da unidade). */
+export function passaFoco(r, foco) {
+  if (!foco) return true
+  if (foco === 'df_federal') return r.orgao?.esfera === 'F' || r.unidade?.uf === 'DF'
+  const reg = REGIOES[foco]
+  return reg ? reg.ufs.includes(r.unidade?.uf) : true
+}
+
 export function valorCard(r) {
   const n = (x) => (Number(x) > 0 ? Number(x) : null)
   if (r.tipo === 'ata') return n(r.compra?.valor)
@@ -102,6 +120,39 @@ const inRange = (v, min, max) => {
   if (min !== '' && min != null && !(v >= Number(min))) return false
   if (max !== '' && max != null && !(v <= Number(max))) return false
   return true
+}
+
+/** Atestados de capacidade técnica (base privada, avaliada na coleta). */
+export const ATESTADO_OPTS = [
+  { value: 'atende', label: 'Atende (o atestado cobre o pedido)' },
+  { value: 'proximo', label: 'Próximo (cobre parte)' },
+  { value: 'algum', label: 'Atende ou próximo' },
+  { value: 'nenhum', label: 'Sem atestado' },
+]
+export function passaAtestado(r, v) {
+  if (!v) return true
+  const n = r.classificacao?.atestados?.nivel || null
+  if (v === 'algum') return n === 'atende' || n === 'proximo'
+  if (v === 'nenhum') return !n
+  return n === v
+}
+
+/** Território: vendedor BSB ou de renovação da conta do órgão na carteira. */
+export const SEM_TERRITORIO = '__sem'
+export function passaTerritorio(r, v) {
+  if (!v) return true
+  const t = r.classificacao?.territorio
+  if (v === SEM_TERRITORIO) return !t || !(t.bsb || t.renovacao)
+  return Boolean(t) && (t.bsb === v || t.renovacao === v)
+}
+export function territorioOpts(meta, nomeUsuario) {
+  const nomes = meta?.lookups?.territorios || []
+  const meu = nomes.find((n) => norm(n) === norm(nomeUsuario))
+  return [
+    ...(meu ? [{ value: meu, label: `Meu território (${meu})` }] : []),
+    ...nomes.filter((n) => n !== meu).map((n) => ({ value: n, label: n })),
+    { value: SEM_TERRITORIO, label: 'Fora da carteira' },
+  ]
 }
 
 /** Filtro de oportunidades (contratações, PCA, contratos). Todos os critérios são opcionais. */
@@ -128,7 +179,9 @@ export function filterItems(items, f, ctx = {}) {
       const p = (r.data_encerramento_proposta || '').slice(0, 10)
       if (!p || p > f.prazoAte) return false
     }
-    if (f.foco === 'df_federal' && !(r.orgao?.esfera === 'F' || r.unidade?.uf === 'DF')) return false
+    if (!passaFoco(r, f.foco)) return false
+    if (!passaAtestado(r, f.atestado)) return false
+    if (!passaTerritorio(r, f.territorio)) return false
     if (f.prioritarios && !matchesPriority(r, ctx.priorityOrgs)) return false
     if (f.favoritos && !ctx.isFav?.(r.id)) return false
     return true
@@ -152,6 +205,9 @@ export function filterAtas(atas, f, ctx = {}) {
     if (f.scoreMin && !((c.score ?? -1) >= Number(f.scoreMin))) return false
     if (f.familia && !(c.familias || []).includes(f.familia)) return false
     if (f.uf && a.unidade?.uf !== f.uf) return false
+    if (!passaFoco(a, f.foco)) return false
+    if (!passaAtestado(a, f.atestado)) return false
+    if (!passaTerritorio(a, f.territorio)) return false
     if (f.prioritarios && !matchesPriority(a, ctx.priorityOrgs)) return false
     if (f.favoritos && !ctx.isFav?.(a.id)) return false
     return true

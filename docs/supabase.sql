@@ -465,3 +465,5 @@ revoke execute on function private.tg_apaga_segredo_senha() from public, anon, a
 drop trigger if exists apaga_segredo_senha on private.senhas_temporarias;
 create trigger apaga_segredo_senha after delete on private.senhas_temporarias
   for each row execute function private.tg_apaga_segredo_senha();
+
+-- CRM: ver docs/supabase-crm.sql (aplicado depois deste arquivo)

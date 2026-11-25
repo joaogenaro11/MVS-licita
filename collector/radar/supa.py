@@ -47,6 +47,15 @@ def fetch_ofertas() -> dict[str, Any] | None:
     return rows[0]["data"] if rows else None
 
 
+def fetch_base(nome: str) -> dict[str, Any] | None:
+    """Bases privadas da equipe (tabela radar_bases): 'atestados' e 'territorios'."""
+    url, h = _cfg()
+    r = requests.get(f"{url}/rest/v1/radar_bases", params={"id": f"eq.{nome}", "select": "data"}, headers=h, timeout=120)
+    _check(r, f"leitura da base {nome}")
+    rows = r.json()
+    return rows[0]["data"] if rows else None
+
+
 def _partes(items: list[dict]) -> list[list[dict]]:
     partes: list[list[dict]] = [[]]
     tam = 0

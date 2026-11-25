@@ -73,7 +73,7 @@ git clone https://github.com/joaogenaro11/MVS-licita.git
 - O workflow coleta, classifica, cria o branch `data`, publica os dados no Supabase e o site no Pages, e mostra um resumo por fonte.
 - **O PNCP limita a taxa de requisições** (HTTP 429 a partir de cerca de 25 req/min no teste real). O coletor desacelera sozinho.
   Por isso, a carga histórica de 12 meses e a varredura de cerca de 480 mil atas vigentes levam **alguns dias** de execuções.
-  Elas continuam sozinhas nas execuções agendadas (06:23 e 17:41, horário de Brasília); o progresso por fonte aparece no resumo de cada execução no Actions.
+  Elas continuam sozinhas nas execuções agendadas (11h e 18h, horário de Brasília); o progresso por fonte aparece no resumo de cada execução no Actions.
   As propostas abertas e as publicações recentes aparecem já na primeira execução.
 - O endereço do site aparece em **Settings > Pages** (ex.: `https://joaogenaro11.github.io/MVS-licita/`).
 
@@ -92,7 +92,8 @@ funções de administração). Para outro projeto: execute esse arquivo no SQL E
 3. **Primeiro acesso:** cada pessoa entra com o usuário e a senha temporária recebidos e cria a própria senha.
 4. **Administração (só admin):** menu **Usuários** → criar usuário, redefinir senha (gera nova temporária), **ver senha
    temporária** (enquanto a pessoa não criar a própria), desativar/reativar e enviar nova versão da **base de ofertas**
-   (`ofertas_tls_radar.json`). A senha temporária fica criptografada no Supabase Vault e é apagada quando a pessoa cria a
+   (`ofertas_tls_radar.json`), dos **atestados** e dos **territórios** (JSON gerados a partir dos arquivos internos; o
+   CRM e essas bases estão em [`docs/supabase-crm.sql`](docs/supabase-crm.sql)). A senha temporária fica criptografada no Supabase Vault e é apagada quando a pessoa cria a
    própria senha ou é desativada; senhas pessoais nunca são guardadas.
 
 Como funciona o login: o usuário digita só o nome de usuário; internamente o Supabase Auth usa `<usuario>@radar-tls.invalid`
@@ -105,7 +106,9 @@ O que é de cada um e o que é da equipe:
 | Dado | Escopo |
 |---|---|
 | Oportunidades, atas, base de ofertas, status da coleta | Equipe (somente leitura; a base de ofertas só o admin vê) |
-| Status comercial, responsável, observação, próximo acompanhamento, órgãos prioritários/parceiros | Equipe |
+| CRM (etapa, próximo acompanhamento, código da oportunidade/SC, valor, parceiro, histórico) | **Pessoal**; gestor e admin veem e editam o de todos |
+| Órgãos prioritários/parceiros | Equipe |
+| Bases de atestados e territórios | Só admin (a coleta usa; o site mostra só o resultado) |
 | Favoritos, filtro Tudo/Logo/MVS, filtros, ordenação, buscas salvas | **Pessoal** |
 
 ---
@@ -140,7 +143,8 @@ Os dados locais (`/data`, `web/public/data`, `config/ofertas_tls_radar.json`) s�
 | Tarefa | Como |
 |---|---|
 | Ajustar termos, marcas, exclusões ou ofertas | Editar o `ofertas_tls_radar.json` e enviar em **Usuários > Base de ofertas** (a próxima coleta reclassifica tudo). O JSON é a única fonte das palavras-chave |
-| Criar usuário / redefinir senha / desativar | Menu **Usuários** (admin) |
+| Criar usuário / redefinir senha / desativar / papel (vendedor, gestor, admin) | Menu **Usuários** (admin) |
+| Atualizar atestados ou carteira de territórios | **Usuários > Atestados e territórios** (vale a partir da próxima coleta) |
 | Fazer uma nova busca agora | Botão **Nova busca** no Dashboard (ou Actions → Atualizar Radar TLS → Run workflow) |
 | Mudar frequência | `cron` em `.github/workflows/update-radar.yml` |
 | Quando um registro sai do site | `config/fontes.yml > vencimento` (só sai ao vencer; a base guarda tudo) |

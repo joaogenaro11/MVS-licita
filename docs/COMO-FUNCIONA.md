@@ -19,7 +19,7 @@ Site (GitHub Pages): https://joaogenaro11.github.io/MVS-licita/  → pede login;
 
 | Tipo | Quando | Duração |
 |---|---|---|
-| Automática | Todos os dias às **06:23** e **17:41** (Brasília) | até ~2h30 |
+| Automática | Todos os dias às **11:07** e **18:07** (Brasília) | até ~2h30 |
 | Manual ("Nova busca") | Quando vocês quiserem | ~40 min por padrão |
 
 - O GitHub às vezes **atrasa** as buscas automáticas (minutos ou algumas horas). Elas acontecem mesmo assim.
@@ -57,9 +57,29 @@ direto o detalhe e exige login, como o resto do site; se a oportunidade já venc
 
 - Cada pessoa entra com **usuário e senha**. No primeiro acesso (e depois de uma redefinição) o site pede para criar uma senha pessoal.
 - **Seus:** favoritos (estrela), filtro Tudo/Logo/MVS, filtros, ordenação e buscas salvas. Ninguém mais vê.
-- **Da equipe:** status comercial, responsável, observação, próximo acompanhamento, órgãos prioritários e parceiros.
-- **Administrador:** menu **Usuários** para criar usuário, redefinir senha, **ver a senha temporária** de quem ainda não
-  entrou (fica guardada criptografada até a pessoa criar a própria senha), desativar/reativar e enviar nova versão da base de ofertas.
+- **Seu CRM:** cada vendedor tem o próprio funil. No detalhe da oportunidade, **Salvar no meu CRM** e depois: etapa
+  (Novo, Qualificando, Proposta, Negociação, Ganho, Perdido, Descartado), próximo acompanhamento, **código da oportunidade / SC**,
+  valor do negócio, parceiro, motivo da perda, observação e um histórico com notas (cada mudança fica registrada).
+  O menu **CRM** mostra os **acompanhamentos de hoje** (e os atrasados), os próximos 7 dias, os pedidos do gestor e o funil;
+  exporta CSV. O número vermelho no menu = acompanhamentos de hoje + pedidos não vistos.
+- **Gestor (master):** vê o CRM de todos, filtra por vendedor (tabela "Equipe" com abertos, atrasados, propostas, ganhos e
+  valor) e, no detalhe, **pede para um vendedor olhar** a oportunidade, com mensagem e data. O vendedor vê o pedido no CRM.
+- **Da equipe:** órgãos prioritários e parceiros (configuração comercial).
+- **Administrador:** menu **Usuários** para criar usuário, escolher o papel (vendedor, gestor ou administrador), redefinir
+  senha, **ver a senha temporária** de quem ainda não entrou (fica guardada criptografada até a pessoa criar a própria
+  senha), desativar/reativar e enviar nova versão da base de ofertas, dos atestados e dos territórios.
+
+## Atestados, territórios e região
+
+- **Atestados:** cada oportunidade TLS é comparada com a base privada de atestados de capacidade técnica. **Atende** = o
+  texto publicado pede o que o atestado comprova (ex.: tecnologia + serviço no mesmo texto); **Próximo** = cobre parte
+  (mesma tecnologia sem o serviço, ou o serviço com outra marca). Filtro **Atestados** em Oportunidades e Atas; o detalhe
+  lista quais atestados casaram e por quais termos. Validação humana sempre (o edital manda).
+- **Territórios:** o órgão é procurado na carteira de clientes (por CNPJ ou pelo nome, desempatando pela UF) e recebe o
+  vendedor BSB e o de renovação. Filtro **Território (vendedor)**, com "Meu território" quando o nome do login bate com o
+  da carteira, e "Fora da carteira". Os órgãos públicos da carteira com CNPJ encontrado entram na varredura por órgão.
+- **Região:** Nacional (padrão), DF + órgãos federais, Norte, Nordeste, Centro-Oeste, Sudeste ou Sul.
+- As duas bases ficam só no banco protegido (nunca no GitHub nem no site público); quem tem login vê só o resultado.
 
 ## Como um registro é classificado
 

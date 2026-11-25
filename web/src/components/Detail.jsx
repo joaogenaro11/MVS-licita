@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ESFERAS, fmtDate, money } from '../lib/format.js'
 import { matchesPartner, matchesPriority } from '../lib/filters.js'
-import { STATUS_COMERCIAL } from '../lib/private.js'
+import CRMSection from './CRMSection.jsx'
 import { linkDe } from '../lib/link.js'
 import { ADESAO, Badge, dateOrNA, ExtLink, FAIXA, FamiliaChips, Highlight, inputCls, KV, PortalLinks, PortfolioBadge, RELACAO, ScoreBadge, Selos, Star, TIPO, valueOrNA, VIGENCIA } from './ui.jsx'
 
@@ -141,7 +141,9 @@ export default function Detail({ r, meta, ctx, onClose }) {
         <Docs title="Documentos oficiais" docs={r.documentos} />
         {isAta ? <Docs title="Documentos da contratação de origem (edital/TR)" docs={r.documentos_compra} /> : null}
 
-        <Tracking r={r} ctx={ctx} />
+        <AtestadosSection c={c} L={L} />
+
+        <CRMSection r={r} ctx={ctx} Section={Section} />
 
         <Section title="Coleta">
           <div className="grid grid-cols-2 gap-x-6 sm:grid-cols-4">
@@ -259,36 +261,42 @@ function Docs({ title, docs }) {
   )
 }
 
-function Tracking({ r, ctx }) {
-  const t = ctx.tracking.rows[r.id] || {}
-  const [form, setForm] = useState({ status: t.status || '', responsavel: t.responsavel || '', observacao: t.observacao || '', proximo_acompanhamento: t.proximo_acompanhamento || '' })
-  const [msg, setMsg] = useState('')
-  const shared = ctx.tracking.shared
-  const save = async () => {
-    try { await ctx.tracking.save(r.id, r.tipo, form); setMsg('Salvo.') } catch (e) { setMsg(`Erro: ${e.message}`) }
-  }
+/** Atestados de capacidade técnica que cobrem o objeto e território comercial do órgão (bases privadas). */
+const NIVEL = {
+  atende: { label: 'Atende', cls: 'bg-[#defbe6] text-[#0e6027] ring-[#a7f0ba]', txt: 'o atestado cobre o que está sendo pedido' },
+  proximo: { label: 'Próximo', cls: 'bg-[#fcf4d6] text-[#8e6a00] ring-[#f1c21b]', txt: 'cobre parte; conferir o que falta (marca, serviço ou escopo)' },
+}
+function AtestadosSection({ c, L }) {
+  const at = c.atestados
+  const t = c.territorio
+  if (!at && !t) return null
+  const info = Object.fromEntries((L.atestados || []).map((a) => [a.id, a]))
   return (
-    <Section title="Acompanhamento comercial (equipe)" right={<span className="text-[11px] text-muted">{shared ? 'Compartilhado com a equipe' : 'Somente neste navegador'}</span>}>
-      {!shared ? (
-        <p className="mb-2 text-[12px] text-[#8e6a00]">Banco compartilhado não configurado: estes dados ficam apenas neste computador/navegador.</p>
-      ) : <p className="mb-2 text-[11px] text-muted">Status, responsável e observação são vistos por toda a equipe. O favorito (estrela) é pessoal.</p>}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <label className="flex flex-col gap-1 text-[11px] text-ink-2">Status comercial
-          <select className={inputCls} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-            <option value="">—</option>{STATUS_COMERCIAL.map((s) => <option key={s}>{s}</option>)}
-          </select></label>
-        <label className="flex flex-col gap-1 text-[11px] text-ink-2">Responsável
-          <input className={inputCls} value={form.responsavel} onChange={(e) => setForm({ ...form, responsavel: e.target.value })} /></label>
-        <label className="flex flex-col gap-1 text-[11px] text-ink-2">Próximo acompanhamento
-          <input type="date" className={inputCls} value={form.proximo_acompanhamento} onChange={(e) => setForm({ ...form, proximo_acompanhamento: e.target.value })} /></label>
-        <label className="flex flex-col gap-1 text-[11px] text-ink-2 sm:col-span-3">Observação
-          <textarea rows={3} className={`${inputCls} h-auto py-2`} value={form.observacao} onChange={(e) => setForm({ ...form, observacao: e.target.value })} /></label>
-      </div>
-      <div className="mt-2 flex items-center gap-3">
-        <button onClick={save} className="bg-ink px-4 py-1.5 text-[13px] text-white hover:bg-ink-2">Salvar acompanhamento</button>
-        <span className="text-[12px] text-muted">{msg}</span>
-        {t.updated_by ? <span className="text-[11px] text-muted">Última edição: {t.updated_by} em {fmtDate(t.updated_at, true)}</span> : null}
-      </div>
+    <Section title="Atestados e território">
+      {t ? (
+        <div className="mb-3 grid grid-cols-1 gap-x-6 sm:grid-cols-3">
+          <KV k="Vendedor BSB (território)" v={t.bsb || '—'} />
+          <KV k="Vendedor de renovação" v={t.renovacao || '—'} />
+          <KV k="Conta na carteira" v={`${t.conta || '—'}${t.uf ? ` (${t.uf})` : ''}${t.via === 'nome' ? ' · pelo nome' : ''}`} />
+        </div>
+      ) : <p className="mb-3 text-[12px] text-muted">Órgão não encontrado na carteira de territórios.</p>}
+      {at?.lista?.length ? (
+        <ul className="flex flex-col gap-2 text-[13px]">
+          {at.lista.map((a) => {
+            const n = NIVEL[a.nivel] || NIVEL.proximo
+            const extra = info[a.id] || {}
+            return (
+              <li key={a.id} className="flex flex-col gap-0.5">
+                <span><Badge className={n.cls} title={n.txt}>{n.label}</Badge> <strong>{a.titulo}</strong></span>
+                <span className="text-[12px] text-ink-2">{[a.tipo, a.emissor && `emitido por ${a.emissor}`, a.titular && `em nome de ${a.titular}`, extra.data].filter(Boolean).join(' · ')}</span>
+                {extra.escopo ? <span className="text-[11px] text-muted">Escopo: {extra.escopo}</span> : null}
+                {(a.termos || []).length ? <span className="text-[11px]">Casou: {a.termos.map((x) => <mark key={x} className="mr-1 bg-[#fcf4d6] px-0.5">{x}</mark>)}</span> : null}
+              </li>
+            )
+          })}
+        </ul>
+      ) : <p className="text-[12px] text-muted">Nenhum atestado da base cobre este objeto.</p>}
+      <p className="mt-2 text-[11px] text-muted">“Atende” = o texto publicado pede o que o atestado comprova; “Próximo” = cobre parte (ex.: mesma tecnologia sem o serviço, ou o serviço com outra marca). Confira sempre o edital.</p>
     </Section>
   )
 }

@@ -22,6 +22,7 @@ from zoneinfo import ZoneInfo
 import yaml
 
 from . import __version__
+from .comercial import BaseAtestados, BaseTerritorios
 from .ofertas import BaseOfertas, OfertasError, norm as norm_ofertas
 from .normalize import (STAGE_LABELS, adesao_assessment, compra_ids, normalize_ata, normalize_contratacao,
                         normalize_contrato, normalize_pca_items, portal_name, refresh_ata_vigencia,
@@ -79,6 +80,15 @@ class Runner:
         self.cobertura = self.cfg.get("cobertura") or {}
         self._ti_generico = self._build_ti_generico()
         self.orgaos_relevantes = carregar_orgaos(self.config_dir, self.cobertura.get("orgaos_relevantes_arquivo"))
+        # contas da carteira (territórios, base privada) com CNPJ conhecido entram na varredura por órgão
+        try:
+            terr = BaseTerritorios.load()
+        except Exception as exc:  # noqa: BLE001 — a carteira é complemento; sem ela a coleta segue
+            log.warning("base de territórios indisponível: %s", exc)
+            terr = None
+        if terr:
+            ja = {o["cnpj"] for o in self.orgaos_relevantes}
+            self.orgaos_relevantes += [o for o in terr.cnpjs() if o["cnpj"] not in ja]
         self.counters = {"vistos": 0, "novos": 0, "atualizados": 0}
 
     # ----------------------------------------------------------- utilidades
@@ -751,6 +761,32 @@ def classificar_registro(base: BaseOfertas, item: dict) -> dict:
 ESTAGIOS_ABERTOS = {"propostas_abertas", "publicada", "preparacao"}
 
 
+def _bases_comerciais() -> tuple[BaseAtestados | None, BaseTerritorios | None]:
+    """Atestados e territórios (bases privadas). Sem elas, o site só não mostra esses filtros."""
+    out = []
+    for cls in (BaseAtestados, BaseTerritorios):
+        try:
+            out.append(cls.load())
+        except Exception as exc:  # noqa: BLE001
+            log.warning("base %s indisponível: %s", cls.__name__, exc)
+            out.append(None)
+    return out[0], out[1]
+
+
+def aplicar_comercial(rec: dict, c: dict, atestados: BaseAtestados | None, territorios: BaseTerritorios | None) -> None:
+    """Acrescenta à classificação (privada) o nível de atestado e o território da conta."""
+    if atestados and c.get("tls"):
+        compra = rec.get("compra") or {}
+        if rec.get("tipo") == "pca":
+            textos = [" | ".join(t for t in (rec.get("objeto"), rec.get("info_complementar")) if t)]
+        else:
+            textos = [rec.get("objeto"), rec.get("info_complementar"), compra.get("objeto"), compra.get("info_complementar")]
+            textos += [i.get("descricao") for i in rec.get("itens") or []] or (rec.get("itens_texto") or "").split(" | ")
+        c["atestados"] = atestados.avaliar(textos)
+    if territorios:
+        c["territorio"] = territorios.territorio(rec)
+
+
 def carregar_orgaos(config_dir: Path, arquivo: str | None) -> list[dict]:
     """Lista de órgãos relevantes (config/orgaos_relevantes.yml): [{cnpj, nome, grupo}]."""
     if not arquivo:
@@ -803,8 +839,10 @@ def export_site(data_dir: Path, out_dir: Path, config_dir: Path, ofertas: BaseOf
     store = Store(data_dir).load()
     now = datetime.now(TZ).replace(tzinfo=None)
     removidos = {"vencidos": 0}
+    atestados, territorios = _bases_comerciais()
     for r in list(store.items.values()) + list(store.atas.values()):
-        r["classificacao"] = classificar_registro(base, r)
+        r["classificacao"] = c = classificar_registro(base, r)
+        aplicar_comercial(r, c, atestados, territorios)
 
     def keep(r: dict) -> bool:
         """Fica no site enquanto não vencer. Entra quando casa alguma oferta TLS e, depois
@@ -823,6 +861,12 @@ def export_site(data_dir: Path, out_dir: Path, config_dir: Path, ofertas: BaseOf
     atas = [_compact(a) for a in store.atas.values() if keep(a)]
     out = Path(out_dir)
     lookups = {"estagios": STAGE_LABELS, **base.resumo_publico()}
+    if atestados:
+        lookups["atestados"] = [{"id": a.id, "titulo": a.titulo, "tipo": a.tipo, "emissor": a.emissor,
+                                 "titular": a.titular, "escopo": a.escopo, "data": a.data} for a in atestados.atestados]
+    if territorios:
+        lookups["territorios"] = sorted({v for c in territorios.contas for v in (c.get("bsb"), c.get("renovacao"))
+                                         if v and v not in ("N/A", "TBD", "Unassigned")})
     write_json_atomic(out / "opportunities.json", {"gerado_em": store.meta.get("gerado_em"), "items": items}, compact=True)
     write_json_atomic(out / "atas.json", {"gerado_em": store.meta.get("gerado_em"), "items": atas}, compact=True)
     meta = dict(store.meta)
