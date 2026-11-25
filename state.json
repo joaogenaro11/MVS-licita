@@ -1,9 +1,9 @@
 {
  "contratacoes_atualizacao": {
-  "ate": "2026-11-16"
+  "ate": "2026-11-15"
  },
  "atas_atualizacao": {
-  "ate": "2026-11-25"
+  "ate": "2026-11-24"
  },
  "contratos_atualizacao": {
   "ate": "2026-11-08"
@@ -11389,7 +11389,9 @@
   ]
  },
  "propostas_abertas": {
-  "ultimo_snapshot": "2026-11-04"
+  "ultimo_snapshot": "2026-11-04",
+  "iniciado_em": "2026-11-25",
+  "pagina": 2
  },
  "pca": {
   "feitos": [
@@ -11431,5 +11433,8 @@
   "em": "2026-11-09T13:53:24-03:00",
   "mantidos": 0,
   "retirados": 0
+ },
+ "orgaos_relevantes": {
+  "proximo": 10
  }
 }
