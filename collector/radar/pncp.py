@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import logging
 import random
+import threading
 import time
 from dataclasses import dataclass, field
 from typing import Any, Iterator
@@ -76,18 +77,44 @@ class PNCPClient:
         self.min_interval = min_interval
         self.base_interval = min_interval
         self.max_interval = 8.0
+        self._session_fixa = session is not None   # sessão injetada (testes): a mesma para todos
+        self._headers = {"User-Agent": user_agent, "Accept": "application/json"}
         self.session = session or requests.Session()
-        self.session.headers.update({"User-Agent": user_agent, "Accept": "application/json"})
+        self.session.headers.update(self._headers)
         self.stats = ClientStats()
         self._sleep = sleep
         self._last_request = 0.0
+        # consultas em paralelo (varredura por órgão): o espaçamento entre inícios de requisição,
+        # o ritmo adaptativo e as estatísticas ficam sob trava; cada thread tem a própria sessão HTTP
+        self._lock = threading.Lock()
+        self._local = threading.local()
+        self._main = threading.get_ident()
+
+    def _sessao(self) -> requests.Session:
+        if self._session_fixa or threading.get_ident() == self._main:
+            return self.session
+        s = getattr(self._local, "session", None)
+        if s is None:
+            s = self._local.session = requests.Session()
+            s.headers.update(self._headers)
+        return s
+
+    def _conta(self, campo: str, status: int | None = None) -> None:
+        with self._lock:
+            if campo == "status":
+                self.stats.by_status[status] = self.stats.by_status.get(status, 0) + 1
+            else:
+                setattr(self.stats, campo, getattr(self.stats, campo) + 1)
 
     # ------------------------------------------------------------------ core
     def _throttle(self) -> None:
-        wait = self.min_interval - (time.monotonic() - self._last_request)
-        if wait > 0:
-            self._sleep(wait)
-        self._last_request = time.monotonic()
+        # reserva o próximo horário de início sob a trava e espera fora dela
+        with self._lock:
+            agora = time.monotonic()
+            inicio = max(agora, self._last_request + self.min_interval)
+            self._last_request = inicio
+        if inicio > agora:
+            self._sleep(inicio - agora)
 
     def get_json(self, url: str, params: dict[str, Any] | None = None) -> Any | None:
         """GET com retry. Retorna JSON, ou None para HTTP 204 (sem conteúdo)."""
@@ -95,25 +122,27 @@ class PNCPClient:
         status: int | None = None
         for attempt in range(1, self.max_attempts + 1):
             self._throttle()
-            self.stats.requests += 1
+            self._conta("requests")
             try:
-                resp = self.session.get(url, params=params, timeout=self.timeout)
+                resp = self._sessao().get(url, params=params, timeout=self.timeout)
                 status = resp.status_code
-                self.stats.by_status[status] = self.stats.by_status.get(status, 0) + 1
+                self._conta("status", status)
                 if status == 204:
-                    self.stats.no_content += 1
+                    self._conta("no_content")
                     return None
                 if status == 200:
                     # recupera a velocidade aos poucos após limitação (429)
-                    self.min_interval = max(self.base_interval, self.min_interval * 0.97)
+                    with self._lock:
+                        self.min_interval = max(self.base_interval, self.min_interval * 0.97)
                     if not resp.content:
-                        self.stats.no_content += 1
+                        self._conta("no_content")
                         return None
                     return resp.json()
                 if status == 429:
                     # limite de requisições do PNCP: desacelera de forma adaptativa
-                    self.min_interval = min(self.max_interval, max(self.min_interval * 1.6, self.base_interval * 2, 1.0))
-                    self.stats.throttled += 1
+                    with self._lock:
+                        self.min_interval = min(self.max_interval, max(self.min_interval * 1.6, self.base_interval * 2, 1.0))
+                    self._conta("throttled")
                 if status in RETRY_STATUS:
                     last_exc = SourceError(f"HTTP {status}", status=status, url=resp.url)
                     retry_after = resp.headers.get("Retry-After")
@@ -121,18 +150,18 @@ class PNCPClient:
                 else:
                     # 4xx não-transitório: erro de parâmetro/contrato. Não insistir.
                     body = resp.text[:300].replace("\n", " ")
-                    self.stats.failures += 1
+                    self._conta("failures")
                     raise SourceError(f"HTTP {status}: {body}", status=status, url=resp.url)
             except (requests.ConnectionError, requests.Timeout, ValueError) as exc:
                 # ValueError: JSON inválido (resposta truncada / página de erro HTML)
                 last_exc = exc
                 delay = self._delay(attempt, None)
             if attempt < self.max_attempts:
-                self.stats.retries += 1
+                self._conta("retries")
                 log.warning("tentativa %d/%d falhou (%s) %s params=%s; aguardando %.1fs",
                             attempt, self.max_attempts, last_exc, url, params, delay)
                 self._sleep(delay)
-        self.stats.failures += 1
+        self._conta("failures")
         raise SourceError(f"falha após {self.max_attempts} tentativas: {last_exc}", status=status, url=url)
 
     def _delay(self, attempt: int, retry_after: str | None) -> float:

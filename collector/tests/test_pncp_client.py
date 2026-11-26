@@ -91,3 +91,19 @@ def test_429_desacelera_e_recupera():
     assert rows == [{"a": 1}]
     assert c.stats.throttled == 1
     assert 0.5 < c.min_interval <= 1.0        # desacelerou e começou a recuperar
+
+
+def test_consultas_em_paralelo_contam_e_espacam_com_seguranca():
+    import threading
+    import time as _t
+
+    class S:
+        headers = {}
+        def get(self, url, params=None, timeout=None):
+            _t.sleep(0.01)
+            return FakeResp(200, {"data": [1], "totalPaginas": 1})
+    c = PNCPClient(session=S(), min_interval=0)
+    ts = [threading.Thread(target=lambda: [c.get_json("u") for _ in range(25)]) for _ in range(4)]
+    [t.start() for t in ts]
+    [t.join() for t in ts]
+    assert c.stats.requests == 100 and c.stats.by_status[200] == 100
