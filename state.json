@@ -1,12 +1,12 @@
 {
  "contratacoes_atualizacao": {
-  "ate": "2026-11-15"
+  "ate": "2026-11-17"
  },
  "atas_atualizacao": {
-  "ate": "2026-11-24"
+  "ate": "2026-11-26"
  },
  "contratos_atualizacao": {
-  "ate": "2026-11-08"
+  "ate": "2026-11-09"
  },
  "ata_links_pendentes": {
   "01763614000198-1-000044/2026-000001": [
@@ -11391,7 +11391,7 @@
  "propostas_abertas": {
   "ultimo_snapshot": "2026-11-04",
   "iniciado_em": "2026-11-25",
-  "pagina": 2
+  "pagina": 304
  },
  "pca": {
   "feitos": [
@@ -11417,14 +11417,14 @@
   "progresso": 18.9
  },
  "backfill_contratacoes": {
-  "limite": "2025-11-25",
-  "progresso": 22.7,
+  "limite": "2025-11-26",
+  "progresso": 23.0,
   "concluido": false,
   "proximo": "2026-09-02"
  },
  "backfill_contratos": {
-  "limite": "2026-10-26",
-  "progresso": 86.7,
+  "limite": "2026-10-27",
+  "progresso": 90.0,
   "concluido": false,
   "proximo": "2026-10-29"
  },
@@ -11435,6 +11435,6 @@
   "retirados": 0
  },
  "orgaos_relevantes": {
-  "proximo": 10
+  "proximo": 157
  }
 }
