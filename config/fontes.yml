@@ -8,6 +8,9 @@ pncp:
   min_interval_s: 1.0        # intervalo mínimo entre requisições (respeito à fonte)
   timeout_s: 60
   max_attempts: 6            # tentativas com backoff exponencial (429/5xx/timeout)
+  # Varredura por órgão: consultas simultâneas. O PNCP às vezes leva ~20 s por resposta (sem 429);
+  # em paralelo o ritmo sobe sem passar do intervalo mínimo entre inícios de requisição acima.
+  orgaos_paralelo: 6
 
   # Modalidades coletadas (códigos PNCP):
   #  4 Concorrência eletrônica | 5 Concorrência presencial | 6 Pregão eletrônico

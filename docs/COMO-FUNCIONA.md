@@ -36,6 +36,8 @@ Site (GitHub Pages): https://joaogenaro11.github.io/MVS-licita/  → pede login;
 2. **Órgãos relevantes** (lista em `config/orgaos_relevantes.yml`, ~400 órgãos: federais de grande porte,
    Judiciário, Ministério Público, Legislativo, empresas de TI, governos estaduais, capitais e universidades):
    os editais abertos de cada um são consultados pelo CNPJ em toda busca; a lista continua de onde parou.
+   Depois dela vêm os órgãos públicos da carteira de territórios (primeiro os que já aparecem na base).
+   São 6 órgãos consultados ao mesmo tempo, porque o PNCP às vezes demora ~20 s por resposta.
 3. **Propostas abertas:** fotografia completa das licitações com prazo aberto (~600 páginas). Não cabe numa
    busca: continua da página em que parou na busca seguinte e, terminada, é refeita a cada 7 dias.
 4. **PCA** (planos de contratação 2026/2027): classes de TIC, uma vez por semana.

@@ -121,6 +121,7 @@ def test_varredura_por_orgao_retoma_do_proximo_orgao(tmp_path):
             pedidos.append(kw.get("cnpj"))
             return iter(())
     r = runner(tmp_path, C())
+    r.cfg["pncp"]["orgaos_paralelo"] = 1          # sequencial: ordem dos pedidos determinística
     r.orgaos_relevantes = [{"cnpj": f"{i:014d}", "nome": str(i)} for i in range(1, 6)]
     r.time_left_for_bulk = lambda: 10_000 if len(pedidos) < 3 else 0
     r.feed_orgaos_relevantes()
@@ -139,3 +140,64 @@ def test_lista_de_orgaos_relevantes_valida_e_sem_repetidos():
     assert len(orgaos) >= 100 and len(cnpjs) == len(set(cnpjs))
     assert all(len(c) == 14 and c.isdigit() for c in cnpjs)
     assert "00348003000110" in cnpjs            # Embrapa
+
+
+def _compra_do_orgao(cnpj, seq):
+    return dict(EMBRAPA, numeroControlePNCP=f"{cnpj}-1-{seq:06d}/2026", sequencialCompra=seq,
+                orgaoEntidade=dict(EMBRAPA["orgaoEntidade"], cnpj=cnpj))
+
+
+def test_varredura_por_orgao_em_paralelo_grava_na_ordem_e_segue_apos_erro(tmp_path):
+    from radar.pncp import SourceError
+
+    class C(ClienteEmbrapa):
+        def contratacoes_proposta(self, d, start_page=1, **kw):
+            cnpj = kw["cnpj"]
+            time.sleep(0.2)                       # PNCP lento: o paralelismo é que dá o ritmo
+            if cnpj.endswith("3"):
+                raise SourceError("HTTP 500", status=500)
+            return iter([[_compra_do_orgao(cnpj, int(cnpj[-1]))]])
+    r = runner(tmp_path, C(compras=[]))
+    r.cfg["pncp"]["orgaos_paralelo"] = 4
+    r.orgaos_relevantes = [{"cnpj": f"{i:014d}", "nome": str(i)} for i in range(1, 9)]
+    ordem = []
+    original = r.ingest_contratacao
+    r.ingest_contratacao = lambda rec, *a, **k: (ordem.append(rec["orgaoEntidade"]["cnpj"]), original(rec, *a, **k))[1]
+    t0 = time.monotonic()
+    r.feed_orgaos_relevantes()
+    assert time.monotonic() - t0 < 8 * 0.2 * 0.6          # bem mais rápido que um por um
+    assert ordem == [f"{i:014d}" for i in (1, 2, 4, 5, 6, 7, 8)]   # ordem da lista; o 3 falhou
+    rec = r.sources["orgaos_relevantes"]
+    assert rec["orgaos"] == 8 and rec["status"] == "parcial" and "1 com erro" in rec["erro"]
+    assert r.store.state["orgaos_relevantes"]["proximo_cnpj"] == "00000000000001"
+
+
+def test_cursor_da_varredura_segue_o_cnpj_mesmo_se_a_lista_mudar(tmp_path):
+    pedidos = []
+
+    class C(FakeClient):
+        def contratacoes_proposta(self, d, start_page=1, **kw):
+            pedidos.append(kw["cnpj"])
+            return iter(())
+    r = runner(tmp_path, C())
+    r.cfg["pncp"]["orgaos_paralelo"] = 1
+    r.orgaos_relevantes = [{"cnpj": f"{i:014d}", "nome": str(i)} for i in range(1, 6)]
+    r.store.state["orgaos_relevantes"] = {"proximo": 1, "proximo_cnpj": "00000000000004"}
+    r.orgaos_relevantes.insert(0, {"cnpj": "00000000000009", "nome": "novo"})   # lista cresceu
+    r.time_left_for_bulk = lambda: 10_000 if len(pedidos) < 1 else 0
+    r.feed_orgaos_relevantes()
+    assert pedidos == ["00000000000004"]
+
+
+def test_orgaos_da_carteira_que_ja_compram_vem_primeiro(tmp_path, monkeypatch):
+    import json
+    from radar.store import Store
+    st = Store(tmp_path).load()
+    st.items["x"] = {"id": "x", "orgao": {"cnpj": "22222222000122"}}
+    st.save("2026-11-26T00:00:00-03:00")
+    monkeypatch.setenv("RADAR_TERRITORIOS_JSON", json.dumps({"versao": "t", "contas": [
+        {"nomes": ["ORGAO A"], "cnpjs": ["11111111000111"], "bsb": "V"},
+        {"nomes": ["ORGAO B"], "cnpjs": ["22222222000122"], "bsb": "V"}]}))
+    r = Runner(tmp_path, CONFIG, budget_min=5, backfill=False)
+    carteira = [o["cnpj"] for o in r.orgaos_relevantes if o.get("grupo") == "Carteira (territórios)"]
+    assert carteira == ["22222222000122", "11111111000111"]

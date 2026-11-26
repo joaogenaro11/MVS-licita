@@ -13,6 +13,8 @@ import logging
 import os
 import re
 import time
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -88,7 +90,11 @@ class Runner:
             terr = None
         if terr:
             ja = {o["cnpj"] for o in self.orgaos_relevantes}
-            self.orgaos_relevantes += [o for o in terr.cnpjs() if o["cnpj"] not in ja]
+            novos = [o for o in terr.cnpjs() if o["cnpj"] not in ja]
+            # primeiro os órgãos da carteira que já aparecem na base (compram TI), depois os demais
+            na_base = {(r.get("orgao") or {}).get("cnpj") for r in self.store.items.values()}
+            na_base |= {(a.get("orgao") or {}).get("cnpj") for a in self.store.atas.values()}
+            self.orgaos_relevantes += sorted(novos, key=lambda o: o["cnpj"] not in na_base)
         self.counters = {"vistos": 0, "novos": 0, "atualizados": 0}
 
     # ----------------------------------------------------------- utilidades
@@ -395,30 +401,60 @@ class Runner:
     def feed_orgaos_relevantes(self) -> None:
         """Editais abertos de cada órgão da lista (consulta pelo CNPJ), em toda execução: garante
         a cobertura dos órgãos de grande porte mesmo quando o snapshot geral ainda não terminou.
-        Objeto genérico de TI desses órgãos entra como candidato (os itens decidem)."""
+        Objeto genérico de TI desses órgãos entra como candidato (os itens decidem).
+
+        O PNCP demora a responder (há dias de ~20 s por consulta, sem limitação 429): os órgãos
+        são consultados em paralelo (pncp.orgaos_paralelo) e gravados na ordem da lista; o
+        cursor guarda o CNPJ do próximo órgão, para a próxima execução continuar dele."""
         orgaos = self.orgaos_relevantes
         if not orgaos:
             return
+        n = len(orgaos)
         deadline = self._feed_deadline("orgaos_relevantes")
+        paralelo = max(1, int(self.cfg["pncp"].get("orgaos_paralelo", 4)))
         with self.feed("orgaos_relevantes") as rec:
             st = self.store.state.setdefault("orgaos_relevantes", {})
-            i0 = int(st.get("proximo") or 0) % len(orgaos)
-            horizon = self.today + timedelta(days=self.cfg["pncp"].get("propostas_horizonte_dias", 365))
-            feitos = 0
-            for k in range(len(orgaos)):
-                idx = (i0 + k) % len(orgaos)
-                if self.time_left_for_bulk() < 60 or time.monotonic() > deadline:
-                    st["proximo"] = idx
-                    rec["status"] = "parcial"
-                    rec["erro"] = f"{feitos} de {len(orgaos)} órgãos nesta execução; continua do próximo"
-                    rec["orgaos"] = feitos
-                    return
-                for rows in self.client.contratacoes_proposta(d2s(horizon), cnpj=orgaos[idx]["cnpj"]):
-                    for r in rows:
-                        self.ingest_contratacao(r, "orgaos", orgao_relevante=True)
-                feitos += 1
-            st["proximo"] = 0
+            pos_cnpj = {o["cnpj"]: i for i, o in enumerate(orgaos)}
+            i0 = pos_cnpj.get(st.get("proximo_cnpj"), int(st.get("proximo") or 0) % n)
+            ordem = [(i0 + k) % n for k in range(n)]
+            horizon = d2s(self.today + timedelta(days=self.cfg["pncp"].get("propostas_horizonte_dias", 365)))
+
+            def buscar(o: dict) -> list[dict]:
+                return [r for rows in self.client.contratacoes_proposta(horizon, cnpj=o["cnpj"]) for r in rows]
+
+            def sem_tempo() -> bool:
+                return self.time_left_for_bulk() < 60 or time.monotonic() > deadline
+
+            feitos, falhas, enviados = 0, [], 0
+            pendentes: deque = deque()
+            with ThreadPoolExecutor(max_workers=paralelo, thread_name_prefix="orgao") as ex:
+                while enviados < n or pendentes:
+                    while enviados < n and len(pendentes) < paralelo and not sem_tempo():
+                        idx = ordem[enviados]
+                        pendentes.append((idx, ex.submit(buscar, orgaos[idx])))
+                        enviados += 1
+                    if not pendentes:
+                        break
+                    idx, fut = pendentes.popleft()
+                    try:
+                        for r in fut.result():
+                            self.ingest_contratacao(r, "orgaos", orgao_relevante=True)
+                    except SourceError as exc:   # um órgão com erro não para a varredura
+                        log.warning("órgão %s: %s", orgaos[idx]["cnpj"], exc)
+                        falhas.append(orgaos[idx]["cnpj"])
+                    feitos += 1
             rec["orgaos"] = feitos
+            rec["paralelo"] = paralelo
+            if feitos < n:
+                proximo = ordem[feitos]
+                st["proximo"], st["proximo_cnpj"] = proximo, orgaos[proximo]["cnpj"]
+                rec["status"] = "parcial"
+                rec["erro"] = f"{feitos} de {n} órgãos nesta execução; continua do próximo"
+            else:
+                st["proximo"], st["proximo_cnpj"] = 0, orgaos[0]["cnpj"]
+            if falhas:
+                rec["status"] = "parcial"
+                rec["erro"] = (rec.get("erro") or f"{feitos} de {n} órgãos") + f"; {len(falhas)} com erro no PNCP (refeitos na próxima volta)"
 
     def feed_pca(self) -> None:
         """PCA: consulta /v1/pca/ apenas nas classes CATMAT/CATSER de TIC configuradas
