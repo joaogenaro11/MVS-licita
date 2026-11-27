@@ -11391,7 +11391,7 @@
  "propostas_abertas": {
   "ultimo_snapshot": "2026-11-04",
   "iniciado_em": "2026-11-25",
-  "pagina": 302
+  "pagina": 411
  },
  "pca": {
   "feitos": [
@@ -11435,6 +11435,6 @@
   "retirados": 0
  },
  "orgaos_relevantes": {
-  "proximo": 164
+  "proximo": 207
  }
 }
